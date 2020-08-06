@@ -60,8 +60,7 @@ var isCrossIndented = false;
 var isMarkIndented = false;
 var isCommentMarkIndented = false;
 
-varv isOrientationChanged = false.
-
+var isOrientationChanged = false;
 
 var commentFromFile = "";
 var labelForMark = "";
