@@ -40,6 +40,10 @@ Once the above steps have been taken, JS files will load and execute automatical
 To view the interactive console: Ctrl-J
 To execute JS code in the debugger, highlight the code and press Ctrl-Enter
 
+If you are installing the applicattion manually, you then also need to ensure that the image assets are stored in the folder, as defined in the config.js file.
+ - The source resource files are stored at: [REPO_ROOT]]\src\MarkingTool\v1.8\res
+ - The files should be copied to: C:\Program Files\UNISA
+
 Getting the toolbar to load is quite finicky:
  - The PDF should NOT be protected
  - Acrobat should be loaded with an open document
