@@ -17,6 +17,8 @@ For some background on Acrobat JavaScript, have a look at these links:
 * https://community.adobe.com/t5/acrobat/executing-folder-level-javascrips-in-acrobat-pro-dc/td-p/10214266?page=1 
 * https://www.pdfscripting.com/public/Installing_Automation_Tools.cfm
 
+### Manually installing the application
+
 The tool consists of 2 JavaScript files that are loaded at runtime. These JavaScript files enable a marking toolbar to become available to the end user.
 
 Firstly, you should ensure that JavaScript is enabled in Acrobat:
@@ -37,12 +39,12 @@ All javascript files that are stored in this location will be automatically load
 
 Once the above steps have been taken, JS files will load and execute automatically on Acrobat Startup. 
 
-To view the interactive console: Ctrl-J
-To execute JS code in the debugger, highlight the code and press Ctrl-Enter
-
-If you are installing the applicattion manually, you then also need to ensure that the image assets are stored in the folder, as defined in the config.js file.
- - The source resource files are stored at: [REPO_ROOT]]\src\MarkingTool\v1.8\res
+Additionally, the JS files reference some source image files. So if you are installing the application manually, you also need to ensure that the image assets are stored in the folder, as defined in the config.js file.
+ - The source resource files are stored at: [REPO_ROOT]\src\MarkingTool\v1.8\res
  - The files should be copied to: C:\Program Files\UNISA
+
+### Testing Acrobat Plugin
+Once the above is in place you can open a test PDF file and confirm that the marking tool works
 
 Getting the toolbar to load is quite finicky:
  - The PDF should NOT be protected
@@ -53,13 +55,23 @@ If all goes well, you should see a new section titled "Add On Tools" in the Tool
 
 If things don't go well, you will see the error in the JavaScript Console. Usually this is an error related to the plugin not being able to find the document. The error is: "TypeError: aNewDoc is undefined"
 
-Another note: Based on the code I'm seeing, I suspect the plugin would only work if ONLY one document is open at a time.
+To view the interactive console: Ctrl-J
 
-The toolbar references icons that need to be placed in a specific location on the machine
+To execute JS code in the debugger, highlight the code and press Ctrl-Enter
+
+### General Notes about the plugin
+
+- Based on the code I'm seeing, I suspect the plugin would only work if ONLY one document is open at a time.
+- The toolbar references icons that need to be placed in a specific location on the machine (See notes above)
 
 ## Windows Installer
 
 The installer is built using NSIS (Nullsoft Scriptable Install System)
+
+For some backgroun on the NSIS tool, have a look at these links:
+* https://nsis.sourceforge.io/Main_Page
+
+NSIS is a script-driven installation system. Effectively you create a script, written in the proprietary NSIS language. This script is the used the NSIS system to generate an exe installer. The script for the marking tool is stored at: [REPO_ROOT]\src\MarkingTool\v1.8\installer\WIN
 
 Basically it does the following:
 * Creates a suitable folder for storing assets (Program Files/UNISA)

@@ -1,10 +1,9 @@
 ; UNISA Marking Tool Installer example
-; Written by kyle Bowden
+; Written by Kyle Bowden
 ; Updated for Acrobat DC by Greg Fullard
 
 ; --------------------------------
 
-!include MultiUser.nsh
 !include LogicLib.nsh
 !include MUI2.nsh
 !include x64.nsh
@@ -12,18 +11,39 @@
 !define MUI_ICON "setup.ico"
 !define MUI_UNICON "setup.ico"
 
-!define MULTIUSER_EXECUTIONLEVEL Highest
+# Define the user execution level required to install the application.
+# Since the acrobat folder is projected, we required Admin privileges. By including
+# This command here, the installer will for UAC on the windows environment
+!define MULTIUSER_EXECUTIONLEVEL Admin
+!include MultiUser.nsh
 
+# Variables used specifically for the marking tool installation
+
+# MARKING_TOOL_VERSION
+# Version of the tool and the corresponding installer. Only used in the file name of the installer and uninstaller 
 !define MARKING_TOOL_VERSION "v1.8"
+
+# ADOBE_ACROBAT_MIN_VERSION
+# Lowest version of Acrobat that must exist on the machange to allow installation of the tool
 !define ADOBE_ACROBAT_MIN_VERSION "DC"
+
+# ADOBE_ACROBAT_JAVASCRIPTS_PATH
+# Sub-folder inside the Acrobat installation folder where the Javascript files should be stored
 !define ADOBE_ACROBAT_JAVASCRIPTS_PATH "\Javascripts"
+
+# JAVASCRIPTS_UNINSTALL_REG_KEY
+# Windows registry key that should be used for the uninstaller
 !define JAVASCRIPTS_UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\UNISA"
 
+# This function will be called when the uninstaller is nearly finished initializing
 Function un.onInit
+  # Verifies that the required multi-user execution level has been granted
   !insertmacro MULTIUSER_UNINIT
 FunctionEnd
 
+# This function will be called when the installer is nearly finished initializing
 Function .onInit
+  # Verifies that the required multi-user execution level has been granted
   !insertmacro MULTIUSER_INIT
 
  # Greg testing - START
@@ -55,6 +75,12 @@ Function .onInit
     call hardCodeAcrobatPaths
     StrCpy $INSTDIR "$PROGRAMFILES\UNISA"
   ${EndIf}
+
+  # Greg testing - START
+  MessageBox MB_OK "Installation Folder: $INSTDIR"
+  MessageBox MB_OK "Acrobat folder: $3"
+
+  # Greg testing - END
 FunctionEnd
  
 ; Function checkForAcrobat
@@ -85,6 +111,7 @@ FunctionEnd
 
 ; FunctionEnd
 
+
 Function hardCodeAcrobatPaths
   StrCpy $3 "C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Javascripts"
 FunctionEnd
@@ -92,7 +119,7 @@ FunctionEnd
 Function configureAdobeAcrobatPaths
   # test if Adobe Acrobat is installed
   # Greg: This below code is definitely wrong - It will only fail if there isn't a single Adobe product on the machine
-  # I suspect it should rather loop through all the Adober entries and compare them against a string
+  # I suspect it should rather loop through all the Adobe entries and compare them against a string
   EnumRegKey $0 HKCU "Software\Adobe" "Adobe Acrobat"
   ;MessageBox MB_OK "$0"
   ${if} ${Errors}
