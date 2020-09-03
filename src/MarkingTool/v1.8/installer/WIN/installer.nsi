@@ -1,7 +1,6 @@
 ; UNISA Marking Tool Installer
 ; Written by Kyle Bowden
-; Updated for Acrobat DC by Greg Fullard
-
+; Mostly rewritten for Acrobat DC by Greg Fullard
 ; --------------------------------
 
 !include LogicLib.nsh
@@ -22,10 +21,6 @@
 # MARKING_TOOL_VERSION
 # Version of the tool and the corresponding installer. Only used in the file name of the installer and uninstaller 
 !define MARKING_TOOL_VERSION "v1.8"
-
-# ADOBE_ACROBAT_MIN_VERSION
-# Lowest version of Acrobat that must exist on the machange to allow installation of the tool
-!define ADOBE_ACROBAT_MIN_VERSION "DC"
 
 # ADOBE_ACROBAT_JAVASCRIPTS_PATH
 # Sub-folder inside the Acrobat installation folder where the Javascript files should be stored
@@ -64,37 +59,28 @@ Function .onInit
   # If not, abort
   Var /GLOBAL ACROBAT_VERSION
   StrCpy $ACROBAT_VERSION "Unknown"
-  
+  Var /GLOBAL ACROBAT_FULL_KEY
+  StrCpy $ACROBAT_FULL_KEY "Unknown"
+
   call checkForAcrobatAndVersion
   ${If} $ACROBAT_VERSION == "Unknown"
     MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
     Abort
-  ${Else}
-    MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
+  #${Else}
+  #  MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
   ${EndIf}  
 
   # Configure expected installation folder for Acrobat
-  # TODO
-  ;call configureAdobeAcrobatPaths
-  call hardCodeAcrobatPaths
   Var /GLOBAL ACROBAT_FOLDER
-  StrCpy $ACROBAT_FOLDER $3
+  call deriveAcrobatJsPath
 
   # Make relevant registry entries that will apply Acrobat setting changes
-  # TODO
-
-
-  ################################################
-  # Greg testing - START (Delete this when we are done)
-  #MessageBox MB_OK "Installation Folder: $INSTDIR"
-  #MessageBox MB_OK "Acrobat folder: $ACROBAT_FOLDER"
-
-  # Greg testing - END
-  #################################################
+  call makeRegistryEntries
 
 FunctionEnd
  
-
+# This function checks whether Acrobat is installed. If it is, it continues to check which
+# version
 Function checkForAcrobatAndVersion
   ClearErrors
 
@@ -122,64 +108,38 @@ Function checkForAcrobatAndVersion
 
     ${If} $ACROBAT_SUB_KEY == "DC"
       StrCpy $ACROBAT_VERSION "DC"
+      StrCpy $ACROBAT_FULL_KEY "Software\Adobe\Adobe Acrobat\$ACROBAT_SUB_KEY"
       Goto done
     ${EndIf}  
    
     IntOp $7 $7 + 1 
     Goto loop
-    #MessageBox MB_YESNO|MB_ICONQUESTION "$ACROBAT_SUB_KEY$\n$\nMore?" IDYES loop
   done:
 
 FunctionEnd
 
-
-Function hardCodeAcrobatPaths
-  StrCpy $3 "C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Javascripts"
+# Depending on the version of Acrobat, this function will derive the correct path for the 
+# Javascripts. Currently we only do this for DC, but theoretically it will be easy to 
+# update the script in the future with new version markers
+Function deriveAcrobatJsPath
+    ${If} $ACROBAT_VERSION == "DC"
+      StrCpy $ACROBAT_FOLDER "C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Javascripts"
+    ${EndIf}  
 FunctionEnd
 
-# Computer\HKEY_CURRENT_USER\SOFTWARE\Adobe\Adobe Acrobat\DC\JSPrefs
-Function configureAdobeAcrobatPaths
-  # test if Adobe Acrobat is installed
-  # Greg: This below code is definitely wrong - It will only fail if there isn't a single Adobe product on the machine
-  # I suspect it should rather loop through all the Adobe entries and compare them against a string
-  EnumRegKey $0 HKCU "Software\Adobe" "Adobe Acrobat"
-  ;MessageBox MB_OK "$0"
-  ${if} ${Errors}
-    MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
-    Abort
-  ${EndIf}
-  # try find the correct version of Adobe Acrobat
-  # Greg: Once again, the code for reading the registry is wrong, it uses an uninitialised variable - 
-  # Although the loop will initialise it after the first try
-  # Key point - This is crazy code
-  ${Do}
-    EnumRegKey $2 HKCU "Software\Adobe\Adobe Acrobat" $1
-    MessageBox MB_OK 'Looping through Acrobat Registry keys. Key # $1 is $2'  
-    ${if} $2 == ''
-      ${if} $5 != ''
-        ${if} $5 >= ${ADOBE_ACROBAT_MIN_VERSION}
-          StrCpy $6 'Software\Adobe\Adobe Acrobat\$5'
-          StrCpy $4 '$6\InstallPath'
-          ReadRegDWORD $3 HKCU $4 ""
-          StrCpy $3 "$3${ADOBE_ACROBAT_JAVASCRIPTS_PATH}"
-          ;MessageBox MB_OK "Adobe Acrobat is installed at: $3"
-          # write uninstall path to registry fro javascript files
-          WriteRegStr HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "JavascriptPath" $3
-          # write default javascript priviledge registers
-          WriteRegDWORD HKCU "$6\JSPrefs" "bEnableJS" 0x00000001
-          WriteRegDWORD HKCU "$6\JSPrefs" "bEnableMenuItems" 0x00000001
-          WriteRegDWORD HKCU "$6\JSPrefs" "bEnableGlobalSecurity" 0x00000001
-          ${ExitDo}
-        ${Else}
-          MessageBox MB_OK '"Adobe Acrobat  ${ADOBE_ACROBAT_MIN_VERSION} or Higher" not found on system, cannot continue with installation.'
-          Abort
-        ${EndIf}
-      ${EndIf}
-    ${EndIf}
-    StrCpy $5 $2
-    IntOp $1 $1 + 1
-  ${Loop}
- FunctionEnd
+# Make relevant registry entries
+# Firstly, edit existing Acrobat entries to enable JS capoabilty
+# Secondly, add a custom entry which stores data that the uninstaller will need
+Function makeRegistryEntries
+  # Write Registry entries to update JS Preferences in Acrobat
+  WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableJS" 0x00000001
+  WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableMenuItems" 0x00000001
+  WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableGlobalSecurity" 0x00000001
+
+  # Write Registry entry for the uninstaller
+  WriteRegStr HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "JavascriptPath" $ACROBAT_FOLDER
+FunctionEnd
+
 
 # --------------------------------
 # General Settings
@@ -217,8 +177,6 @@ Function configureAdobeAcrobatPaths
   !define MUI_DIRECTORYPAGE_VARIABLE $ACROBAT_FOLDER
   !define MUI_DIRECTORYPAGE_TEXT_TOP 'The marking tool is installed in 2 locations. $\r$\n  1. Tool assets are installed in a fixed location at $INSTDIR. $\r$\n  2. The plugin code is installed within your Adobe Acrobat folder. $\r$\n$\r$\nDepending on your machine setup, Adobe Acrobat may be installed in a non-standard location. If so, please ensure you select the correct Javascripts folder which exists within your Acrobat installation folder.'
   !insertmacro MUI_PAGE_DIRECTORY
-
-  # 
   !insertmacro MUI_PAGE_INSTFILES
   
   !insertmacro MUI_UNPAGE_CONFIRM
