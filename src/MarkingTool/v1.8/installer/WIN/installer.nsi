@@ -1,4 +1,4 @@
-; UNISA Marking Tool Installer example
+; UNISA Marking Tool Installer
 ; Written by Kyle Bowden
 ; Updated for Acrobat DC by Greg Fullard
 
@@ -35,6 +35,10 @@
 # Windows registry key that should be used for the uninstaller
 !define JAVASCRIPTS_UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\UNISA"
 
+# LICENSE_FILE
+# File that contains the licence content
+!define LICENSE_FILE "gpl-3.0.txt"
+
 # This function will be called when the uninstaller is nearly finished initializing
 Function un.onInit
   # Verifies that the required multi-user execution level has been granted
@@ -42,80 +46,98 @@ Function un.onInit
 FunctionEnd
 
 # This function will be called when the installer is nearly finished initializing
+# Here we do a number of preliminary checks before the main installer kicks off
 Function .onInit
   # Verifies that the required multi-user execution level has been granted
   !insertmacro MULTIUSER_INIT
 
- # Greg testing - START
-;  StrCpy $7 0
-;   loop:
-;     EnumRegKey $8 HKLM Software $7
-;     StrCmp $8 "" done
-;     IntOp $7 $7 + 1
-;     MessageBox MB_YESNO|MB_ICONQUESTION "$8$\n$\nMore?" IDYES loop
-;   done:
-
-;  EnumRegKey $0 HKCU "Software\Adobe" 2
-;  MessageBox MB_OK "$0"
-
-;  call checkForAcrobat
- # Greg testing - END
-
-
-
-  # 64bit system 
+  # Derive the installation folder based on whether
+  # the machine is running 32 or 64 bits
   ${If} ${RunningX64}
     SetRegView 64
-    ;call configureAdobeAcrobatPaths
-    call hardCodeAcrobatPaths
     StrCpy $INSTDIR "$PROGRAMFILES64\UNISA"
-  # 32bit system
   ${Else}
-    ;call configureAdobeAcrobatPaths
-    call hardCodeAcrobatPaths
     StrCpy $INSTDIR "$PROGRAMFILES\UNISA"
   ${EndIf}
 
-  # Greg testing - START
-  MessageBox MB_OK "Installation Folder: $INSTDIR"
-  MessageBox MB_OK "Acrobat folder: $3"
+  # Confirm that Acrobat DC is installed on the machine
+  # If not, abort
+  Var /GLOBAL ACROBAT_VERSION
+  StrCpy $ACROBAT_VERSION "Unknown"
+  
+  call checkForAcrobatAndVersion
+  ${If} $ACROBAT_VERSION == "Unknown"
+    MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
+    Abort
+  ${Else}
+    MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
+  ${EndIf}  
+
+  # Configure expected installation folder for Acrobat
+  # TODO
+  ;call configureAdobeAcrobatPaths
+  call hardCodeAcrobatPaths
+  Var /GLOBAL ACROBAT_FOLDER
+  StrCpy $ACROBAT_FOLDER $3
+
+  # Make relevant registry entries that will apply Acrobat setting changes
+  # TODO
+
+
+  ################################################
+  # Greg testing - START (Delete this when we are done)
+  #MessageBox MB_OK "Installation Folder: $INSTDIR"
+  #MessageBox MB_OK "Acrobat folder: $ACROBAT_FOLDER"
 
   # Greg testing - END
+  #################################################
+
 FunctionEnd
  
-; Function checkForAcrobat
-;   ClearErrors
 
-;   EnumRegKey $0 HKCU "Software\Adobe" "Adobe Acrobat"
-;   ;MessageBox MB_OK "$0"
-;   ${if} ${Errors}
-;     MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
-;     Abort
-;   ${EndIf}
+Function checkForAcrobatAndVersion
+  ClearErrors
 
-;   StrCpy $7 0
-;    loop:
-;      EnumRegKey $8 HKCU "Software\Adobe" $7
-;      StrCmp $8 "" done
-;      IntOp $7 $7 + 1
-;      MessageBox MB_YESNO|MB_ICONQUESTION "$8$\n$\nMore?" IDYES loop
-;    done:
+  # Check for an Adobe Acrobat key underneath the HKCU (HKEY_CURRENT_USER) root key
+  # If nothing is found we abort.
+  Var /GLOBAL ACROBAT_KEY
+  StrCpy $8 0
+  EnumRegKey $ACROBAT_KEY HKCU "Software\Adobe\Adobe Acrobat" $8
+  # MessageBox MB_OK "Check 1: $ACROBAT_KEY"
+  ${if} ${Errors}
+    MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
+    Abort
+  ${EndIf}
 
-;   ReadRegStr $0 HKLM "Software\Adobe\Adobe Acrobat\DC" ""
-;   ${If} ${Errors}
-;     MessageBox MB_OK "No registry key found for Adobe Acrobat"
-;     Abort
-;   ${Else}
-;     MessageBox MB_OK "Registry key found for Adobe Acrobat. $0"
-;   ${EndIf}
+  # Verify the version of Acrobat by looping through sub-keys
+  # Here, we are only checking for "DC", but in future we simply need to add
+  # additional checks
+  Var /GLOBAL ACROBAT_SUB_KEY
+  StrCpy $7 0
+  loop:
+    EnumRegKey $ACROBAT_SUB_KEY HKCU "Software\Adobe\Adobe Acrobat" $7
+    
+    # Don't continue searching once we retrieve an empty key 
+    StrCmp $ACROBAT_SUB_KEY "" done
 
-; FunctionEnd
+    ${If} $ACROBAT_SUB_KEY == "DC"
+      StrCpy $ACROBAT_VERSION "DC"
+      Goto done
+    ${EndIf}  
+   
+    IntOp $7 $7 + 1 
+    Goto loop
+    #MessageBox MB_YESNO|MB_ICONQUESTION "$ACROBAT_SUB_KEY$\n$\nMore?" IDYES loop
+  done:
+
+FunctionEnd
 
 
 Function hardCodeAcrobatPaths
   StrCpy $3 "C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Javascripts"
 FunctionEnd
 
+# Computer\HKEY_CURRENT_USER\SOFTWARE\Adobe\Adobe Acrobat\DC\JSPrefs
 Function configureAdobeAcrobatPaths
   # test if Adobe Acrobat is installed
   # Greg: This below code is definitely wrong - It will only fail if there isn't a single Adobe product on the machine
@@ -159,29 +181,52 @@ Function configureAdobeAcrobatPaths
   ${Loop}
  FunctionEnd
 
-;--------------------------------
-;General Settings
-  ; The name of the installer
-  Name "Marking Tool ${MARKING_TOOL_VERSION}"
-
-  ; The file to write
-  OutFile "Marking Tool ${MARKING_TOOL_VERSION}.exe"
-
-;--------------------------------
-;Interface Settings
-
-  !define MUI_ABORTWARNING
+# --------------------------------
+# General Settings
+# These settings are referenced by some of the pages during the execution of the 
+# installer
+# --------------------------------
   
-;--------------------------------
-;Pages
+  # The name of the installer
+  Name "Marking Tool ${MARKING_TOOL_VERSION} for Adobe Acrobat DC"
 
+  # The file to write
+  OutFile "Marking_Tool_${MARKING_TOOL_VERSION}_DC.exe"
+
+  # Show a message box with a warning when the user wants to close the installer.
+  !define MUI_ABORTWARNING
+
+# --------------------------------
+ 
+
+#--------------------------------
+# Pages
+# -----
+# Pages define the pages that will be shown by the installer. Each pages references specific 
+# Variables that are initialised earlier in the process
+# https://nsis.sourceforge.io/Docs/Modern%20UI/Readme.html
+#--------------------------------
+
+  # Display welcome page and license
   !insertmacro MUI_PAGE_WELCOME
+  !insertmacro MUI_PAGE_LICENSE ${LICENSE_FILE}
+
+  # Add a directory page to let the user specify a plug-ins folder. Use the folder
+  # derived during initialisation as the default ()
+  # Store the folder in $ACROBAT_FOLDER
+  !define MUI_DIRECTORYPAGE_VARIABLE $ACROBAT_FOLDER
+  !define MUI_DIRECTORYPAGE_TEXT_TOP 'The marking tool is installed in 2 locations. $\r$\n  1. Tool assets are installed in a fixed location at $INSTDIR. $\r$\n  2. The plugin code is installed within your Adobe Acrobat folder. $\r$\n$\r$\nDepending on your machine setup, Adobe Acrobat may be installed in a non-standard location. If so, please ensure you select the correct Javascripts folder which exists within your Acrobat installation folder.'
+  !insertmacro MUI_PAGE_DIRECTORY
+
+  # 
   !insertmacro MUI_PAGE_INSTFILES
   
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
   
+#--------------------------------
   
+
 ;--------------------------------
 ;Languages
  
@@ -190,7 +235,7 @@ Function configureAdobeAcrobatPaths
 Section "Install"
   
   # install acrobat javascript files
-  SetOutPath $3
+  SetOutPath $ACROBAT_FOLDER
   
   File ..\..\src\WIN\config.js
   File ..\..\src\WIN\unisa_funct.js
