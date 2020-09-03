@@ -5,7 +5,7 @@ The marking tool is predominantly a JavaScript plug-in for Adobe Acrobat. It is 
 From a development point of view, there are three main aspects to the tool:
 * The actual JavaScript plugin to Acrobat
 * The Windows installer
-* The Mac installer
+* The Mac installer (No longer in active use)
 
 ## Acrobat JavaScript Plugin
 
@@ -19,22 +19,25 @@ For some background on Acrobat JavaScript, have a look at these links:
 
 The tool consists of 2 JavaScript files that are loaded at runtime. These JavaScript files enable a marking toolbar to become available to the end user.
 
-Firstly, you should ensure that JavaScript is enables in Acrobat:
+Firstly, you should ensure that JavaScript is enabled in Acrobat:
 * In Acrobat DC Pro - 
     * Edit > Preferences > JavaScript
     * Ensure that "Enable Acrobat JavaScript" is ticked
     * Ensure that "Enable interactive console" is ticked
     * Ensure that "Enable menu items JavaScript execution privileges" is ticked
 
-To ensure the Tool is accessible and the JavaScript runs correctly, the JS needs to be stored in the "Javascripts" folder. On my current machine the location is: 
+To ensure the Tool is accessible and the JavaScript runs correctly, the 2 JS files (config.js and unisa_func.js) needs to be stored in the "Javascripts" folder. Take note that the location of this folder depends on how you installed Acrobat. On my current machine the location is: 
 * C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Javascripts
+
+Also note that the above folder is likely protected, so you will need to copy the file as an administrator. I've found that the best approach is to open a command prompt using administrative privileges and then copy the files using the old-school DOS copy command:
+ * copy config.js "C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Javascripts\config.js"
+ * copy unisa_func.js "C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Javascripts\unisa_func.js"
 
 All javascript files that are stored in this location will be automatically loaded whenever a PDF file is opened.
 
-Once the above steps have been taken, JS files will load and execute automatically on Acrobat Startup.
+Once the above steps have been taken, JS files will load and execute automatically on Acrobat Startup. 
 
 To view the interactive console: Ctrl-J
-
 To execute JS code in the debugger, highlight the code and press Ctrl-Enter
 
 Getting the toolbar to load is quite finicky:
