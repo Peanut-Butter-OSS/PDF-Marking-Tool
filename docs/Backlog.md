@@ -1,8 +1,7 @@
 # Marking Tool Feature Backlog
 
 ## Input (Dump ideas here)
-- When file is finished, add marker details to the marking summary sheet
-- O365 Power Automate flows for moving files between sharepoint and OneDrive of individual markers
+- TODO - Add unpolished improvement idead here
 
 ## Elaborated (Define features here)
 
@@ -76,6 +75,21 @@ Realisation Notes
    - IMP-4
  - Technical considerations
    - Simple change to the finalisation function
+ - Priority (1=Very High, 5=Very Low)
+   - TODO 
+   
+### IMP-6 - O365 Power Automate flows for moving files between sharepoint and OneDrive of individual markers
+The current implementation of the marking tool relies heavily on a back-end workfloe implemented at Unisa. This workflow copies files up and down between the server and workstations of individual markers. While the solution works well, it is Unisa-specific.
+
+To create the posibility for decoupling, the file folders should be configurable in the marking tool itself (see IMP-1). Once this is implemented a range of commodity file synchronisation tools can be used to copy files from the local workstation to a server location. the most likely candidate would be Microsoft OneDrive.
+
+Assuming OneDrive is used to copy files between the marker's workstation and the server, all that remains is to create an automated workflow that distributes files to individual markers. Power Automate (part of the Office 365 family) will be an ideal too fot this solution.
+
+Realisation Notes
+ - Prerequisites: 
+   - IMP-1
+ - Technical considerations
+   - Will require an institution with a deployment of SharePoint and O365
  - Priority (1=Very High, 5=Very Low)
    - TODO 
    
