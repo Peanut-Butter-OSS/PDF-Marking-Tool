@@ -18,7 +18,12 @@ By standardising on the location in the marking tool itself, it becomes possible
 Additionally, this change would allow the use of commodity file-synchronisation solutions like OneDrive, DropBox and GoogleDrive with the marking tool
 
 Realisation Notes
- - TODO
+ - Prerequisites: 
+   - TODO
+ - Technical considerations
+   - TODO
+  
+ 
 
 ### IMP-2 - Move PDF file to the location for marked files as part of the finalise process
 The current PDF marking solution includes the ability to ""Finalise" a file. This finalisation process adds up all the assigned marked and created an extra page at the end of the PDF. This page (the marking summary) contains information about the assigned marks.
