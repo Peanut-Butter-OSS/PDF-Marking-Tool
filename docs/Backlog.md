@@ -2,6 +2,7 @@
 
 ## Input (Dump ideas here)
 - TODO - Add unpolished improvement idead here
+- When opening acrobat without a document, and then opening the PDF, the tool is not initialized
 
 ## Elaborated (Define features here)
 
