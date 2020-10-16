@@ -4,7 +4,9 @@
 - TODO - Add unpolished improvement idead here
 - When opening acrobat without a document, and then opening the PDF, the tool is not initialized
 - Show the number of marks assigned to the variable score tick (Small subscript to the tick-mark)
-- Rebuild the commenting and rubric tools
+- Rebuild the commenting and rubric tools (or discard altogether)
+- Rename config.js to marking-tool-config.js
+- Rename unisa_func.js to marking-tool-func.js
 
 ## Elaborated (Define features here)
 
