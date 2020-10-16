@@ -9,6 +9,8 @@
 - Rename unisa_func.js to marking-tool-func.js
 - Add marking tool menu item with an About item and perhaps links to help files etc.
 - Prepare a github docs page for the tool
+- Remember total possible marks if I reclick the Count option
+
 
 ## Elaborated (Define features here)
 
