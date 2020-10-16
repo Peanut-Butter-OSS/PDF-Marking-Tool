@@ -10,6 +10,7 @@
 - Add marking tool menu item with an About item and perhaps links to help files etc.
 - Prepare a github docs page for the tool
 - Remember total possible marks if I reclick the Count option
+- Deselect tool isn't available when the Mark and Comment mark tool is selected (but it must be)
 
 
 ## Elaborated (Define features here)
