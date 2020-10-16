@@ -7,6 +7,7 @@
 - Rebuild the commenting and rubric tools (or discard altogether)
 - Rename config.js to marking-tool-config.js
 - Rename unisa_func.js to marking-tool-func.js
+- Add marking tool menu item with an About item and perhaps links to help files etc.
 
 ## Elaborated (Define features here)
 
