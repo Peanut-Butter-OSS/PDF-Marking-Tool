@@ -8,6 +8,7 @@
 - Rename config.js to marking-tool-config.js
 - Rename unisa_func.js to marking-tool-func.js
 - Add marking tool menu item with an About item and perhaps links to help files etc.
+- Prepare a github docs page for the tool
 
 ## Elaborated (Define features here)
 
