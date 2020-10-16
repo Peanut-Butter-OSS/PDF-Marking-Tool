@@ -4,6 +4,7 @@
 - TODO - Add unpolished improvement idead here
 - When opening acrobat without a document, and then opening the PDF, the tool is not initialized
 - Show the number of marks assigned to the variable score tick (Small subscript to the tick-mark)
+- Rebuild the commenting and rubric tools
 
 ## Elaborated (Define features here)
 
