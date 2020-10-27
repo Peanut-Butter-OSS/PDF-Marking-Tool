@@ -345,7 +345,7 @@ if (aNewDoc != null) {
     app.addToolButton
     ({
       cName: "noDocMsg",
-      cExec: "app.alert('No active document found. Cannot initialise the onscreen marking tool. Note, initilization only occurs when opening Acrobat. Please close Acrobat and recopen the document.')",
+      cExec: "app.alert('No active document found. Cannot initialize the onscreen marking tool. Note, initialization only occurs when opening Acrobat. Please close Acrobat and reopen the document.')",
       cLabel: "No document to mark",
       nPos: 9
     });
