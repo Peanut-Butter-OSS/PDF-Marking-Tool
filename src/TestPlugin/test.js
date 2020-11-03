@@ -3,38 +3,60 @@
 */ 
 app.beginPriv();
 
-// This function will initialise the marking toolbar. It can only be executed if 
-// exactly one document is currently open.
-var initMarkingTool = app.trustedFunction(
-  function(document) {
-     app.beginPriv();
-     var openDocCount = app.activeDocs.length;
-     console.println("Open document count: "+openDocCount);
-     console.println("TF - Initializing the marking tool")
+var initMarkingMenu = app.trustedFunction(
+  function() {
+    app.beginPriv();
+    console.println("TF - Creating new application menu for marking tool");
 
-     app.endPriv();  
+    app.addSubMenu({ cName: "Marking Tool", cParent: "Edit"})
+    app.addMenuItem({ 
+      cName: "Enable",
+      cParent: "Marking Tool", 
+      cExec: "app.alert('TODO');"});
+    app.addMenuItem({ 
+      cName: "Disable",
+      cParent: "Marking Tool", 
+      cExec: "app.alert('TODO');"});
+    app.addMenuItem({ 
+      cName: "Config",
+      cParent: "Marking Tool", 
+      cExec: "app.alert('TODO');"});
+    app.addMenuItem({ 
+      cName: "About", 
+      cParent: "Marking Tool", 
+      cExec: "app.alert('Hello from the marking tool');"});
+
+    app.endPriv();  
   }
 );
 
-var aActiveDocs = app.activeDocs;
-console.println("TF - Number of active documents: "+aActiveDocs.length);
+// This function will initialise the marking toolbar. It can only be executed if 
+// exactly one document is currently open.
+var initMarkingTool = app.trustedFunction(
+  function() {
+    app.beginPriv();
+    var openDocCount = app.activeDocs.length;
+    console.println("TF - Open document count: "+openDocCount);
+    console.println("TF - Initializing the marking tool")
 
-var aNewDoc = aActiveDocs[0];
-var initError = false;
-var initErrorMsg = "TF - Initialization Errors: \n";
-
-if (aNewDoc != null) {
-  try {
-    initMarkingTool(aNewDoc)
-
-  } catch(Error) {
-    console.println(" "+Error);
+    if (openDocCount==1) {
+      var aNewDoc = app.activeDocs[0];
+      markingToolsActive = true
+    } else if (openDocCount==0) {
+      console.println("TF - No active document found. Cannot initialise the onscreen marking tool");
+    } else {
+      console.println("TF - Cannot initialise marking tool, because multiple files are currently open")
+    }
+    app.endPriv();  
   }
-} else {
-  console.println("TF - No active document found. Cannot initialise the onscreen marking tool");
-}
+);
 
 
+
+// Main script - These commands are run on Acrobat startup
+var markingToolsActive = false;
+initMarkingTool();
+initMarkingMenu();
 
 app.endPriv();
 
