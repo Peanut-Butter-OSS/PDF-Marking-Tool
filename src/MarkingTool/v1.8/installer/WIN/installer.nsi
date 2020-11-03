@@ -57,17 +57,34 @@ Function .onInit
 
   # Confirm that Acrobat DC is installed on the machine
   # If not, abort
+  Var /GLOBAL ACROBAT_INSTALLED
+  StrCpy $ACROBAT_INSTALLED "Unknown"
   Var /GLOBAL ACROBAT_VERSION
   StrCpy $ACROBAT_VERSION "Unknown"
   Var /GLOBAL ACROBAT_FULL_KEY
   StrCpy $ACROBAT_FULL_KEY "Unknown"
+  Var /GLOBAL EXPIRED_TRIAL
+  StrCpy $EXPIRED_TRIAL "Unknown"
 
-  call checkForAcrobatAndVersion
+  #call checkForAcrobatAndVersion
+  call checkForAcrobat
+  ${If} $ACROBAT_INSTALLED == "Unknown"
+    MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
+    Abort   
+  ${EndIf}  
+
+  call checkForAcrobatVersion 
   ${If} $ACROBAT_VERSION == "Unknown"
     MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
     Abort
   #${Else}
   #  MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
+  ${EndIf}  
+
+  call checkForExpiredTrial
+  ${If} $EXPIRED_TRIAL == "Unknown"
+    MessageBox MB_OK 'The host machine contains legacy registry entries for an expired Acrobat trial. However, Acrobat is not installed, cannot continue with installation.'
+    Abort   
   ${EndIf}  
 
   # Configure expected installation folder for Acrobat
@@ -79,44 +96,151 @@ Function .onInit
 
 FunctionEnd
  
-# This function checks whether Acrobat is installed. If it is, it continues to check which
-# version
-Function checkForAcrobatAndVersion
+# This function checks whether Acrobat is installed.
+Function checkForAcrobat
   ClearErrors
 
   # Check for an Adobe Acrobat key underneath the HKCU (HKEY_CURRENT_USER) root key
   # If nothing is found we abort.
+  MessageBox MB_OK "Verifying if any version of Adobe Acrobat is installed on the host machine"
   Var /GLOBAL ACROBAT_KEY
   StrCpy $8 0
-  EnumRegKey $ACROBAT_KEY HKCU "Software\Adobe\Adobe Acrobat" $8
-  # MessageBox MB_OK "Check 1: $ACROBAT_KEY"
-  ${if} ${Errors}
-    MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
-    Abort
-  ${EndIf}
+  loop:
+    EnumRegKey $ACROBAT_KEY HKCU "Software\Adobe" $8
+    MessageBox MB_OK "Key Found: $ACROBAT_KEY"
+    
+    # Don't continue searching once we retrieve an empty key 
+    StrCmp $ACROBAT_KEY "" done
+
+    ${If} $ACROBAT_KEY == "Adobe Acrobat"
+      MessageBox MB_OK "Adobe Acrobat is installed on host machine"
+      StrCpy $ACROBAT_INSTALLED "YES"
+      Goto done
+    ${EndIf}  
+   
+    IntOp $8 $8 + 1 
+    Goto loop
+  done:
+FunctionEnd
+
+# This function checks whether Acrobat is installed. If it is, it continues to check which
+# version
+Function checkForAcrobatVersion
+  ClearErrors
 
   # Verify the version of Acrobat by looping through sub-keys
   # Here, we are only checking for "DC", but in future we simply need to add
   # additional checks
+  MessageBox MB_OK "Checking the actual version of Adobe Acrobat that is installed on the host machine"
   Var /GLOBAL ACROBAT_SUB_KEY
   StrCpy $7 0
   loop:
     EnumRegKey $ACROBAT_SUB_KEY HKCU "Software\Adobe\Adobe Acrobat" $7
-    
+    MessageBox MB_OK "Version found: $ACROBAT_SUB_KEY"
+
     # Don't continue searching once we retrieve an empty key 
     StrCmp $ACROBAT_SUB_KEY "" done
 
     ${If} $ACROBAT_SUB_KEY == "DC"
+      MessageBox MB_OK "Adobe Acrobat DC is installed on host machine"
       StrCpy $ACROBAT_VERSION "DC"
       StrCpy $ACROBAT_FULL_KEY "Software\Adobe\Adobe Acrobat\$ACROBAT_SUB_KEY"
       Goto done
     ${EndIf}  
-   
+  
     IntOp $7 $7 + 1 
     Goto loop
-  done:
+  done: 
 
 FunctionEnd
+
+Function checkForExpiredTrial
+  ClearErrors
+
+  # Verify whethger the DC registry entry is from an expired trial
+  MessageBox MB_OK "Checking whether the DC registry entry is from an expired trial"
+  Var /GLOBAL ACROBAT_DETAIL_KEY
+  StrCpy $7 0
+  loop:
+    EnumRegKey $ACROBAT_DETAIL_KEY HKCU "Software\Adobe\Adobe Acrobat\DC" $7
+    MessageBox MB_OK "Sub key found: $ACROBAT_DETAIL_KEY"
+
+    # Don't continue searching once we retrieve an empty key 
+    StrCmp $ACROBAT_DETAIL_KEY "" done
+
+    ${If} $ACROBAT_DETAIL_KEY == "AcroApp"
+      MessageBox MB_OK "The Acrobat DC registry entries are NOT due to an expired trial installation"
+      StrCpy $EXPIRED_TRIAL "NO"
+      Goto done
+    ${EndIf}  
+  
+    IntOp $7 $7 + 1 
+    Goto loop
+  done: 
+
+FunctionEnd
+
+; # This function checks whether Acrobat is installed. If it is, it continues to check which
+; # version
+; Function checkForAcrobatAndVersion
+;   ClearErrors
+
+;   # Check for an Adobe Acrobat key underneath the HKCU (HKEY_CURRENT_USER) root key
+;   # If nothing is found we abort.
+;   MessageBox MB_OK "Verifying if any version of Adobe Acrobat is installed on the host machine"
+;   Var /GLOBAL ACROBAT_KEY
+;   StrCpy $8 0
+;   loop1:
+;     EnumRegKey $ACROBAT_KEY HKCU "Software\Adobe" $8
+;     MessageBox MB_OK "Key Found: $ACROBAT_KEY"
+    
+;     # Don't continue searching once we retrieve an empty key 
+;     StrCmp $ACROBAT_KEY "" done1
+
+;     ${If} $ACROBAT_KEY == "Adobe Acrobat"
+;       MessageBox MB_OK "Adobe Acrobat is installed on host machine"
+;       StrCpy $ACROBAT_INSTALLED "YES"
+;       Goto done1
+;     ${EndIf}  
+   
+;     ${if} ${Errors}
+;       #MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
+;       MessageBox MB_OK "Error while checking if Adobe Acrobat is installed: $Errors"
+;       Abort
+;     ${EndIf}
+
+;     IntOp $8 $8 + 1 
+;     Goto loop1
+;   done1:
+
+;   #StrCmp $ACROBAT_INSTALLED "Unknown" done3 
+
+;   # Verify the version of Acrobat by looping through sub-keys
+;   # Here, we are only checking for "DC", but in future we simply need to add
+;   # additional checks
+;   MessageBox MB_OK "Verifying if the version of Adobe Acrobat that is installed on the host machine"
+;   Var /GLOBAL ACROBAT_SUB_KEY
+;   StrCpy $7 0
+;   loop2:
+;     EnumRegKey $ACROBAT_SUB_KEY HKCU "Software\Adobe\Adobe Acrobat" $7
+;     MessageBox MB_OK "Version found: $ACROBAT_SUB_KEY"
+
+;     # Don't continue searching once we retrieve an empty key 
+;     StrCmp $ACROBAT_SUB_KEY "" done2
+
+;     ${If} $ACROBAT_SUB_KEY == "DC"
+;       StrCpy $ACROBAT_VERSION "DC"
+;       StrCpy $ACROBAT_FULL_KEY "Software\Adobe\Adobe Acrobat\$ACROBAT_SUB_KEY"
+;       Goto done2
+;     ${EndIf}  
+  
+;     IntOp $7 $7 + 1 
+;     Goto loop2
+;   done2: 
+
+;   #done3:
+
+; FunctionEnd
 
 # Depending on the version of Acrobat, this function will derive the correct path for the 
 # Javascripts. Currently we only do this for DC, but theoretically it will be easy to 
