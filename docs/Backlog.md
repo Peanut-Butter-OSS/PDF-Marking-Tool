@@ -121,6 +121,11 @@ There should be a way for a marker to "store" a comment for reuse later. There a
 
  - A new custom tool is added to "create saved comment". This should provide a dialog similar to the NWU commenting tool (i.e. user can capture or select a category and then capture some comment text)
  - The existing comment mark tool should be enhanced to allow the user to either capture a new comment, or select a category and comment from a dropdown
+ 
+ Tech considerations / experiments:
+ - Read XML file from within Acrobat
+ - Write XML file from within Acrobat
+ - Read config file from within Acrobat (To get location of XMLs)
 
 ### IMP-10 - Replacement Rubric functionality
 The current rubric and commenting tool is based on an Adobe AIR application and an accompanying XFA form. Both of these technologies are outdated and cumbersome. It would be more appropriate to build a more user friedly solution for marking rubrics and assignment-specific comments.
@@ -130,6 +135,13 @@ The NWU commenting tool has a useful approach based on a small visual-basic app 
 A similar solution should be considered for the marking tool as a built-in capability
 
 An alternative approach may be to store rubric data ad XMP metadata inside the document itself
+
+Tech considerations / experiments:
+ - Read XML file from within Acrobat
+ - Write XML file from within Acrobat
+ - Read config file from within Acrobat (To get location of XMLs)
+
+Selected for release 2.0
 
 ### IMP-11 - Improve Layout of Results Page
 The current results page looks a bit plain and can do with improved styling and structure
@@ -157,10 +169,14 @@ The "deselect tool" tool is useful to enable users to be able to delete or move 
 
 See registered issue #4
 
+Selected for release 2.0
+
 ### IMP-17 - Marking Tool Website
 Currently there is not documentation available for the tool, except for the outdated functional spect from many years ago. To improve users' ability to help themselves, but also to serve as a marketing medium, an initial landing page should be created for the marking tool whould highlights its features and user base.
 
 To make this simple, it should be built as a static Jekyll site and deployed to GitHub pages.
+
+Updated Decision: Greg to assist with content, but implementation will be on the Learning Curve Website and will be done by Learning Curve team
 
 ### IMP-18 - User guide videos
 To assist external users, it would be valuable to create one or two short YouTube videos that explain the use of the tool. These videos can be referenced on the tool website
@@ -168,11 +184,17 @@ To assist external users, it would be valuable to create one or two short YouTub
 ### IMP-19 - Rename installation folder from UNISA to PDF_Marking_Tool
 The existing installation folder is confusing for UNISA users and users at other universities. By renaming it, it'll make it simpler for users to know where to search for asset files (and the uninstaller)
 
+Selected for release 2.0
+
 ### IMP-20 - Rename config.js to marking-tool-config.js
 The config JS file has a very generic name which could cause confusion. A simple solution is to simply rename it to "marking-tool-config"
 
+Selected for release 2.0
+
 ### IMP-21 - Rename unisa_func.js to marking-tool-func.js
 The unisa_func JS file has a very generic name which could cause confusion. A simple solution is to simply rename it to "marking-tool-func"
+
+Selected for release 2.0
 
 ### IMP-22 - Pre-generate Results page based on Rubric data
 (This option is only available if Rubric information can be embedded as XMP metadata)
@@ -199,5 +221,10 @@ Note: the above are just suggestions; once the code has been analysed in depth, 
 
 ### IMP-25 - Replace deprecated event object
 The unifa_func.js file makes a large number of references to the deprecated event object. This should probably be replaced to avoid future issues.
+
+### IMP-26 - Sidecar XML file containing results
+When finalising the document, write a separate XML file containing the marking data
+
+
 
 ## Implemented (Once a feature is implemented, move it here)
