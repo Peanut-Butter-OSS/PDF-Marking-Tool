@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Customers labelField="Name">
+  <Customer>
+    <Name>Larry Frank</Name>
+    <Company>Big Bank</Company>
+    <Email>LarF@BBk.com</Email>
+  </Customer>
+  <Customer>
+    <Name>Fany Funkler</Name>
+    <Company>Butler Realestate</Company>
+    <Email>ffunkler@brealestate.com</Email>
+  </Customer>
+  <Customer>
+    <Name>Brody Banks</Name>
+    <Company>Escro of Tumwater, Inc.</Company>
+    <Email>bbanks@escrotum.com</Email>
+  </Customer>
+  <Customer>
+    <Name>Berry Bonds</Name>
+    <Company>Oui, Cheatum, and Howe</Company>
+    <Email>bbonds@OCH.com</Email>
+  </Customer>
+  <Customer>
+    <Name>Franky Stien</Name>
+    <Company>High Tech Heaven</Company>
+    <Email>FrankyS@HTH.com</Email>
+  </Customer>
+</Customers>
