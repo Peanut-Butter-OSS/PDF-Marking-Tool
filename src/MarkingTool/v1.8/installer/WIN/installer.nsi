@@ -55,37 +55,44 @@ Function .onInit
     StrCpy $INSTDIR "$PROGRAMFILES\UNISA"
   ${EndIf}
 
-  # Confirm that Acrobat DC is installed on the machine
-  # If not, abort
   Var /GLOBAL ACROBAT_INSTALLED
-  StrCpy $ACROBAT_INSTALLED "Unknown"
   Var /GLOBAL ACROBAT_VERSION
-  StrCpy $ACROBAT_VERSION "Unknown"
   Var /GLOBAL ACROBAT_FULL_KEY
-  StrCpy $ACROBAT_FULL_KEY "Unknown"
   Var /GLOBAL EXPIRED_TRIAL
-  StrCpy $EXPIRED_TRIAL "Unknown"
 
-  #call checkForAcrobatAndVersion
-  call checkForAcrobat
-  ${If} $ACROBAT_INSTALLED == "Unknown"
-    MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
-    Abort   
-  ${EndIf}  
+  # Hard Code version and paths
+  StrCpy $ACROBAT_INSTALLED "YES"
+  StrCpy $ACROBAT_VERSION "DC"
+  StrCpy $ACROBAT_FULL_KEY "Software\Adobe\Adobe Acrobat\DC"
+  StrCpy $EXPIRED_TRIAL "NO"
 
-  call checkForAcrobatVersion 
-  ${If} $ACROBAT_VERSION == "Unknown"
-    MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
-    Abort
-  #${Else}
-  #  MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
-  ${EndIf}  
+  ; # Confirm that Acrobat DC is installed on the machine
+  ; # If not, abort
+  ; StrCpy $ACROBAT_INSTALLED "Unknown"
+  ; StrCpy $ACROBAT_VERSION "Unknown"
+  ; StrCpy $ACROBAT_FULL_KEY "Unknown"
+  ; StrCpy $EXPIRED_TRIAL "Unknown"
 
-  call checkForExpiredTrial
-  ${If} $EXPIRED_TRIAL == "Unknown"
-    MessageBox MB_OK 'The host machine contains legacy registry entries for an expired Acrobat trial. However, Acrobat is not installed, cannot continue with installation.'
-    Abort   
-  ${EndIf}  
+  ; #call checkForAcrobatAndVersion
+  ; call checkForAcrobat
+  ; ${If} $ACROBAT_INSTALLED == "Unknown"
+  ;   MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
+  ;   Abort   
+  ; ${EndIf}  
+
+  ; call checkForAcrobatVersion 
+  ; ${If} $ACROBAT_VERSION == "Unknown"
+  ;   MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
+  ;   Abort
+  ; #${Else}
+  ; #  MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
+  ; ${EndIf}  
+
+  ; call checkForExpiredTrial
+  ; ${If} $EXPIRED_TRIAL == "Unknown"
+  ;   MessageBox MB_OK 'The host machine contains legacy registry entries for an expired Acrobat trial. However, Acrobat is not installed, cannot continue with installation.'
+  ;   Abort   
+  ; ${EndIf}  
 
   # Configure expected installation folder for Acrobat
   Var /GLOBAL ACROBAT_FOLDER
@@ -157,7 +164,7 @@ FunctionEnd
 Function checkForExpiredTrial
   ClearErrors
 
-  # Verify whethger the DC registry entry is from an expired trial
+  # Verify whether the DC registry entry is from an expired trial
   MessageBox MB_OK "Checking whether the DC registry entry is from an expired trial"
   Var /GLOBAL ACROBAT_DETAIL_KEY
   StrCpy $7 0
