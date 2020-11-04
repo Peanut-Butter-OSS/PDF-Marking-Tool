@@ -49,9 +49,12 @@ Function .onInit
   # Derive the installation folder based on whether
   # the machine is running 32 or 64 bits
   ${If} ${RunningX64}
+    MessageBox MB_OK "Running in 64 bit mode"
     SetRegView 64
     StrCpy $INSTDIR "$PROGRAMFILES64\UNISA"
   ${Else}
+    MessageBox MB_OK "Running in 32 bit mode"
+    SetRegView 32
     StrCpy $INSTDIR "$PROGRAMFILES\UNISA"
   ${EndIf}
 
@@ -66,33 +69,33 @@ Function .onInit
   StrCpy $ACROBAT_FULL_KEY "Software\Adobe\Adobe Acrobat\DC"
   StrCpy $EXPIRED_TRIAL "NO"
 
-  ; # Confirm that Acrobat DC is installed on the machine
-  ; # If not, abort
-  ; StrCpy $ACROBAT_INSTALLED "Unknown"
-  ; StrCpy $ACROBAT_VERSION "Unknown"
-  ; StrCpy $ACROBAT_FULL_KEY "Unknown"
-  ; StrCpy $EXPIRED_TRIAL "Unknown"
+  # Confirm that Acrobat DC is installed on the machine
+  # If not, abort
+  StrCpy $ACROBAT_INSTALLED "Unknown"
+  StrCpy $ACROBAT_VERSION "Unknown"
+  StrCpy $ACROBAT_FULL_KEY "Unknown"
+  StrCpy $EXPIRED_TRIAL "Unknown"
 
-  ; #call checkForAcrobatAndVersion
-  ; call checkForAcrobat
-  ; ${If} $ACROBAT_INSTALLED == "Unknown"
-  ;   MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
-  ;   Abort   
-  ; ${EndIf}  
+  #call checkForAcrobatAndVersion
+  call checkForAcrobat
+  ${If} $ACROBAT_INSTALLED == "Unknown"
+    MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
+    Abort   
+  ${EndIf}  
 
-  ; call checkForAcrobatVersion 
-  ; ${If} $ACROBAT_VERSION == "Unknown"
-  ;   MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
-  ;   Abort
-  ; #${Else}
-  ; #  MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
-  ; ${EndIf}  
+  call checkForAcrobatVersion 
+  ${If} $ACROBAT_VERSION == "Unknown"
+    MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
+    Abort
+  #${Else}
+  #  MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
+  ${EndIf}  
 
-  ; call checkForExpiredTrial
-  ; ${If} $EXPIRED_TRIAL == "Unknown"
-  ;   MessageBox MB_OK 'The host machine contains legacy registry entries for an expired Acrobat trial. However, Acrobat is not installed, cannot continue with installation.'
-  ;   Abort   
-  ; ${EndIf}  
+  call checkForExpiredTrial
+  ${If} $EXPIRED_TRIAL == "Unknown"
+    MessageBox MB_OK 'The host machine contains legacy registry entries for an expired Acrobat trial. However, Acrobat is not installed, cannot continue with installation.'
+    Abort   
+  ${EndIf}  
 
   # Configure expected installation folder for Acrobat
   Var /GLOBAL ACROBAT_FOLDER
