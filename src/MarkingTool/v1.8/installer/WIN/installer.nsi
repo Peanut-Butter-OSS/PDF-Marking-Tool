@@ -62,6 +62,7 @@ Function .onInit
   Var /GLOBAL ACROBAT_VERSION
   Var /GLOBAL ACROBAT_FULL_KEY
   Var /GLOBAL EXPIRED_TRIAL
+  Var /GLOBAL REGISTRY_VIEW
 
   # Hard Code version and paths
   StrCpy $ACROBAT_INSTALLED "YES"
@@ -77,13 +78,27 @@ Function .onInit
   StrCpy $EXPIRED_TRIAL "Unknown"
 
   #call checkForAcrobatAndVersion
+  SetRegView 64
+  StrCpy $REGISTRY_VIEW "64" 
   call checkForAcrobat
+  ${If} $ACROBAT_INSTALLED == "Unknown"
+    SetRegView 32
+    StrCpy $REGISTRY_VIEW "32"
+    call checkForAcrobat 
+  ${EndIf}
   ${If} $ACROBAT_INSTALLED == "Unknown"
     MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
     Abort   
   ${EndIf}  
 
-  call checkForAcrobatVersion 
+  SetRegView 64
+  StrCpy $REGISTRY_VIEW "64" 
+  call checkForAcrobatVersion
+  ${If} $ACROBAT_VERSION == "Unknown"
+    SetRegView 32
+    StrCpy $REGISTRY_VIEW "32" 
+    call checkForAcrobatVersion
+  ${EndIf}  
   ${If} $ACROBAT_VERSION == "Unknown"
     MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
     Abort
@@ -91,11 +106,23 @@ Function .onInit
   #  MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
   ${EndIf}  
 
-  call checkForExpiredTrial
-  ${If} $EXPIRED_TRIAL == "Unknown"
-    MessageBox MB_OK 'The host machine contains legacy registry entries for an expired Acrobat trial. However, Acrobat is not installed, cannot continue with installation.'
-    Abort   
-  ${EndIf}  
+  ; call checkForExpiredTrial
+  ; ${If} $EXPIRED_TRIAL == "Unknown"
+  ;   MessageBox MB_OK 'The host machine contains legacy registry entries for an expired Acrobat trial. However, Acrobat is not installed, cannot continue with installation.'
+  ;   Abort   
+  ; ${EndIf}  
+
+  # Derive the installation folder based on whether
+  # the machine is running 32 or 64 bits
+  ${If} ${RunningX64}
+    MessageBox MB_OK "Running in 64 bit mode"
+    SetRegView 64
+    StrCpy $INSTDIR "$PROGRAMFILES64\UNISA"
+  ${Else}
+    MessageBox MB_OK "Running in 32 bit mode"
+    SetRegView 32
+    StrCpy $INSTDIR "$PROGRAMFILES\UNISA"
+  ${EndIf}
 
   # Configure expected installation folder for Acrobat
   Var /GLOBAL ACROBAT_FOLDER
@@ -117,7 +144,7 @@ Function checkForAcrobat
   StrCpy $8 0
   loop:
     EnumRegKey $ACROBAT_KEY HKCU "Software\Adobe" $8
-    MessageBox MB_OK "Key Found: $ACROBAT_KEY"
+    MessageBox MB_OK "Key Found (in $REGISTRY_VIEW bit registry):  $ACROBAT_KEY"
     
     # Don't continue searching once we retrieve an empty key 
     StrCmp $ACROBAT_KEY "" done
@@ -146,7 +173,7 @@ Function checkForAcrobatVersion
   StrCpy $7 0
   loop:
     EnumRegKey $ACROBAT_SUB_KEY HKCU "Software\Adobe\Adobe Acrobat" $7
-    MessageBox MB_OK "Version found: $ACROBAT_SUB_KEY"
+    MessageBox MB_OK "Version found (in $REGISTRY_VIEW bit registry): $ACROBAT_SUB_KEY"
 
     # Don't continue searching once we retrieve an empty key 
     StrCmp $ACROBAT_SUB_KEY "" done
@@ -164,31 +191,31 @@ Function checkForAcrobatVersion
 
 FunctionEnd
 
-Function checkForExpiredTrial
-  ClearErrors
+; Function checkForExpiredTrial
+;   ClearErrors
 
-  # Verify whether the DC registry entry is from an expired trial
-  MessageBox MB_OK "Checking whether the DC registry entry is from an expired trial"
-  Var /GLOBAL ACROBAT_DETAIL_KEY
-  StrCpy $7 0
-  loop:
-    EnumRegKey $ACROBAT_DETAIL_KEY HKCU "Software\Adobe\Adobe Acrobat\DC" $7
-    MessageBox MB_OK "Sub key found: $ACROBAT_DETAIL_KEY"
+;   # Verify whether the DC registry entry is from an expired trial
+;   MessageBox MB_OK "Checking whether the DC registry entry is from an expired trial"
+;   Var /GLOBAL ACROBAT_DETAIL_KEY
+;   StrCpy $7 0
+;   loop:
+;     EnumRegKey $ACROBAT_DETAIL_KEY HKCU "Software\Adobe\Adobe Acrobat\DC" $7
+;     MessageBox MB_OK "Sub key found: $ACROBAT_DETAIL_KEY"
 
-    # Don't continue searching once we retrieve an empty key 
-    StrCmp $ACROBAT_DETAIL_KEY "" done
+;     # Don't continue searching once we retrieve an empty key 
+;     StrCmp $ACROBAT_DETAIL_KEY "" done
 
-    ${If} $ACROBAT_DETAIL_KEY == "AcroApp"
-      MessageBox MB_OK "The Acrobat DC registry entries are NOT due to an expired trial installation"
-      StrCpy $EXPIRED_TRIAL "NO"
-      Goto done
-    ${EndIf}  
+;     ${If} $ACROBAT_DETAIL_KEY == "AcroApp"
+;       MessageBox MB_OK "The Acrobat DC registry entries are NOT due to an expired trial installation"
+;       StrCpy $EXPIRED_TRIAL "NO"
+;       Goto done
+;     ${EndIf}  
   
-    IntOp $7 $7 + 1 
-    Goto loop
-  done: 
+;     IntOp $7 $7 + 1 
+;     Goto loop
+;   done: 
 
-FunctionEnd
+; FunctionEnd
 
 ; # This function checks whether Acrobat is installed. If it is, it continues to check which
 ; # version
