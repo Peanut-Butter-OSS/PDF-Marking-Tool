@@ -3,6 +3,8 @@
 */ 
 app.beginPriv();
 
+var markingToolsActive = false;
+
 var initMarkingMenu = app.trustedFunction(
   function() {
     app.beginPriv();
@@ -32,20 +34,35 @@ var initMarkingMenu = app.trustedFunction(
 
 // This function will initialise the marking toolbar. It can only be executed if 
 // exactly one document is currently open.
-var initMarkingTool = app.trustedFunction(
+var enableMarkingTools = app.trustedFunction(
   function() {
     app.beginPriv();
     var openDocCount = app.activeDocs.length;
     console.println("TF - Open document count: "+openDocCount);
-    console.println("TF - Initializing the marking tool")
 
-    if (openDocCount==1) {
+    if(markingToolsActive) {
+      app.alert("Cannot enable marking tools, they are already enabled")
+    } else if (openDocCount==1) {
+      console.println("TF - Enabling marking tools - TODO")
       var aNewDoc = app.activeDocs[0];
       markingToolsActive = true
     } else if (openDocCount==0) {
-      console.println("TF - No active document found. Cannot initialise the onscreen marking tool");
+      app.alert("No active document found. Cannot initialise the onscreen marking tool");
     } else {
-      console.println("TF - Cannot initialise marking tool, because multiple files are currently open")
+      app.alert("Cannot initialise marking tool, because multiple files are currently open")
+    }
+    app.endPriv();  
+  }
+);
+
+var disableMarkingTools = app.trustedFunction(
+  function() {
+    app.beginPriv();
+    if (!markingToolsActive) {
+      app.alert("Cannot disable marking tools, they are not currently enabled")
+    } else {
+      console.println("TF - Disabling marking tools - TODO")
+      markingToolsActive = false
     }
     app.endPriv();  
   }
@@ -150,29 +167,78 @@ var addTestButtons = app.trustedFunction(
   function() {
     app.beginPriv();
 
-
+    // Test 1 - Sanity Test
     try {
       app.addToolButton
       ({
         cName: "test1",
-        cLabel: "Test 1", 
-        cExec: "app.alert('Sanity Test',0,0,'Test 1');",
+        cLabel: "Test 1 - Sanity", 
+        cExec: "app.alert('Test 1 Complete - Sanity Test',0,0,'Test 1');",
         cTooltext: "Run Test 1 - Sanity",
-        nPos: 2
+        nPos: 1
       });
     } catch(Error) {
       console.println("Error while adding Test 1 toolbar button");
       initError = true;
       initErrorMsg = initErrorMsg + " - Error while adding Test 1 toolbar button. \n"
     }
+
+    // Test 2 - Add Menu
+    try {
+      app.addToolButton
+      ({
+        cName: "test2",
+        cLabel: "Test 2 - Add Menu", 
+        cExec: "initMarkingMenu(); app.alert('Test 2 Complete - Initialize Marking Menu',0,0,'Test 2');",
+        cTooltext: "Run Test 2 - Add marking menu",
+        nPos: 2
+      });
+    } catch(Error) {
+      console.println("Error while adding Test 2 toolbar button");
+      initError = true;
+      initErrorMsg = initErrorMsg + " - Error while adding Test 2 toolbar button. \n"
+    }
+
+    // Test 3 - Enable marking tools
+    try {
+      app.addToolButton
+      ({
+        cName: "test3",
+        cLabel: "Test 3 - Enable Marking Tools", 
+        cExec: "enableMarkingTools(); app.alert('Test 3 Complete - Enable Marking Tools TODO',0,0,'Test 3');",
+        cTooltext: "Run Test 3 - Enable Marking Tools",
+        nPos: 2
+      });
+    } catch(Error) {
+      console.println("Error while adding Test 3 toolbar button");
+      initError = true;
+      initErrorMsg = initErrorMsg + " - Error while adding Test 3 toolbar button. \n"
+    }
+
+    // Test 4 - Disable marking tools
+    try {
+      app.addToolButton
+      ({
+        cName: "test4",
+        cLabel: "Test 4 - Disable Marking Tools", 
+        cExec: "disableMarkingTools(); app.alert('Test 4 Complete - Disable Marking Tools TODO',0,0,'Test 4');",
+        cTooltext: "Run Test 4 - Disable Marking Tools",
+        nPos: 2
+      });
+    } catch(Error) {
+      console.println("Error while adding Test 4 toolbar button");
+      initError = true;
+      initErrorMsg = initErrorMsg + " - Error while adding Test 4 toolbar button. \n"
+    }
+
     app.endPriv(); 
   }
 );
 
 // Main script - These commands are run on Acrobat startup
-var markingToolsActive = false;
-initMarkingTool();
-initMarkingMenu();
+
+//initMarkingTool();
+//initMarkingMenu();
 addTestButtons();
 //checkPlugins();
 //testPopupMenu();
