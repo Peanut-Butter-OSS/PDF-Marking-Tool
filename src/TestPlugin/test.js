@@ -150,13 +150,14 @@ var addTestButtons = app.trustedFunction(
   function() {
     app.beginPriv();
 
+
     try {
       app.addToolButton
       ({
         cName: "test1",
         cLabel: "Test 1", 
-        cExec: "app.alert('Performing Test 1',0,0,'Test 1');",
-        cTooltext: "Run Test 1",
+        cExec: "app.alert('Sanity Test',0,0,'Test 1');",
+        cTooltext: "Run Test 1 - Sanity",
         nPos: 2
       });
     } catch(Error) {
