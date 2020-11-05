@@ -1,9 +1,18 @@
 /*
     This script files is used to explore various options available in the Acrobat JavaScript API
+    It defines a number of independent functions and then adds a bunch of buttons to the Add-Ons toolbat
+    to allow you to interactively play with each one.
+
+    To work with this test, simply drop test.js into your Acrobat javascripts folder and restart acrobat
 */ 
 app.beginPriv();
 
 var markingToolsActive = false;
+var testNumber = 0;
+var testName = "Undefined";
+var testTitle = "Undefined";
+var testHandle = "Undefined";
+var testDescription = "Undefined";
 
 var initMarkingMenu = app.trustedFunction(
   function() {
@@ -65,16 +74,6 @@ var disableMarkingTools = app.trustedFunction(
       markingToolsActive = false
     }
     app.endPriv();  
-  }
-);
-
-var checkPlugins = app.trustedFunction(
-  function() {
-    var aPlugins = app.plugIns;
-    var nPlugins = aPlugins.length;
-    for ( var i = 0; i < nPlugins; i++) {
-      console.println("Plugin \#"+i+" is " + aPlugins[i].name);
-    }
   }
 );
 
@@ -162,73 +161,365 @@ var readXmlData = app.trustedFunction(
   }
 );
 
-// Simple method that adds toolbar buttons to test various scripts
+// Test 1 - Sanity
+var test1 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test simply verifies that the test script is available. It doesn't do anything";
+      app.alert(testDescription,3,0,testHandle);
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 2 - Add Menu
+var test2 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test will add a menu bar for the marking tool. \n";
+      testDescription = testDescription + "Once complete, you can open the Edit menu and you should find a new 'Marking Tools' menu with various sub-menu options";
+      app.alert(testDescription,3,0,testHandle);
+      initMarkingMenu();
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 3 - Enable Marking Tools
+var test3 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test will enable the marking tools. \n";
+      testDescription = testDescription + "This includes checking whether only a single document is open and whether the marking tools are currently disabled \n";
+      testDescription = testDescription + "If so, it will add the marking tools to the add-on toolbar \n\n";
+      testDescription = testDescription + "NOTE: This test is not complete yet";
+      app.alert(testDescription,3,0,testHandle);
+      enableMarkingTools();;
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 4 - Disable Marking Tools
+var test4 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test will disable the marking tools. \n";
+      testDescription = testDescription + "This includes checking whether the tools are currently enabled. \n";
+      testDescription = testDescription + "If so, it will remove the marking tools from the add-on toolbar \n\n";
+      testDescription = testDescription + "NOTE: This test is not complete yet";
+      app.alert(testDescription,3,0,testHandle);
+      disableMarkingTools();
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 5 - Simple Popup
+var test5 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This is a simple popup menu test. \n";
+      testDescription = testDescription + "It is used for checking options in popup menus";
+      app.alert(testDescription,3,0,testHandle);
+      testPopupMenu();
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 6 - Read XMP Data
+var test6 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test is used to explore options for reading XMP metadata that is embedded in the PDF document \n\n";
+      testDescription = testDescription + "NOTE: This test is a work in progress";
+      app.alert(testDescription,3,0,testHandle);
+      testXmp(); 
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 7 - Write XMP Data
+var test7 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test is used to explore options for writing XPM metadata into the PDF document \n\n";
+      testDescription = testDescription + "NOTE: This test is not implemented yet";
+      app.alert(testDescription,3,0,testHandle);
+      // TODO
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 8 - Read XML Data
+var test8 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test is used to explore options for reading an existing XML file from the file system \n";
+      testDescription = testDescription + "It expects a file to be located in the Acrobat Javascripts folder (inside a subfolder called 'MarkingToolData') \n";
+      testDescription = testDescription + "The file should be titled 'Config.xml' \n\n"
+      testDescription = testDescription + "To view the test output, please ensure your Javascript console is open (Ctrl-J)"
+      app.alert(testDescription,3,0,testHandle);
+      readXmlData();
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 9 - Write XML Data
+var test9 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = " \n";
+      testDescription = testDescription + "";
+      app.alert(testDescription,3,0,testHandle);
+      // TODO
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 10 - Placeholder for future tests
+var test10 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = " \n";
+      testDescription = testDescription + "";
+      app.alert(testDescription,3,0,testHandle);
+      // TODO
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Adds toolbar buttons for each of the test methods
 var addTestButtons = app.trustedFunction(
   function() {
     app.beginPriv();
 
     // Test 1 - Sanity Test
+    testNumber = 1;
+    testName = "test"+testNumber
+    testTitle = "Sanity Test";
+    testHandle = "Test " + testNumber + " " + testTitle;
     try {
       app.addToolButton
       ({
-        cName: "test1",
-        cLabel: "Test 1 - Sanity", 
-        cExec: "app.alert('Test 1 Complete - Sanity Test',0,0,'Test 1');",
-        cTooltext: "Run Test 1 - Sanity",
-        nPos: 1
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test1(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
       });
     } catch(Error) {
-      console.println("Error while adding Test 1 toolbar button");
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Error while adding Test 1 toolbar button. \n"
+      console.println("Error while adding Test "+testNumber+" toolbar button");
     }
 
     // Test 2 - Add Menu
+    testNumber = 2;
+    testName = "test"+testNumber
+    testTitle = "Add Menu";
+    testHandle = "Test " + testNumber + " " + testTitle;
     try {
       app.addToolButton
       ({
-        cName: "test2",
-        cLabel: "Test 2 - Add Menu", 
-        cExec: "initMarkingMenu(); app.alert('Test 2 Complete - Initialize Marking Menu',0,0,'Test 2');",
-        cTooltext: "Run Test 2 - Add marking menu",
-        nPos: 2
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test2(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
       });
     } catch(Error) {
-      console.println("Error while adding Test 2 toolbar button");
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Error while adding Test 2 toolbar button. \n"
+      console.println("Error while adding Test "+testNumber+" toolbar button");
     }
 
     // Test 3 - Enable marking tools
+    testNumber = 3;
+    testName = "test"+testNumber
+    testTitle = "Enable Marking Tools";
+    testHandle = "Test " + testNumber + " " + testTitle;
     try {
       app.addToolButton
       ({
-        cName: "test3",
-        cLabel: "Test 3 - Enable Marking Tools", 
-        cExec: "enableMarkingTools(); app.alert('Test 3 Complete - Enable Marking Tools TODO',0,0,'Test 3');",
-        cTooltext: "Run Test 3 - Enable Marking Tools",
-        nPos: 2
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test3(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
       });
     } catch(Error) {
-      console.println("Error while adding Test 3 toolbar button");
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Error while adding Test 3 toolbar button. \n"
+      console.println("Error while adding Test "+testNumber+" toolbar button");
     }
 
     // Test 4 - Disable marking tools
+    testNumber = 4;
+    testName = "test"+testNumber
+    testTitle = "Disable Marking Tools";
+    testHandle = "Test " + testNumber + " " + testTitle;
     try {
       app.addToolButton
       ({
-        cName: "test4",
-        cLabel: "Test 4 - Disable Marking Tools", 
-        cExec: "disableMarkingTools(); app.alert('Test 4 Complete - Disable Marking Tools TODO',0,0,'Test 4');",
-        cTooltext: "Run Test 4 - Disable Marking Tools",
-        nPos: 2
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test4(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
       });
     } catch(Error) {
-      console.println("Error while adding Test 4 toolbar button");
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Error while adding Test 4 toolbar button. \n"
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+
+    // Test 5 - Popup Menu
+    testNumber = 5;
+    testName = "test"+testNumber
+    testTitle = "Popup Menu";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test5(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+
+    // Test 6 - Read XMP Metadata
+    testNumber = 6;
+    testName = "test"+testNumber
+    testTitle = "Read XMP Metadata";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test6(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+
+    // Test 7 - Write XMP Metadata
+    testNumber = 7;
+    testName = "test"+testNumber
+    testTitle = "Write XMP Metadata";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test7(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+
+    // Test 8 - Read XML Data
+    testNumber = 8;
+    testName = "test"+testNumber
+    testTitle = "Read XML Data";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test8(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+
+    // Test 9 - Write XML Data
+    testNumber = 9;
+    testName = "test"+testNumber
+    testTitle = "Write XML Data";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test8(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
     }
 
     app.endPriv(); 
@@ -236,15 +527,7 @@ var addTestButtons = app.trustedFunction(
 );
 
 // Main script - These commands are run on Acrobat startup
-
-//initMarkingTool();
-//initMarkingMenu();
 addTestButtons();
-//checkPlugins();
-//testPopupMenu();
-//readXmp();
-//readXmlData();
-
 
 app.endPriv();
 
