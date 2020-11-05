@@ -2544,16 +2544,12 @@ var openRubricForMarking = app.trustedFunction(
 var showAboutInformation = app.trustedFunction(
   function() {
   
-     app.alert("UNISA eMarking Suite\n" +
-               "is delivered to UNISA under the\n" +
-               "FLOSS licencing regime\n" +
+     app.alert("PDF Marking tool\n" +
+               "For additional information, please refer to: https://github.com/Peanut-Butter-OSS/PDF-Marking-Tool" +
                "\n" +
                "----------------------------------------------------------------------------\n" +
-               "Version 1.7 - February 2015\n" +
+               "Version 1.8 - November 2020\n" +
                "\n" +
-               "proudly developed by\n" +
-               "KYLE BOWDEN in conjuction with Learning Curve\n" +
-               "kyle247365@gmail.com | +27 84 738 9643\n" +
                "----------------------------------------------------------------------------\n", 3);
   }
 );
