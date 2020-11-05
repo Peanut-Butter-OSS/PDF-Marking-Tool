@@ -20,6 +20,7 @@ Realisation Notes
    - None
  - Technical considerations
    - Determine how to do user-controlled configurations. This may be done as a seperate installer, or an Acrobat plugin
+   - Use glob.js
  - Priority (1=Very High, 5=Very Low)
    - TODO 
 
@@ -75,6 +76,7 @@ Realisation Notes
    - IMP-4
  - Technical considerations
    - Simple change to the finalisation function
+   - Store details in glob.js
  - Priority (1=Very High, 5=Very Low)
    - TODO 
    
@@ -162,7 +164,7 @@ Related to IMP-13, it would be valuable if each tick mark hs a small subscript t
 ### IMP-15 - Remember total possible marks if I reclick the Count option
 Currently, each time the user clicks on the "Count Marks" tool they would need to re-specify the total. 
 
-It would imprve usability if the value was pre-populated if the tool is aused a second time
+It would improve usability if the value was pre-populated if the tool is aused a second time
 
 ### IMP-16 - Deselect tool must be available when the "Mark" and "Comment mark" tools are selected
 The "deselect tool" tool is useful to enable users to be able to delete or move existing annotations. However, it is not currently enabled when the "Mark" or "Comment Mark" tools are selected
