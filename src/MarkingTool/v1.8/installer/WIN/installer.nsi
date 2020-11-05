@@ -49,11 +49,11 @@ Function .onInit
   # Derive the installation folder based on whether
   # the machine is running 32 or 64 bits
   ${If} ${RunningX64}
-    MessageBox MB_OK "Running in 64 bit mode"
+    #MessageBox MB_OK "Running in 64 bit mode"
     SetRegView 64
     StrCpy $INSTDIR "$PROGRAMFILES64\UNISA"
   ${Else}
-    MessageBox MB_OK "Running in 32 bit mode"
+    #MessageBox MB_OK "Running in 32 bit mode"
     SetRegView 32
     StrCpy $INSTDIR "$PROGRAMFILES\UNISA"
   ${EndIf}
@@ -115,11 +115,11 @@ Function .onInit
   # Derive the installation folder based on whether
   # the machine is running 32 or 64 bits
   ${If} ${RunningX64}
-    MessageBox MB_OK "Running in 64 bit mode"
+    #MessageBox MB_OK "Running in 64 bit mode"
     SetRegView 64
     StrCpy $INSTDIR "$PROGRAMFILES64\UNISA"
   ${Else}
-    MessageBox MB_OK "Running in 32 bit mode"
+    #MessageBox MB_OK "Running in 32 bit mode"
     SetRegView 32
     StrCpy $INSTDIR "$PROGRAMFILES\UNISA"
   ${EndIf}
@@ -139,18 +139,18 @@ Function checkForAcrobat
 
   # Check for an Adobe Acrobat key underneath the HKCU (HKEY_CURRENT_USER) root key
   # If nothing is found we abort.
-  MessageBox MB_OK "Verifying if any version of Adobe Acrobat is installed on the host machine"
+  #MessageBox MB_OK "Verifying if any version of Adobe Acrobat is installed on the host machine"
   Var /GLOBAL ACROBAT_KEY
   StrCpy $8 0
   loop:
     EnumRegKey $ACROBAT_KEY HKCU "Software\Adobe" $8
-    MessageBox MB_OK "Key Found (in $REGISTRY_VIEW bit registry):  $ACROBAT_KEY"
+    #MessageBox MB_OK "Key Found (in $REGISTRY_VIEW bit registry):  $ACROBAT_KEY"
     
     # Don't continue searching once we retrieve an empty key 
     StrCmp $ACROBAT_KEY "" done
 
     ${If} $ACROBAT_KEY == "Adobe Acrobat"
-      MessageBox MB_OK "Adobe Acrobat is installed on host machine"
+      #MessageBox MB_OK "Adobe Acrobat is installed on host machine"
       StrCpy $ACROBAT_INSTALLED "YES"
       Goto done
     ${EndIf}  
@@ -168,18 +168,18 @@ Function checkForAcrobatVersion
   # Verify the version of Acrobat by looping through sub-keys
   # Here, we are only checking for "DC", but in future we simply need to add
   # additional checks
-  MessageBox MB_OK "Checking the actual version of Adobe Acrobat that is installed on the host machine"
+  #MessageBox MB_OK "Checking the actual version of Adobe Acrobat that is installed on the host machine"
   Var /GLOBAL ACROBAT_SUB_KEY
   StrCpy $7 0
   loop:
     EnumRegKey $ACROBAT_SUB_KEY HKCU "Software\Adobe\Adobe Acrobat" $7
-    MessageBox MB_OK "Version found (in $REGISTRY_VIEW bit registry): $ACROBAT_SUB_KEY"
+    #MessageBox MB_OK "Version found (in $REGISTRY_VIEW bit registry): $ACROBAT_SUB_KEY"
 
     # Don't continue searching once we retrieve an empty key 
     StrCmp $ACROBAT_SUB_KEY "" done
 
     ${If} $ACROBAT_SUB_KEY == "DC"
-      MessageBox MB_OK "Adobe Acrobat DC is installed on host machine"
+      #MessageBox MB_OK "Adobe Acrobat DC is installed on host machine"
       StrCpy $ACROBAT_VERSION "DC"
       StrCpy $ACROBAT_FULL_KEY "Software\Adobe\Adobe Acrobat\$ACROBAT_SUB_KEY"
       Goto done
