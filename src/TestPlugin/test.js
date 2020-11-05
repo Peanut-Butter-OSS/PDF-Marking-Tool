@@ -117,45 +117,75 @@ var readXmp = app.trustedFunction(
 var readXmlData = app.trustedFunction(
   function() {
     app.beginPriv();
-    var cFileName = "CustomerData.xml";
+    var cFileName = "Config.xml";
     var cJSPath = app.getPath("app","javascript")
     //var cJSPathFormatted = app.getPath("user","javascript").replace(/\/?$/,"/");
-    console.println("Folder Path: "+cJSPath)
+    console.println("Javascript Folder Path: "+cJSPath)
     //console.println("Formatted Path: "+cJSPathFormatted)
-    cFilePath = cJSPath + "/" + cFileName;
-    console.println("File Path: "+cFilePath)
+    cConfigFilePath = cJSPath + "/MarkingToolData/" + cFileName;
+    console.println("File Path: "+cConfigFilePath)
     var nRtn = 0;
     var stmData = null;
 
     // Load file into Acrobat 
     try{
-       stmData = util.readFileIntoStream(cFilePath);
-    }catch(e){
+       stmData = util.readFileIntoStream(cConfigFilePath);
+    } catch(e){
       // Load Failed so ask user if they want to browse for file
-      var cMsg = "Customer Data File not Found:\n" + cFilePath + "\n\nDo you whish to browse for the file";
+      var cMsg = "Config file not found:\n" + cConfigFilePath + "\n\nDo you whish to browse for the file";
       nRtn = app.alert(cMsg,1,2,"File access error");
     }
 
-   // Parse stream data if it was loaded
-   if(stmData)
-   {// File data loaded, 
-      
+    // Parse stream data if it was loaded
+    if(stmData) {
       // Remove Header And Parse into E4X object
       var xmlData = null;
       try{
          var cData = util.stringFromStream(stmData);
          xmlData = eval(cData.replace(/^\<\?.*\?\>\s*/,""));
-         console.println("XML Data: "+xmlData)
-      }catch(e){
+         console.println("XML Data: ");
+         console.println(xmlData);
+      } catch(e){
          xmlData = null;
          var cMsg = "Error Parsing Customer XML Data\n\n" + e + "\n\nAborting Operation";
          app.alert(cMsg,0,0,cAlertTitle);
       }
-   }
+    }
+    app.endPriv(); 
+  }
+);
 
+var writeXmlData = app.trustedFunction(
+  function() {
+    app.beginPriv();
+    
     // var cMyC = "abc";
     // var doc = this.createDataObject({cName: "test.txt", cValue: cMyC});
     // this.exportDataObject({cName: "test.txt", nLaunch:0});
+
+    app.endPriv(); 
+  }
+);
+
+var readGloballyPersistedData = app.trustedFunction(
+  function() {
+    app.beginPriv();
+    
+    var y = global.x;
+    console.println("Value read from Global data is: "+y);
+
+    app.endPriv(); 
+  }
+);
+
+var writeGloballyPersistedData = app.trustedFunction(
+  function() {
+    app.beginPriv();
+    
+    var value = Date.now();
+    global.x = value;
+    global.setPersistent("x", true);
+    console.println("Setting global variable x to: "+value);
 
     app.endPriv(); 
   }
@@ -336,8 +366,51 @@ var test9 = app.trustedFunction(
   }
 );
 
-// Test 10 - Placeholder for future tests
+// Test 10 - Read Globally Persisted Data
 var test10 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    console.println("TestHanlde received from calling function: "+testHandle);
+
+    try {
+      testDescription = "This test will read a few values to globally persisted variables. \n";
+      testDescription = testDescription + "Globally persisted variables are accessible from any open PDF doc. they are stored in the glob.js file which is contained in the Javascripts folder \n\n";
+      testDescription = testDescription + "To test effectively, first write the variables (Test 11). Then close Acrobat, open another PDF and read the value"
+      app.alert(testDescription,3,0,testHandle);
+      readGloballyPersistedData();
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 11 - Write Globally Persisted Data
+var test11 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test will write a few values to globally persisted variables. \n";
+      testDescription = testDescription + "Globally persisted variables are accessible from any open PDF doc. They are stored in the glob.js file which is contained in the Javascripts folder \n\n";
+      testDescription = testDescription + "To test effectively, first write the variables. Then close Acrobat, open another PDF and read the value (Test 10)"
+      app.alert(testDescription,3,0,testHandle);
+      writeGloballyPersistedData();
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+      console.println(Error);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 12 - Placeholder for future tests
+var test12 = app.trustedFunction(
   function(testHandle) {
     app.beginPriv();
 
@@ -514,7 +587,43 @@ var addTestButtons = app.trustedFunction(
       ({
         cName: testName,
         cLabel: testHandle, 
-        cExec: "test8(testHandle);",
+        cExec: "test9(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+
+    // Test 10 - Read Global Data
+    testNumber = 10;
+    testName = "test"+testNumber
+    testTitle = "Read Global DataXX";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test10(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+    
+    // Test 11 - Write Global Data
+    testNumber = 11;
+    testName = "test"+testNumber
+    testTitle = "Write Global Data";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test11(testHandle);",
         cTooltext: testHandle,
         nPos: testNumber
       });

@@ -189,6 +189,8 @@ Selected for release 2.0
 ### IMP-20 - Rename config.js to marking-tool-config.js
 The config JS file has a very generic name which could cause confusion. A simple solution is to simply rename it to "marking-tool-config"
 
+Note: We still need a config.js file, because it ensures that it is run first, but config.js can simply reference marking-tool-config.js
+
 Selected for release 2.0
 
 ### IMP-21 - Rename unisa_func.js to marking-tool-func.js

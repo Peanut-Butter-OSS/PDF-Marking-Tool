@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MarkingToolConfig>
+  <ReadyToMarkFolder>/C/etc/</ReadyToMarkFolder>
+  <MarkingCompleteFolder>/C/etc/</MarkingCompleteFolder>
+  <RubricFilesFolder>/C/etc/</MarkingCompleteFolder>
+  <MarkerDetails>
+    <Name>Joe Bloggs</Name>
+  </MarkerDetails>
+</MarkingToolConfig>
