@@ -155,13 +155,67 @@ var readXmlData = app.trustedFunction(
   }
 );
 
+
+
+function DumpDataObjectInfo(dataobj)
+{
+  for (var i in dataobj)
+  console.println(dataobj.name + "[" + i + "]=" + dataobj[i]);
+}
+
+// Writing ad-hoc XML data is a bit limited, but in this method we have a couple of tests.
+//  Try 4 seems to be the most likely candidate for Rubric capability, since the user would 
+// be able to store the Rubric in any usable location.
 var writeXmlData = app.trustedFunction(
   function() {
     app.beginPriv();
-    
-    // var cMyC = "abc";
-    // var doc = this.createDataObject({cName: "test.txt", cValue: cMyC});
-    // this.exportDataObject({cName: "test.txt", nLaunch:0});
+
+    // =====================
+    // Try 1
+    // =====================
+
+    // // var xmlString = "<test>Hello</test>";
+    // // var fileName = "TestRubric.xml";
+    // // var filePath = app.getPath() + "Javascripts/MarkingToolData/" +fileName;
+    // // this.createDataObject("myObject", xmlString);
+    // // this.exportDataObject("myObject", filePath);
+
+    // =====================
+    // Try 2 
+    // =====================
+    // var code = showDate;
+
+    // var executable = "/*";
+    // executable += "\n A nice, short startup script";
+    // executable += "\n*/";
+    // executable += "\n" + code;
+    // executable += "showDate()";
+    // executable += "\n// EOF";
+    // this.createDataObject("myObject",executable);
+
+    // this.exportDataObject("theDataObject",
+    // app.getPath() +
+    // "Javascripts/showDateScript.js");
+
+    // =====================
+    // Try 3
+    // =====================
+    // this.importDataObject("MyData");
+    // var xmlString = "<test>Hello</test>";
+    // var oFile = util.streamFromString(xmlString, "utf-8");
+    // this.setDataObjectContents("MyData", oFile);
+    // this.exportDataObject("MyData");
+    // DumpDataObjectInfo(this.getDataObject("MyData"));
+
+    // =====================
+    // Try 4
+    // Note: You cannot specify the folder, especially if the folder is a secure location
+    // =====================
+    var xmlString = "<test>Hello</test>";
+    //var oFile = util.streamFromString(xmlString, "utf-8");
+    this.createDataObject("TestRubric.xml",xmlString);
+    this.exportDataObject("TestRubric.xml");
+    DumpDataObjectInfo(this.getDataObject("TestRubric.xml"));
 
     app.endPriv(); 
   }
@@ -202,6 +256,7 @@ var test1 = app.trustedFunction(
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
@@ -221,6 +276,7 @@ var test2 = app.trustedFunction(
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
@@ -242,6 +298,7 @@ var test3 = app.trustedFunction(
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
@@ -263,6 +320,7 @@ var test4 = app.trustedFunction(
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
@@ -282,6 +340,7 @@ var test5 = app.trustedFunction(
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
@@ -301,6 +360,7 @@ var test6 = app.trustedFunction(
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
@@ -320,6 +380,7 @@ var test7 = app.trustedFunction(
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
@@ -341,6 +402,7 @@ var test8 = app.trustedFunction(
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
@@ -353,13 +415,14 @@ var test9 = app.trustedFunction(
     app.beginPriv();
 
     try {
-      testDescription = " \n";
-      testDescription = testDescription + "";
+      testDescription = "This test is used to explore options for writing XML data to the file system \n";
+      testDescription = testDescription + "It builds a dummy XML file as a string and then writes it out as a dataObject";
       app.alert(testDescription,3,0,testHandle);
-      // TODO
+      writeXmlData();
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
@@ -382,6 +445,7 @@ var test10 = app.trustedFunction(
       app.alert('Complete',3,0,testHandle);
     } catch(Error) {
       console.println("Error while executing test: "+testHandle);
+      console.println(Error);
     }
 
     app.endPriv();  
