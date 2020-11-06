@@ -225,8 +225,20 @@ var readGloballyPersistedData = app.trustedFunction(
   function() {
     app.beginPriv();
     
-    var y = global.x;
-    console.println("Value read from Global data is: "+y);
+    var readLastUpdated = global.lastUpdated;
+    console.println("Value read from Global data is: lastUpdated:  "+readLastUpdated);
+
+    var readReadyToMarkFolder = global.readyToMarkFolder;
+    console.println("Value read from Global data is: readyToMarkFolder:  "+readReadyToMarkFolder);
+
+    var readMarkingCompleteFolder = global.markingCompleteFolder;
+    console.println("Value read from Global data is: markingCompleteFolder:  "+readMarkingCompleteFolder);
+
+    var readRubricFilesFolder = global.rubricFilesFolder;
+    console.println("Value read from Global data is: rubricFilesFolder:  "+readRubricFilesFolder);
+
+    var readMarkerName = global.markerName;
+    console.println("Value read from Global data is: markerName:  "+readMarkerName);
 
     app.endPriv(); 
   }
@@ -236,10 +248,22 @@ var writeGloballyPersistedData = app.trustedFunction(
   function() {
     app.beginPriv();
     
-    var value = Date.now();
-    global.x = value;
-    global.setPersistent("x", true);
-    console.println("Setting global variable x to: "+value);
+    global.lastUpdated = Date.now();
+    global.setPersistent("lastUpdated", true);
+    
+    global.readyToMarkFolder = "/c/some/folder";
+    global.setPersistent("readyToMarkFolder", true);
+
+    global.markingCompleteFolder = "/c/some/folder";
+    global.setPersistent("markingCompleteFolder", true);
+
+    global.rubricFilesFolder = "/c/some/folder";
+    global.setPersistent("rubricFilesFolder", true);
+
+    global.markerName = "Some Marker"
+    global.setPersistent("markerName", true);
+
+    //console.println("Setting global variable x to: "+value);
 
     app.endPriv(); 
   }
@@ -333,6 +357,123 @@ var getBasicDialog = app.trustedFunction(
     app.endPriv();
     
     return dialog1;   
+  }
+);
+
+var getPrepopConfigDialog = app.trustedFunction(
+  function() {
+    app.beginPriv();
+
+    var dialog2 = {
+      initialize: function (dialog) {
+        // Create a static text containing the current date.
+        var todayDate = dialog.store()["date"];
+        todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
+
+        // Load from Global configs
+        var readReadyToMarkFolder = global.readyToMarkFolder;
+        var readMarkingCompleteFolder = global.markingCompleteFolder;
+        var readRubricFilesFolder = global.rubricFilesFolder;
+        var readMarkerName = global.markerName;
+
+        dialog.load({ 
+          "date": todayDate,
+          "rtmf": readReadyToMarkFolder,
+          "mcfl": readMarkingCompleteFolder,
+          "rbfl": readRubricFilesFolder
+        });
+      },
+      commit:function (dialog) { 
+        // called when OK pressed
+        var results = dialog.store();
+        // Now do something with the data collected, for example,
+        global.readyToMarkFolder = results['rtmf'];
+        global.markingCompleteFolder = results['mcfl'];
+        global.rubricFilesFolder = results['rbfl'];
+        global.markerName = "Dummy value";
+      },
+      description:
+      {
+        name: "Marking Tool Configuration", // Dialog box title
+        align_children: "align_left",
+        width: 350,
+        height: 400,
+        elements:
+        [
+          {
+            type: "ok_cancel",
+            ok_name: "Ok",
+            cancel_name: "Cancel"
+          },
+          {
+            type: "cluster",
+            name: "System Folders",
+            align_children: "align_left",
+            elements:
+            [
+              {
+                type: "view",
+                align_children: "align_row",
+                elements:
+                [
+                  {
+                    type: "static_text",
+                    name: "Ready to mark folder:    "
+                  },
+                  {
+                    item_id: "rtmf",
+                    type: "edit_text",
+                    alignment: "align_fill",
+                    width: 300,
+                    height: 20
+                  }
+                ]
+              },
+              {
+                type: "view",
+                align_children: "align_row",
+                elements:
+                [
+                  {
+                    type: "static_text",
+                    name: "Marking Complete Folder: "
+                  },
+                  {
+                    item_id: "mcfl",
+                    type: "edit_text",
+                    alignment: "align_fill",
+                    width: 300,
+                    height: 20
+                  }
+                ]
+              },
+              {
+                type: "view",
+                align_children: "align_row",
+                elements:
+                [
+                  {
+                    type: "static_text",
+                    name: "Rubrics Folder:          "
+                  },
+                  {
+                    item_id: "rbfl",
+                    type: "edit_text",
+                    alignment: "align_fill",
+                    width: 300,
+                    height: 20
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+    app.endPriv();
+    
+    return dialog2;   
   }
 );
 
@@ -584,6 +725,26 @@ var test12 = app.trustedFunction(
   }
 );
 
+// Test 13 - Prepopulated Dialog
+var test13 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test opens a dialog with information prepopulated from global variables \n";
+      testDescription = testDescription + "Note: Run test 11 first, to ensure there is data available in global variables";
+      app.alert(testDescription,3,0,testHandle);
+      var configDialog = getPrepopConfigDialog();
+      app.execDialog(configDialog);
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
 // Test 99 - Placeholder for future tests
 var test99 = app.trustedFunction(
   function(testHandle) {
@@ -817,6 +978,24 @@ var addTestButtons = app.trustedFunction(
         cName: testName,
         cLabel: testHandle, 
         cExec: "test12(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+
+    // Test 13 - Prepopulated Dialog
+    testNumber = 13;
+    testName = "test"+testNumber
+    testTitle = "Prepopulated Dialog";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test13(testHandle);",
         cTooltext: testHandle,
         nPos: testNumber
       });
