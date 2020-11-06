@@ -245,6 +245,97 @@ var writeGloballyPersistedData = app.trustedFunction(
   }
 );
 
+var getBasicDialog = app.trustedFunction(
+  function() {
+    app.beginPriv();
+
+    var dialog1 = {
+      initialize: function (dialog) {
+        // Create a static text containing the current date.
+        var todayDate = dialog.store()["date"];
+        todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
+        dialog.load({ "date": todayDate });
+      },
+      commit:function (dialog) { 
+        // called when OK pressed
+        var results = dialog.store();
+        // Now do something with the data collected, for example,
+        console.println("Your name is " + results["fnam"]+ " " + results["lnam"] );
+      },
+      description:
+      {
+        name: "Personal Data", // Dialog box title
+        align_children: "align_left",
+        width: 350,
+        height: 200,
+        elements:
+        [
+          {
+            type: "cluster",
+            name: "Your Name",
+            align_children: "align_left",
+            elements:
+            [
+              {
+                type: "view",
+                align_children: "align_row",
+                elements:
+                [
+                  {
+                    type: "static_text",
+                    name: "First Name: "
+                  },
+                  {
+                    item_id: "fnam",
+                    type: "edit_text",
+                    alignment: "align_fill",
+                    width: 300,
+                    height: 20
+                  }
+                ]
+              },
+              {
+                type: "view",
+                align_children: "align_row",
+                elements:
+                [
+                  {
+                    type: "static_text",
+                    name: "Last Name: "
+                  },
+                  {
+                    item_id: "lnam",
+                    type: "edit_text",
+                    alignment: "align_fill",
+                    width: 300,
+                    height: 20
+                  }
+                ]
+              },
+              {
+                type: "static_text",
+                name: "Date: ",
+                char_width: 25,
+                item_id: "date"
+              },
+            ]
+          },
+          {
+            alignment: "align_right",
+            type: "ok_cancel",
+            ok_name: "Ok",
+            cancel_name: "Cancel"
+          }
+        ]
+      }
+    };
+
+    app.endPriv();
+    
+    return dialog1;   
+  }
+);
+
 // Test 1 - Sanity
 var test1 = app.trustedFunction(
   function(testHandle) {
@@ -473,8 +564,28 @@ var test11 = app.trustedFunction(
   }
 );
 
-// Test 12 - Placeholder for future tests
+// Test 12 - Show basic Dialog
 var test12 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test shows a basic dialog that can be edited by the user. \n";
+      testDescription = testDescription + "Data is simply printed to the console";
+      app.alert(testDescription,3,0,testHandle);
+      var dialog = getBasicDialog();
+      app.execDialog(dialog);
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
+// Test 99 - Placeholder for future tests
+var test99 = app.trustedFunction(
   function(testHandle) {
     app.beginPriv();
 
@@ -688,6 +799,24 @@ var addTestButtons = app.trustedFunction(
         cName: testName,
         cLabel: testHandle, 
         cExec: "test11(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+
+    // Test 12 - Basic Dialog
+    testNumber = 12;
+    testName = "test"+testNumber
+    testTitle = "Basic Dialog";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test12(testHandle);",
         cTooltext: testHandle,
         nPos: testNumber
       });
