@@ -477,6 +477,24 @@ var getPrepopConfigDialog = app.trustedFunction(
   }
 );
 
+var createRuntimeForm = app.trustedFunction(
+  function() {
+    app.beginPriv();
+    
+    var aNewDoc = app.activeDocs[0];
+    var field1 = aNewDoc.addField("Text1", "text", 0, [0,100,100,0]);
+    field1.borderStyle = "solid";
+
+    var btnOpenRubric = aNewDoc.addField("btnOpenRubric", "button", 0, [5, 5, 70, 30]);
+    btnOpenRubric.buttonSetCaption("Open Rubric");
+    btnOpenRubric.setAction("MouseUp", "app.alert('Yippee')");
+    btnOpenRubric.borderStyle = "beveled";
+    btnOpenRubric.highlight = "push";
+    btnOpenRubric.lineWidth = 2;
+    app.endPriv();
+  }
+);
+
 // Test 1 - Sanity
 var test1 = app.trustedFunction(
   function(testHandle) {
@@ -745,6 +763,25 @@ var test13 = app.trustedFunction(
   }
 );
 
+// Test 14 - Runtime Form
+var test14 = app.trustedFunction(
+  function(testHandle) {
+    app.beginPriv();
+
+    try {
+      testDescription = "This test will build an FDF form at runtime \n";
+      testDescription = testDescription + "For this initial test, the list of fields are hard-coded";
+      app.alert(testDescription,3,0,testHandle);
+      createRuntimeForm();
+      app.alert('Complete',3,0,testHandle);
+    } catch(Error) {
+      console.println("Error while executing test: "+testHandle);
+    }
+
+    app.endPriv();  
+  }
+);
+
 // Test 99 - Placeholder for future tests
 var test99 = app.trustedFunction(
   function(testHandle) {
@@ -996,6 +1033,24 @@ var addTestButtons = app.trustedFunction(
         cName: testName,
         cLabel: testHandle, 
         cExec: "test13(testHandle);",
+        cTooltext: testHandle,
+        nPos: testNumber
+      });
+    } catch(Error) {
+      console.println("Error while adding Test "+testNumber+" toolbar button");
+    }
+
+    // Test 14 - Runtime FDF form
+    testNumber = 14;
+    testName = "test"+testNumber
+    testTitle = "Runtime FDF Form";
+    testHandle = "Test " + testNumber + " " + testTitle;
+    try {
+      app.addToolButton
+      ({
+        cName: testName,
+        cLabel: testHandle, 
+        cExec: "test14(testHandle);",
         cTooltext: testHandle,
         nPos: testNumber
       });
