@@ -1,16 +1,96 @@
 /*
-
-  Config.js runs one when Acrobat is opened with a document. 
-  It initializes the marking toolbar and rubrik button 
-  All toolbar buttons reference functions implemented in unisa_func.js
-
+  Config.js runs once when Acrobat is opened with a document. 
+  According to the Acrobat scripting API the file titled "config.js" is guaranteed to be executed first
+  It performs various initialization steps that are required by other scripts, including:
+   - Adding the marking tool menu
+   - Creating the marking tool buttons
+   - Setting global configurations
 */ 
 app.beginPriv();
 
-var aActiveDocs = app.activeDocs;
-var aNewDoc = aActiveDocs[0];
+console.println("Initializing PDF Marking Tool.");
+
 var initError = false;
 var initErrorMsg = "Initialization Errors: \n";
+var errorMsg = ""
+
+// Documents can have 4 marking states: UNMARKED, IN_PROGRESS, COUNTED, FINALIZED
+// These states define what functions are available to the user
+var markingState = "UNMARKED"
+
+// The active flag indicates whether the tools are currently active
+var markingToolsActive = false;
+
+var initMarkingMenu = app.trustedFunction(
+  function() {
+    app.beginPriv();
+    console.println("(Re-)Initializing application menu for marking tool.");
+
+    try {
+      app.addSubMenu({ cName: "PDF Marking Tool", cParent: "Edit"})
+      app.addMenuItem({ 
+        cName: "Config",
+        cParent: "PDF Marking Tool", 
+        cExec: "app.alert('TODO');"});
+      app.addMenuItem({ 
+        cName: "About", 
+        cParent: "PDF Marking Tool", 
+        cExec: "app.alert('Hello from the marking tool');"});
+      if (markingToolsActive) {
+        app.addMenuItem({ 
+          cName: "Disable",
+          cParent: "PDF Marking Tool", 
+          cExec: "disableMarkingTools();"});
+      } else {
+        app.addMenuItem({ 
+          cName: "Enable",
+          cParent: "PDF Marking Tool", 
+          cExec: "enableMarkingTools();"});
+      }
+    } catch(Error) {
+      errorMsg = "Error while initializing marking tool menu: "+Error;
+      console.println(errorMsg);
+      initError = true;
+      initErrorMsg = initErrorMsg + " - " + errorMsg + "\n";
+    }
+
+    app.endPriv();
+  }
+);
+
+var refreshMarkingMenu = app.trustedFunction(
+  function() {
+    app.beginPriv();
+    console.println("Refreshing application menu for marking tool.");
+
+    try {
+      if (markingToolsActive) {
+        app.hideMenuItem({ cName: "Enable"});
+        app.addMenuItem({ 
+          cName: "Disable",
+          cParent: "PDF Marking Tool", 
+          cExec: "disableMarkingTools();"});
+      } else {
+        app.hideMenuItem({ cName: "Disable"});
+        app.addMenuItem({ 
+          cName: "Enable",
+          cParent: "PDF Marking Tool", 
+          cExec: "enableMarkingTools();"});
+      }
+    } catch(Error) {
+      errorMsg = "Error while refreshing marking tool menu: "+Error;
+      console.println(errorMsg);
+    }
+
+    app.endPriv();
+  }
+);
+
+initMarkingMenu();
+
+var aActiveDocs = app.activeDocs;
+var aNewDoc = aActiveDocs[0];
+
 
 if (aNewDoc != null) {
   // TODO - Seems like we're removing buttons from the form - Confirm when these are added
@@ -352,6 +432,12 @@ if (aNewDoc != null) {
   } catch(Error)  {
     app.alert("An unknown error occurred while loading the marking tool plugin.")
   }
+}
+
+console.println("Initialization of PDF Marking Tool Complete ");
+console.println("Errors found?: "+initError)
+if (initError) {
+  console.println(initErrorMsg)
 }
 
 app.endPriv();

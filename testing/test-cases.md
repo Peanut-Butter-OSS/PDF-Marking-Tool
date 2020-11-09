@@ -1,14 +1,38 @@
 # Test Cases
 
 ## Plugin
-1. Open PDF in read mode, Acrobat current closed
-2. Open PDF in read mode, Acrobat already open
-3. Open PDF in edit mode
-4. Open a document with a Rubric
-5. Open a document without a rubric
-6. Open a document that has already been finalised
-7. Open a document at an HTTP path
-8. Icons accidentally deleted from resources folder
+
+### IMP-7 Marking Tool Menu
+1. Menu while marking tools are disabled
+2. Menu while marking tools are enabled
+3. About popup
+
+### IMP-8 Enable/Disable Marking Tools
+1. Attempt to enable while multiple documents are open
+2. Attempt to enable if no document is open
+3. Enable if already enabled (Use JS console)
+4. Disable is already disabled (Use JS console)
+5. Enable if icon files cannot be found
+
+### IMP-1 Configured Location for MArked and unmarked files
+TODO
+
+### IMP-4 Configure details of marker
+TODO
+
+### IMP-10 Replacement rubric functionality
+TODO
+
+
+6. Open PDF in read mode, Acrobat current closed
+7. Open PDF in read mode, Acrobat already open
+8. Open PDF in edit mode
+9. Open a document with a Rubric
+10. Open a document without a rubric
+11. Open a document that has already been finalised
+12. Open a document at an HTTP path
+13. Icons accidentally deleted from resources folder
+14. 
 
 ## Windows Installer
 
