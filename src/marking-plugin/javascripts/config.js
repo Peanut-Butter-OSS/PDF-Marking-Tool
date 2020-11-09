@@ -10,6 +10,8 @@ app.beginPriv();
 
 console.println("Initializing PDF Marking Tool.");
 
+var markingToolVersion = "2.0 - UNRELEASED"
+var markingToolReleaseDate = "YYYY-MM-DD"
 var initError = false;
 var initErrorMsg = "Initialization Errors: \n";
 var errorMsg = ""
@@ -35,7 +37,7 @@ var initMarkingMenu = app.trustedFunction(
       app.addMenuItem({ 
         cName: "About", 
         cParent: "PDF Marking Tool", 
-        cExec: "app.alert('Hello from the marking tool');"});
+        cExec: "showAboutInfo();"});
       if (markingToolsActive) {
         app.addMenuItem({ 
           cName: "Disable",
@@ -87,6 +89,10 @@ var refreshMarkingMenu = app.trustedFunction(
 );
 
 initMarkingMenu();
+
+
+
+
 
 var aActiveDocs = app.activeDocs;
 var aNewDoc = aActiveDocs[0];
