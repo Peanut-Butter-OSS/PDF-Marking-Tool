@@ -1,0 +1,21 @@
+<?xpacket begin='﻿' id='52304e998378497f9018c6c8abb8e9c4'?>
+<x:xmpmeta xmlns:x='adobe:ns:meta/'>
+<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+         xmlns:mrk='http://pboss.org/pdfmarkingtool/2.0/'>
+ <rdf:Description rdf:about=''>
+    <mrk:Course>
+        <rdf:Description>
+            <mrk:CourseCode>TODO-CourseCode-XXX</mrk:CourseCode>
+            <mrk:CourseName>LibreOffice 7.0</mrk:CourseName>
+        <rdf:Description>
+    </mrk:Course>
+    <mrk:CommentsLibrary>
+        <rdf:Bag>
+            <rdf:li>Comment 1</rdf:li>
+            <rdf:li>Comment 2</rdf:li>
+        <rdf:Bag>
+    </mrk:CommentsLibrary>
+ </rdf:Description>
+</rdf:RDF>
+</x:xmpmeta>
+<?xpacket end='w'?>
