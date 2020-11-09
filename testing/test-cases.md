@@ -3,16 +3,18 @@
 ## Plugin
 
 ### IMP-7 Marking Tool Menu
-1. Menu while marking tools are disabled
-2. Menu while marking tools are enabled
-3. About popup
+1. Menu while marking tools are disabled (PASSED)
+2. Menu while marking tools are enabled (PASSED)
+3. About popup (PASSED)
 
 ### IMP-8 Enable/Disable Marking Tools
-1. Attempt to enable while multiple documents are open
-2. Attempt to enable if no document is open
-3. Enable if already enabled (Use JS console)
-4. Disable is already disabled (Use JS console)
-5. Enable if icon files cannot be found
+1. Successful activation (Tools are added)
+2. Successful deactivation (Tools are removed)
+3. Attempt to enable while multiple documents are open (PASSED)
+4. Attempt to enable if no document is open (PASSED)
+5. Enable if already enabled (Use JS console) (PASSED)
+6. Disable is already disabled (Use JS console) (PASSED)
+7. Enable if icon files cannot be found
 
 ### IMP-1 Configured Location for MArked and unmarked files
 TODO
