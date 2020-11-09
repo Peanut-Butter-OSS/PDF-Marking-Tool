@@ -3,6 +3,8 @@
 ; Mostly rewritten for Acrobat DC by Greg Fullard
 ; --------------------------------
 
+!define MUI_FINISHPAGE_NOAUTOCLOSE ;No value
+
 !include LogicLib.nsh
 !include MUI2.nsh
 !include x64.nsh
@@ -70,42 +72,6 @@ Function .onInit
   StrCpy $ACROBAT_FULL_KEY "Software\Adobe\Adobe Acrobat\DC"
   StrCpy $EXPIRED_TRIAL "NO"
 
-  # Confirm that Acrobat DC is installed on the machine
-  # If not, abort
-  StrCpy $ACROBAT_INSTALLED "Unknown"
-  StrCpy $ACROBAT_VERSION "Unknown"
-  StrCpy $ACROBAT_FULL_KEY "Unknown"
-  StrCpy $EXPIRED_TRIAL "Unknown"
-
-  #call checkForAcrobatAndVersion
-  SetRegView 64
-  StrCpy $REGISTRY_VIEW "64" 
-  call checkForAcrobat
-  ${If} $ACROBAT_INSTALLED == "Unknown"
-    SetRegView 32
-    StrCpy $REGISTRY_VIEW "32"
-    call checkForAcrobat 
-  ${EndIf}
-  ${If} $ACROBAT_INSTALLED == "Unknown"
-    MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
-    Abort   
-  ${EndIf}  
-
-  SetRegView 64
-  StrCpy $REGISTRY_VIEW "64" 
-  call checkForAcrobatVersion
-  ${If} $ACROBAT_VERSION == "Unknown"
-    SetRegView 32
-    StrCpy $REGISTRY_VIEW "32" 
-    call checkForAcrobatVersion
-  ${EndIf}  
-  ${If} $ACROBAT_VERSION == "Unknown"
-    MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
-    Abort
-  #${Else}
-  #  MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
-  ${EndIf}  
-
   ; call checkForExpiredTrial
   ; ${If} $EXPIRED_TRIAL == "Unknown"
   ;   MessageBox MB_OK 'The host machine contains legacy registry entries for an expired Acrobat trial. However, Acrobat is not installed, cannot continue with installation.'
@@ -127,9 +93,6 @@ Function .onInit
   # Configure expected installation folder for Acrobat
   Var /GLOBAL ACROBAT_FOLDER
   call deriveAcrobatJsPath
-
-  # Make relevant registry entries that will apply Acrobat setting changes
-  call makeRegistryEntries
 
 FunctionEnd
  
@@ -217,67 +180,6 @@ FunctionEnd
 
 ; FunctionEnd
 
-; # This function checks whether Acrobat is installed. If it is, it continues to check which
-; # version
-; Function checkForAcrobatAndVersion
-;   ClearErrors
-
-;   # Check for an Adobe Acrobat key underneath the HKCU (HKEY_CURRENT_USER) root key
-;   # If nothing is found we abort.
-;   MessageBox MB_OK "Verifying if any version of Adobe Acrobat is installed on the host machine"
-;   Var /GLOBAL ACROBAT_KEY
-;   StrCpy $8 0
-;   loop1:
-;     EnumRegKey $ACROBAT_KEY HKCU "Software\Adobe" $8
-;     MessageBox MB_OK "Key Found: $ACROBAT_KEY"
-    
-;     # Don't continue searching once we retrieve an empty key 
-;     StrCmp $ACROBAT_KEY "" done1
-
-;     ${If} $ACROBAT_KEY == "Adobe Acrobat"
-;       MessageBox MB_OK "Adobe Acrobat is installed on host machine"
-;       StrCpy $ACROBAT_INSTALLED "YES"
-;       Goto done1
-;     ${EndIf}  
-   
-;     ${if} ${Errors}
-;       #MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
-;       MessageBox MB_OK "Error while checking if Adobe Acrobat is installed: $Errors"
-;       Abort
-;     ${EndIf}
-
-;     IntOp $8 $8 + 1 
-;     Goto loop1
-;   done1:
-
-;   #StrCmp $ACROBAT_INSTALLED "Unknown" done3 
-
-;   # Verify the version of Acrobat by looping through sub-keys
-;   # Here, we are only checking for "DC", but in future we simply need to add
-;   # additional checks
-;   MessageBox MB_OK "Verifying if the version of Adobe Acrobat that is installed on the host machine"
-;   Var /GLOBAL ACROBAT_SUB_KEY
-;   StrCpy $7 0
-;   loop2:
-;     EnumRegKey $ACROBAT_SUB_KEY HKCU "Software\Adobe\Adobe Acrobat" $7
-;     MessageBox MB_OK "Version found: $ACROBAT_SUB_KEY"
-
-;     # Don't continue searching once we retrieve an empty key 
-;     StrCmp $ACROBAT_SUB_KEY "" done2
-
-;     ${If} $ACROBAT_SUB_KEY == "DC"
-;       StrCpy $ACROBAT_VERSION "DC"
-;       StrCpy $ACROBAT_FULL_KEY "Software\Adobe\Adobe Acrobat\$ACROBAT_SUB_KEY"
-;       Goto done2
-;     ${EndIf}  
-  
-;     IntOp $7 $7 + 1 
-;     Goto loop2
-;   done2: 
-
-;   #done3:
-
-; FunctionEnd
 
 # Depending on the version of Acrobat, this function will derive the correct path for the 
 # Javascripts. Currently we only do this for DC, but theoretically it will be easy to 
@@ -301,7 +203,6 @@ Function makeRegistryEntries
   WriteRegStr HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "JavascriptPath" $ACROBAT_FOLDER
 FunctionEnd
 
-
 # --------------------------------
 # General Settings
 # These settings are referenced by some of the pages during the execution of the 
@@ -318,7 +219,6 @@ FunctionEnd
   !define MUI_ABORTWARNING
 
 # --------------------------------
- 
 
 #--------------------------------
 # Pages
@@ -332,6 +232,10 @@ FunctionEnd
   !insertmacro MUI_PAGE_WELCOME
   !insertmacro MUI_PAGE_LICENSE ${LICENSE_FILE}
 
+  !define MUI_COMPONENTSPAGE_TEXT_TOP "The marking tool consists of a set of Javascript files and some resources that are referenced by them. You can select to skip some of the steps of the installation process, but ideally, all steps should be performed."
+  !define MUI_COMPONENTSPAGE_TEXT_COMPLIST "Installation steps$\r$\nNote: If you select to skip the Acrobat verification step, $\r$\nyou MUST manually verify that Acrobat DC is installed first."
+  !insertmacro MUI_PAGE_COMPONENTS
+
   # Add a directory page to let the user specify a plug-ins folder. Use the folder
   # derived during initialisation as the default ()
   # Store the folder in $ACROBAT_FOLDER
@@ -339,7 +243,8 @@ FunctionEnd
   !define MUI_DIRECTORYPAGE_TEXT_TOP 'The marking tool is installed in 2 locations. $\r$\n  1. Tool assets are installed in a fixed location at $INSTDIR. $\r$\n  2. The plugin code is installed within your Adobe Acrobat folder. $\r$\n$\r$\nDepending on your machine setup, Adobe Acrobat may be installed in a non-standard location. If so, please ensure you select the correct Javascripts folder which exists within your Acrobat installation folder.'
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
-  
+  !insertmacro MUI_PAGE_FINISH
+
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
   
@@ -351,14 +256,60 @@ FunctionEnd
  
   !insertmacro MUI_LANGUAGE "English"
 
-Section "Install"
+Section "Verify Acrobat Version" Section1
+  
+# Confirm that Acrobat DC is installed on the machine
+  # If not, abort
+  StrCpy $ACROBAT_INSTALLED "Unknown"
+  StrCpy $ACROBAT_VERSION "Unknown"
+  StrCpy $ACROBAT_FULL_KEY "Unknown"
+  StrCpy $EXPIRED_TRIAL "Unknown"
+
+  SetRegView 64
+  StrCpy $REGISTRY_VIEW "64" 
+  call checkForAcrobat
+  ${If} $ACROBAT_INSTALLED == "Unknown"
+    SetRegView 32
+    StrCpy $REGISTRY_VIEW "32"
+    call checkForAcrobat 
+  ${EndIf}
+  ${If} $ACROBAT_INSTALLED == "Unknown"
+    MessageBox MB_OK '"Adobe Acrobat" not found on system, cannot continue with installation.'
+    Abort   
+  ${EndIf}  
+
+  SetRegView 64
+  StrCpy $REGISTRY_VIEW "64" 
+  call checkForAcrobatVersion
+  ${If} $ACROBAT_VERSION == "Unknown"
+    SetRegView 32
+    StrCpy $REGISTRY_VIEW "32" 
+    call checkForAcrobatVersion
+  ${EndIf}  
+  ${If} $ACROBAT_VERSION == "Unknown"
+    MessageBox MB_OK 'Did not find a supported version of "Adobe Acrobat" on system, cannot continue with installation.'
+    Abort
+  ${Else}
+    MessageBox MB_OK 'Found Acrobat version $ACROBAT_VERSION.'
+  ${EndIf}  
+
+SectionEnd
+
+Section "Acrobat JavaScripts" Section2
   
   # install acrobat javascript files
   SetOutPath $ACROBAT_FOLDER
   
   File ..\..\src\WIN\config.js
   File ..\..\src\WIN\unisa_funct.js
-  
+
+  # Make relevant registry entries that will apply Acrobat setting changes
+  call makeRegistryEntries
+
+SectionEnd
+
+Section "Marking Tool Resources" Section3
+
   SetOutPath $INSTDIR
   
   File ..\..\res\BlankSheet.pdf
@@ -375,7 +326,11 @@ Section "Install"
   File ..\..\res\rubric_engine.txt
   File ..\..\res\comm_engine.txt
   File ..\..\res\tot_engine.txt
-  
+
+SectionEnd
+
+Section "Uninstaller" Section4
+
   # define uninstaller name
   WriteUninstaller $INSTDIR\uninstaller.exe
 
@@ -412,4 +367,16 @@ Section "Uninstall"
   DeleteRegKey HKCU "${JAVASCRIPTS_UNINSTALL_REG_KEY}"
  
 SectionEnd
+
+  LangString DESC_Section1 ${LANG_ENGLISH} "This installation step will verify that the correct version of Adobe Acrobat is installed."
+  LangString DESC_Section2 ${LANG_ENGLISH} "Install the plugin Javascript code"
+  LangString DESC_Section3 ${LANG_ENGLISH} "Install the plugin assets (mostly icons used by the plugin)"
+  LangString DESC_Section4 ${LANG_ENGLISH} "Create an uninstaller which will remove the entire marking tool"
+
+  !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${Section1} $(DESC_Section1)
+  !insertmacro MUI_DESCRIPTION_TEXT ${Section2} $(DESC_Section2)
+  !insertmacro MUI_DESCRIPTION_TEXT ${Section3} $(DESC_Section3)
+  !insertmacro MUI_DESCRIPTION_TEXT ${Section4} $(DESC_Section4)
+  !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
