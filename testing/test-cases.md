@@ -15,6 +15,7 @@
 5. Enable if already enabled (Use JS console) (PASSED)
 6. Disable is already disabled (Use JS console) (PASSED)
 7. Enable if icon files cannot be found
+8. Test document opened over HTTP(S)
 
 ### IMP-1 Configured Location for MArked and unmarked files
 TODO
