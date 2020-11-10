@@ -10,23 +10,76 @@ app.beginPriv();
 
 console.println("Initializing PDF Marking Tool.");
 
-var markingToolVersion = "2.0 - UNRELEASED"
-var markingToolReleaseDate = "YYYY-MM-DD"
+var markingToolVersion = "2.0 - UNRELEASED";
+var markingToolReleaseDate = "YYYY-MM-DD";
 var initError = false;
 var initErrorMsg = "Initialization Errors: \n";
-var errorMsg = ""
+var errorMsg = "";
 
+var aActiveDocs;
+var aNewDoc;
 // Documents can have 4 marking states: UNMARKED, IN_PROGRESS, COUNTED, FINALIZED
 // These states define what functions are available to the user
-var markingState = "UNMARKED"
+var markingState = "UNKNOWN";
 
 // The active flag indicates whether the tools are currently active
 var markingToolsActive = false;
 
+// Variables that help us track whether all tools were successfully loaded
+var halfTickToolLoadStatus = "NOT LOADED";
+var tickToolLoadStatus = "NOT LOADED";
+var checkToolLoadStatus = "NOT LOADED";
+var crossToolLoadStatus = "NOT LOADED";
+var deselectToolLoadStatus = "NOT LOADED";
+var markToolLoadStatus = "NOT LOADED";
+var commentMarkToolLoadStatus = "NOT LOADED";
+var countToolLoadStatus = "NOT LOADED";
+
+var showStatusInfo = app.trustedFunction(
+  function() {
+    app.beginPriv();
+
+    var globalStatus = "UNKNOWN";
+    if (markingToolsActive) {
+      globalStatus = "ACTIVE";
+    } else {
+      globalStatus = "NOT ACTIVE";
+    }
+
+    var statusString = "Marking Tool Status: \n------------------------\n";
+    statusString += "Marking Tools Active:          "+globalStatus+"\n\n";
+    if (!markingToolsActive) {
+      statusString += "Note: To ensure the marking tools are loaded successfully, close Acrobat and then open a single document using the PDF file's context menu (i.e. right-click and select 'Open with Adobe Acrobat DC').\n\n";
+    }
+    statusString += "Initialization Errors Found:\t"+initError+"\n\n";
+    if (initError) {
+      statusString += "Note: For a full list of errors, please view Javascript console \n\n";
+    }
+    statusString += "HalfTick Tool Load Status: \t\t"+halfTickToolLoadStatus+"\n";
+    statusString += "Tick Tool Load Status: \t\t"+tickToolLoadStatus+"\n";
+    statusString += "Check Tool Load Status: \t\t"+checkToolLoadStatus+"\n";
+    statusString += "Cross Tool Load Status: \t\t"+crossToolLoadStatus+"\n";
+    statusString += "Deselect Tool Load Status: \t\t"+deselectToolLoadStatus+"\n";
+    statusString += "Mark Tool Load Status: \t\t"+markToolLoadStatus+"\n";
+    statusString += "Comment Mark Tool Load Status: \t"+commentMarkToolLoadStatus+"\n";
+    statusString += "Count Tool Load Status: \t\t"+countToolLoadStatus+"\n";
+    statusString += "--------------------------\n\n";
+    statusString += "Document Marking Status: \t\t"+markingState+"\n";
+
+    console.println(statusString);
+    if (initError) {
+      console.println(initErrorMsg);
+    }
+    app.alert(statusString, 3);
+
+    app.endPriv();  
+  }
+);
+
 var initMarkingMenu = app.trustedFunction(
   function() {
     app.beginPriv();
-    console.println("(Re-)Initializing application menu for marking tool.");
+    console.println("Initializing application menu for marking tool.");
 
     try {
       app.addSubMenu({ cName: "PDF Marking Tool", cParent: "Edit"})
@@ -38,17 +91,10 @@ var initMarkingMenu = app.trustedFunction(
         cName: "About", 
         cParent: "PDF Marking Tool", 
         cExec: "showAboutInfo();"});
-      if (markingToolsActive) {
-        app.addMenuItem({ 
-          cName: "Disable",
-          cParent: "PDF Marking Tool", 
-          cExec: "disableMarkingTools();"});
-      } else {
-        app.addMenuItem({ 
-          cName: "Enable",
-          cParent: "PDF Marking Tool", 
-          cExec: "enableMarkingTools();"});
-      }
+      app.addMenuItem({ 
+        cName: "Current Status",
+        cParent: "PDF Marking Tool", 
+        cExec: "showStatusInfo();"});
     } catch(Error) {
       errorMsg = "Error while initializing marking tool menu: "+Error;
       console.println(errorMsg);
@@ -60,28 +106,173 @@ var initMarkingMenu = app.trustedFunction(
   }
 );
 
-var refreshMarkingMenu = app.trustedFunction(
+var addMarkingTools = app.trustedFunction(
   function() {
     app.beginPriv();
-    console.println("Refreshing application menu for marking tool.");
+    aActiveDocs = app.activeDocs;
+    aNewDoc = aActiveDocs[0];
+    var iconPath = "/C/Program Files/UNISA/";
 
-    try {
-      if (markingToolsActive) {
-        app.hideMenuItem({ cName: "Enable"});
-        app.addMenuItem({ 
-          cName: "Disable",
-          cParent: "PDF Marking Tool", 
-          cExec: "disableMarkingTools();"});
-      } else {
-        app.hideMenuItem({ cName: "Disable"});
-        app.addMenuItem({ 
-          cName: "Enable",
-          cParent: "PDF Marking Tool", 
-          cExec: "enableMarkingTools();"});
+    if (aNewDoc != null) {
+      if (halfTickToolLoadStatus==="NOT LOADED") {
+        halfTickToolLoadStatus = addTool(aNewDoc, iconPath, "halftickmark", "Add a Half Tick Mark.", "addMark(aNewDoc, 'HALFT');", "setIndentOnHalfTick();",0);
       }
-    } catch(Error) {
-      errorMsg = "Error while refreshing marking tool menu: "+Error;
-      console.println(errorMsg);
+      if (tickToolLoadStatus==="NOT LOADED") {
+        tickToolLoadStatus = addTool(aNewDoc, iconPath, "tickmark", "Add a tick", "addMark(aNewDoc, 'TICK');", "setIndentOnTick();",1);
+      }
+      if (checkToolLoadStatus==="NOT LOADED") {
+        checkToolLoadStatus = addTool(aNewDoc, iconPath, "check", "Add a Checked Stamp.", "addMark(aNewDoc, 'CHECK');", "setIndentOnCheck();",2);
+      }
+      if (crossToolLoadStatus==="NOT LOADED") {
+        crossToolLoadStatus = addTool(aNewDoc, iconPath, "crossmark", "Add a Cross", "addMark(aNewDoc, 'CROSS');", "setIndentOnCross();",3);
+      }
+      if (deselectToolLoadStatus==="NOT LOADED") {
+        deselectToolLoadStatus = addTool(aNewDoc, iconPath, "deselect", "Deselect Current Tool.", "removeContinuesMarking(aNewDoc)", "setEnableOnDeselect();",4);
+      }
+      if (markToolLoadStatus==="NOT LOADED") {
+        markToolLoadStatus = addTool(aNewDoc, iconPath, "mark", "Add a Mark", "addMark(aNewDoc, 'MARK');", "setIndentOnMark();",5);
+      }
+      if (commentMarkToolLoadStatus==="NOT LOADED") {
+        commentMarkToolLoadStatus = addTool(aNewDoc, iconPath, "commentmark", "Comment Mark.", "addMark(aNewDoc, 'COMMENTM');", "setIndentOnCommentMark();",6);
+      }
+      if (countToolLoadStatus==="NOT LOADED") {
+        countToolLoadStatus = addTool(aNewDoc, iconPath, "count", "Count Marks.", "countMarks(aNewDoc)", "",7);
+      }
+    } else {
+      console.println("Cannot add marking tools because there is no active document");
+    }
+    app.endPriv();
+  }
+);
+
+var addTool = app.trustedFunction(
+  function(docToMark, iconPath, toolName, toolLabel, execString, markedFunc, position) {
+    app.beginPriv();
+
+    var loadStatus = "UNKNOWN";
+    
+    if (docToMark != null) {
+      var iconLoaded = false;
+
+      // Read the icon into the current document
+      var filePath = iconPath + toolName + ".png";
+      console.println("Path for file to be loaded: "+filePath);
+      importResult = docToMark.importIcon(toolName, filePath);
+      if (importResult != 0) {
+        initError = true;
+        initErrorMsg = initErrorMsg + " - Could not load the icon "+filePath+". \n"
+      }
+
+      // Convert the icon into a stream
+      if (!initError) {
+        var icon = util.iconStreamFromIcon(docToMark.getIcon(toolName));
+        if (icon == null) {
+          initError = true;
+          initErrorMsg = initErrorMsg + " - Could not convert the "+toolName+" icon to an icon stream. \n"
+        } else {
+          iconLoaded = true;
+        }
+      }
+
+      // Add the toolbar tool
+      if (iconLoaded) {
+        try {
+          app.addToolButton
+          ({
+            cName: toolName,
+            oIcon: icon,
+            cLabel: toolLabel, 
+            cExec: execString,
+            cTooltext: toolLabel,
+            cMarked: markedFunc,
+            nPos: position
+          });
+          loadStatus = "LOADED WITH ICON";
+        } catch(Error) {
+          var errMsg = "Error while adding "+toolName+" toolbar button";
+          console.println(errMsg);
+          initError = true;
+          initErrorMsg = initErrorMsg + " - " + errMsg + "\n";
+          loadStatus = "FAILED TO LOAD";
+        }
+      } else {
+        try {
+          app.addToolButton
+          ({
+            cName: toolName,
+            cLabel: toolLabel, 
+            cExec: execString,
+            cTooltext: toolLabel,
+            cMarked: markedFunc,
+            nPos: position
+          });
+          loadStatus = "LOADED WITHOUT ICON";
+        } catch(Error) {
+          var errMsg = "Error while adding "+toolName+" toolbar button";
+          console.println(errMsg);
+          initError = true;
+          initErrorMsg = initErrorMsg + " - " + errMsg + "\n";
+        }        
+      }
+
+    }
+    app.endPriv();
+    return loadStatus;
+  }
+);
+
+var determineMarkingStatus = app.trustedFunction(
+  function() {
+    app.beginPriv();
+  
+    var openDocCount = app.activeDocs.length;
+    console.println("Open document count: "+openDocCount);
+
+    if (openDocCount==1) {
+      aActiveDocs = app.activeDocs;
+      aNewDoc = aActiveDocs[0];
+
+      // If this is an online document (not a file stored on the local file system), then we set inUMSSession to false
+      try {
+        var fileString = aNewDoc.path.substring(0, 4);
+
+        if(fileString == "http") {
+          markingToolsActive = false;
+          console.println("Current document is an online document. Marking tools will not be enabled");
+          initError = true;
+          initErrorMsg = initErrorMsg + " - Current document is an online document. Marking tools will not be enabled. \n";
+        } else {
+          markingToolsActive = true;
+        }
+      } catch(Error) {
+        console.println("Error while determining if the document is being viewed over HTTP. "+Error)
+        initError = true;
+        initErrorMsg = initErrorMsg + " - Error while determining if the document is being viewed over HTTP. \n";
+      }
+      
+      // If we have already finished the document, then we set markingToolsActive to false
+      try {
+        var edtFinish = aNewDoc.getField("edtFinish");
+        if(edtFinish != null && edtFinish.value == "FINAL_DONE") {
+          markingToolsActive = false;
+          markingState = "FINALISED";
+          console.println("The document has already been finalised. Marking tools will not be enabled");
+          initError = true;
+          initErrorMsg = initErrorMsg + " - The document has already been finalised. Marking tools will not be enabled. \n";
+        }
+      } catch(Error) {
+        console.println("Error while verifying if the document has already been finished. "+Error);
+        initError = true;
+        initErrorMsg = initErrorMsg + " - Error while verifying if the document has already been finished. \n";
+      }
+
+    } else if (openDocCount==0) {
+      console.println("No active document found. Cannot enable the PDF Marking Tool");
+      markingToolsActive = false;
+    } else {
+      console.println("Cannot enable PDF Marking Tool, because multiple files are currently open. \n"
+       + "Please ensure that one one document is open during a marking session.");
+       markingToolsActive = false;
     }
 
     app.endPriv();
@@ -89,355 +280,10 @@ var refreshMarkingMenu = app.trustedFunction(
 );
 
 initMarkingMenu();
+determineMarkingStatus();
 
-
-
-
-
-var aActiveDocs = app.activeDocs;
-var aNewDoc = aActiveDocs[0];
-
-
-if (aNewDoc != null) {
-  // TODO - Seems like we're removing buttons from the form - Confirm when these are added
-  try {
-    var numpages = aNewDoc.numPages;
-
-    for (var i=0; i < numpages; i++) {
-      aNewDoc.removeField("btn" + i);
-    }
-  } catch(Error) {
-    console.println("Error while removing any existing Rubric button from the document. "+Error);
-    initError = true;
-    initErrorMsg = initErrorMsg + " - Error while removing any existing Rubric button from the document. \n"
-  }
-
-  // The inUMSSession variable is used to determine whether we should enable the marking functionality
-  var inUMSSession = "true";
-  
-  // If we have already finished the document, then we set inUMSSession to false
-  try {
-    var edtFinish = aNewDoc.getField("edtFinish");
-    if(edtFinish != null && edtFinish.value == "FINAL_DONE") {
-      inUMSSession = "false";
-      console.println("The document has already been finalised. Marking tools will not be enabled");
-      initError = true;
-      initErrorMsg = initErrorMsg + " - The document has already been finalised. Marking tools will not be enabled. \n";
-    }
-  } catch(Error) {
-    console.println("Error while verifying if the document has already been finished. "+Error);
-    initError = true;
-    initErrorMsg = initErrorMsg + " - Error while verifying if the document has already been finished. \n";
-  }
-
-  // If this is an online document (not a file stored on the local file system), then we set inUMSSession to false
-  try {
-    var fileString = aNewDoc.path.substring(0, 4);
-
-    if(fileString == "http") {
-      inUMSSession = "false";
-      console.println("Current document is an online document. Marking tools will not be enabled");
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Current document is an online document. Marking tools will not be enabled. \n";
-    }
-  } catch(Error) {
-    console.println("Error while determining if the document is being viewed over HTTP. "+Error)
-    initError = true;
-    initErrorMsg = initErrorMsg + " - Error while determining if the document is being viewed over HTTP. \n";
-  }
-
-  if(inUMSSession == "true") {
-
-    // Add the rubric button - Include some explanatory text here
-    var btnOpenRubric = aNewDoc.addField("btnOpenRubric", "button", 0, [5, 5, 70, 30]);
-    btnOpenRubric.buttonSetCaption("Open Rubric");
-    btnOpenRubric.setAction("MouseUp", "openRubricForMarking(aNewDoc)");
-    btnOpenRubric.borderStyle = "beveled";
-    btnOpenRubric.highlight = "push";
-    btnOpenRubric.lineWidth = 2;
-
-    // TODO - Why are we hiding these buttons?
-    // app.hideToolbarButton("Hand");
-    // app.hideToolbarButton("ZoomIn");
-    // app.hideToolbarButton("Zoom100");
-    // app.hideToolbarButton("PanAndZoom");
-    // app.hideToolbarButton("Loupe");
-
-    // Load the icon images used by the marking tool
-    // Note: Icons must be 20x20 pixels, else the creation of the toolbar button will fail
-    var importResult = aNewDoc.importIcon("addCommentMark", "/C/Program Files/UNISA/commentmark.png");
-    if (importResult != 0) {
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Could not load the icon commentmark.png. \n"
-    }
-    importResult = aNewDoc.importIcon("addMark", "/C/Program Files/UNISA/mark.png");
-    if (importResult != 0) {
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Could not load the icon mark.png. \n"
-    }
-    importResult = aNewDoc.importIcon("addTick", "/C/Program Files/UNISA/tickmark.png");
-    if (importResult != 0) {
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Could not load the icon tickmark.png. \n"
-    }
-    importResult = aNewDoc.importIcon("addCross", "/C/Program Files/UNISA/crossmark.png");
-    if (importResult != 0) {
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Could not load the icon crossmark.png. \n"
-    }
-    importResult = aNewDoc.importIcon("addCount", "/C/Program Files/UNISA/count.png");
-    if (importResult != 0) {
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Could not load the icon count.png. \n"
-    }
-    importResult = aNewDoc.importIcon("addStamp", "/C/Program Files/UNISA/check.png");
-    if (importResult != 0) {
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Could not load the icon check.png. \n"
-    }
-    importResult = aNewDoc.importIcon("addDeselect", "/C/Program Files/UNISA/deselect.png");
-    if (importResult != 0) {
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Could not load the icon deselect.png. \n"
-    }
-    importResult = aNewDoc.importIcon("addHalfTick", "/C/Program Files/UNISA/halftickmark.png");
-    if (importResult != 0) {
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Could not load the icon halftickmark.png. \n"
-    }
-    importResult = aNewDoc.importIcon("addHalfTick", "/C/Program Files/UNISA/halftickmark.png");
-    if (importResult != 0) {
-      initError = true;
-      initErrorMsg = initErrorMsg + " - Could not load the icon halftickmark.png. \n"
-    }
-
-    if (!initError) {
-      var addCommentMarkIcon = util.iconStreamFromIcon(aNewDoc.getIcon("addCommentMark"));
-      if (addCommentMarkIcon == null) {
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Could not convert the addCommentMark icon to an icon stream. \n"
-      }
-      var addMarkIcon = util.iconStreamFromIcon(aNewDoc.getIcon("addMark"));
-      if (addMarkIcon == null) {
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Could not convert the addMarkIcon icon to an icon stream. \n"
-      }
-      var addTickIcon = util.iconStreamFromIcon(aNewDoc.getIcon("addTick"));
-      if (addTickIcon == null) {
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Could not convert the addTickIcon icon to an icon stream. \n"
-      }
-      var addCrossIcon = util.iconStreamFromIcon(aNewDoc.getIcon("addCross"));
-      if (addCrossIcon == null) {
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Could not convert the addCrossIcon icon to an icon stream. \n"
-      }
-      var addCountIcon = util.iconStreamFromIcon(aNewDoc.getIcon("addCount"));
-      if (addCountIcon == null) {
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Could not convert the addCountIcon icon to an icon stream. \n"
-      }
-      var addStampIcon = util.iconStreamFromIcon(aNewDoc.getIcon("addStamp"));
-      if (addStampIcon == null) {
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Could not convert the addStampIcon icon to an icon stream. \n"
-      }
-      var addDeselectIcon = util.iconStreamFromIcon(aNewDoc.getIcon("addDeselect"));
-      if (addDeselectIcon == null) {
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Could not convert the addDeselectIcon icon to an icon stream. \n"
-      }
-      var addHalfTick = util.iconStreamFromIcon(aNewDoc.getIcon("addHalfTick"));
-      if (addHalfTick == null) {
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Could not convert the addHalfTick icon to an icon stream. \n"
-      }
-    }
-
-    // Now we add the toolbar buttons
-    if (!initError) {
-      try {
-        app.addToolButton
-        ({
-          cName: "toolAddHalfTick",
-          oIcon: addHalfTick,
-          //cLabel: "T1", 
-          cExec: "addMark(aNewDoc, 'HALFT');",
-          cTooltext: "Add a Half Tick Mark.",
-          cMarked: "setIndentOnHalfTick();",
-          nPos: 0
-        });  
-      } catch(Error) {
-        console.println("Error while adding Halftick toolbar button");
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Error while adding Halftick toolbar button. \n"
-      }
-
-      try {
-        app.addToolButton
-        ({
-          cName: "toolAddTick",
-          oIcon: addTickIcon,
-          //cLabel: "T2", 
-          cExec: "addMark(aNewDoc, 'TICK');",
-          cTooltext: "Add a Tick.",
-          cMarked: "setIndentOnTick();",
-          nPos: 1
-        });
-      } catch(Error) {
-        console.println("Error while adding Tick toolbar button");
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Error while adding Tick toolbar button. \n"
-      }
-  
-      try {
-        app.addToolButton
-        ({
-          cName: "toolAddStamp",
-          oIcon: addStampIcon,
-          //cLabel: "T3", 
-          cExec: "addMark(aNewDoc, 'CHECK');",
-          cTooltext: "Add a Stamp.",
-          cMarked: "setIndentOnCheck();",
-          nPos: 2
-        });
-      } catch(Error) {
-        console.println("Error while adding Check toolbar button");
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Error while adding Check toolbar button. \n"
-      }
-  
-      try {
-        app.addToolButton
-        ({
-          cName: "toolAddCross",
-          oIcon: addCrossIcon,
-          //cLabel: "T4", 
-          cExec: "addMark(aNewDoc, 'CROSS');",
-          cTooltext: "Add a Cross.",
-          cMarked: "setIndentOnCross();",
-          nPos: 3
-        });
-      } catch(Error) {
-        console.println("Error while adding Cross toolbar button");
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Error while adding Cross toolbar button. \n"
-      }
-  
-      try {
-        app.addToolButton
-        ({
-          cName: "toolDeselect",
-          oIcon: addDeselectIcon,
-          //cLabel: "T5", 
-          cExec: "removeContinuesMarking(aNewDoc)",
-          cTooltext: "Deselect Mark Tool.",
-          cEnable: "setEnableOnDeselect();",
-          nPos: 4
-        });
-      } catch(Error) {
-        console.println("Error while adding Deselect toolbar button");
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Error while adding Deselect toolbar button. \n"
-      }
-  
-      try {
-        app.addToolButton
-        ({
-          cName: "toolAddMark",
-          oIcon: addMarkIcon,
-          //cLabel: "T6", 
-          cExec: "addMark(aNewDoc, 'MARK');",
-          cTooltext: "Add a Mark.",
-          cMarked: "setIndentOnMark();",
-          nPos: 5
-        });
-      } catch(Error) {
-        console.println("Error while adding Mark toolbar button");
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Error while adding Mark toolbar button. \n"
-      }
-  
-      try {
-        app.addToolButton
-        ({
-          cName: "toolAddCommentMark",
-          oIcon: addCommentMarkIcon,
-          //cLabel: "T7", 
-          cExec: "addMark(aNewDoc, 'COMMENTM');",
-          cTooltext: "Comment Mark.",
-          cMarked: "setIndentOnCommentMark();",
-          nPos: 6
-        });
-      } catch(Error) {
-        console.println("Error while adding Comment toolbar button");
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Error while adding Comment toolbar button. \n"
-      }
-  
-      try {
-        app.addToolButton
-        ({
-          cName: "toolAddCount",
-          oIcon: addCountIcon,
-          //cLabel: "T8", 
-          cExec: "countMarks(aNewDoc)",
-          cTooltext: "Count Marks.",
-          nPos: 7
-        });
-      } catch(Error) {
-        console.println("Error while adding Count toolbar button");
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Error while adding Count toolbar button. \n"
-      }
-  
-      try {
-        app.addToolButton
-        ({
-          cName: "toolVersion",
-          cLabel: "v1.8",
-          cTooltext: "Click Here",
-          cExec: "showAboutInformation()",
-          nPos: 8
-        });
-      } catch(Error) {
-        console.println("Error while adding Info toolbar button");
-        initError = true;
-        initErrorMsg = initErrorMsg + " - Error while adding Info toolbar button. \n"
-      }
-    }
-  }
-
-  if (initError == true) {
-    console.println("Initialization of marking tool aborted. Details: "+initErrorMsg);
-
-    // Add a tool to the toolbar that will give the user information about why initialization failed.
-    try {
-      app.addToolButton
-      ({
-        cName: "errorMsg",
-        cExec: "app.alert('Errors occurred while loading the marking tool. Details: '+initErrorMsg)",
-        cLabel: "Errors Encountered",
-        nPos: 9
-      });
-    } catch(Error)  {
-      app.alert("An unknown error occurred while loading the marking tool plugin.")
-    }
-  }
-
-} else {
-  console.println("No active document found. Cannot initialise the onscreen marking tool");
-  try {
-    app.addToolButton
-    ({
-      cName: "noDocMsg",
-      cExec: "app.alert('No active document found. Cannot initialize the onscreen marking tool. Note, initialization only occurs when opening Acrobat. Please close Acrobat and reopen the document.')",
-      cLabel: "No document to mark",
-      nPos: 9
-    });
-  } catch(Error)  {
-    app.alert("An unknown error occurred while loading the marking tool plugin.")
-  }
+if (markingToolsActive) {
+  addMarkingTools();
 }
 
 console.println("Initialization of PDF Marking Tool Complete ");
