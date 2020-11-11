@@ -95,6 +95,17 @@ var initMarkingMenu = app.trustedFunction(
         cName: "Current Status",
         cParent: "PDF Marking Tool", 
         cExec: "showStatusInfo();"});
+      app.addSubMenu({ 
+        cName: "Rubric",
+        cParent: "PDF Marking Tool"});
+      app.addMenuItem({ 
+        cName: "Select Rubric",
+        cParent: "Rubric", 
+        cExec: "selectRubric();"});
+      app.addMenuItem({ 
+        cName: "View Rubric Details",
+        cParent: "Rubric", 
+        cExec: "viewRubricDetails();"});
     } catch(Error) {
       errorMsg = "Error while initializing marking tool menu: "+Error;
       console.println(errorMsg);
