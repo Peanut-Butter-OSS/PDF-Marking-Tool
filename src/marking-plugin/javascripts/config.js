@@ -86,7 +86,7 @@ var initMarkingMenu = app.trustedFunction(
       app.addMenuItem({ 
         cName: "Config",
         cParent: "PDF Marking Tool", 
-        cExec: "app.alert('TODO');"});
+        cExec: "configureMarkingTool();"});
       app.addMenuItem({ 
         cName: "About", 
         cParent: "PDF Marking Tool", 
