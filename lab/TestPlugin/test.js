@@ -172,6 +172,7 @@ var writeXmlData = app.trustedFunction(
 
     // =====================
     // Try 1
+    // According to the API manual, yhr path parameter is no longer supported for exportDataObject
     // =====================
 
     // // var xmlString = "<test>Hello</test>";
