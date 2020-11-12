@@ -20,7 +20,12 @@ var aActiveDocs;
 var aNewDoc;
 // Documents can have 4 marking states: UNMARKED, IN_PROGRESS, COUNTED, FINALIZED
 // These states define what functions are available to the user
+// This value is embedded as a field in the form, so that it is available on subsequent opening
 var markingState = "UNKNOWN";
+
+// Marking can be done as either UNSTRUCTURED, or RUBRIC-BASED
+// This value is embedded as a field in the form, so that it is available on subsequent opening
+var markingType = "UNKNOWN";
 
 // The active flag indicates whether the tools are currently active
 var markingToolsActive = false;
@@ -65,8 +70,11 @@ var showStatusInfo = app.trustedFunction(
     statusString += "Count Tool Load Status: \t\t"+countToolLoadStatus+"\n";
     statusString += "--------------------------\n\n";
     statusString += "Document Marking Status: \t\t"+markingState+"\n";
+    if(markingState!="UNKNOWN") {
+      statusString += "Document Marking Type: \t\t"+markingType+"\n";
+    }
 
-    console.println(statusString);
+    //console.println(statusString);
     if (initError) {
       console.println(initErrorMsg);
     }
@@ -79,7 +87,7 @@ var showStatusInfo = app.trustedFunction(
 var initMarkingMenu = app.trustedFunction(
   function() {
     app.beginPriv();
-    console.println("Initializing application menu for marking tool.");
+    //console.println("Initializing application menu for marking tool.");
 
     try {
       app.addSubMenu({ cName: "PDF Marking Tool", cParent: "Edit"})
@@ -175,7 +183,7 @@ var addTool = app.trustedFunction(
 
       // Read the icon into the current document
       var filePath = iconPath + toolName + ".png";
-      console.println("Path for file to be loaded: "+filePath);
+      //console.println("Path for file to be loaded: "+filePath);
       importResult = docToMark.importIcon(toolName, filePath);
       if (importResult != 0) {
         initError = true;
@@ -245,7 +253,7 @@ var determineMarkingStatus = app.trustedFunction(
     app.beginPriv();
   
     var openDocCount = app.activeDocs.length;
-    console.println("Open document count: "+openDocCount);
+    //console.println("Open document count: "+openDocCount);
 
     if (openDocCount==1) {
       aActiveDocs = app.activeDocs;
@@ -262,6 +270,17 @@ var determineMarkingStatus = app.trustedFunction(
           initErrorMsg = initErrorMsg + " - Current document is an online document. Marking tools will not be enabled. \n";
         } else {
           markingToolsActive = true;
+
+          // Initialise the markingType and markingState variables from the embedded fields
+          markingStateField = aNewDoc.getField("MarkingState");
+          if (markingStateField != null) {
+            markingState = markingStateField.value;
+            
+            markingTypeField = aNewDoc.getField("MarkingType");
+            if (markingTypeField != null) {
+              markingType = markingTypeField.value;
+            }
+          }
         }
       } catch(Error) {
         console.println("Error while determining if the document is being viewed over HTTP. "+Error)
@@ -293,6 +312,75 @@ var determineMarkingStatus = app.trustedFunction(
        + "Please ensure that one one document is open during a marking session.");
        markingToolsActive = false;
     }
+
+    app.endPriv();
+  }
+);
+
+// When a document is made markable, a number of hidden fields are embedded on the first page for tracking 
+// the marking process. 
+var makeDocumentMarkable = app.trustedFunction(
+  function(inputMarkingType) {
+    app.beginPriv();
+    console.println("Making document markable.");
+
+    var openDocCount = app.activeDocs.length;
+    if (openDocCount == 1) {
+      aActiveDocs = app.activeDocs;
+      aNewDoc = aActiveDocs[0];
+      if (aNewDoc != null) {
+        var markingTypeField;
+        try {
+          markingTypeField = aNewDoc.getField("MarkingType");
+          if(markingTypeField == null) {
+            var em = 16;
+            var aRect = this.getPageBox( {nPage: 0} );
+            aRect[0] += 2*em; // from upper left hand corner of page.
+            aRect[2] = aRect[0]+2*em; // Make it .5 inch wide
+            aRect[1] -= 2*em;
+            aRect[3] = aRect[1] - 24; // and 24 points high
+            markingTypeField = aNewDoc.addField("MarkingType", "text", 0, aRect);
+            markingTypeField.hidden = true;
+          }
+          markingTypeField.value=inputMarkingType;
+          markingType=inputMarkingType;
+
+          markingStateField = aNewDoc.getField("MarkingState");
+          if(markingStateField == null) {
+            var em = 16;
+            var aRect = this.getPageBox( {nPage: 0} );
+            aRect[0] += 2*em; // from upper left hand corner of page.
+            aRect[2] = aRect[0]+2*em; // Make it .5 inch wide
+            aRect[1] -= 2*em;
+            aRect[3] = aRect[1] - 24; // and 24 points high
+            markingStateField = aNewDoc.addField("MarkingState", "text", 0, aRect);
+            markingStateField.hidden = true;
+          }
+          markingStateField.value="UNMARKED";
+          markingState="UNMARKED";
+
+        } catch(Error) {
+          var errorMsg = "Error while making document markable "+Error;
+          console.println(errorMsg);
+          app.alert(errorMsg);
+        }
+      }
+    } else if (openDocCount==0) {
+      var errorMsg = "No active document found. Cannot make the document markable";
+      console.println(errorMsg);
+      app.alert(errorMsg);
+    } else {
+      var errorMsg = "Cannot enable PDF Marking Tool, because multiple files are currently open. \n"
+      + "Please ensure that one one document is open during a marking session.";
+      console.println(errorMsg);
+      app.alert(errorMsg);
+    }
+
+
+
+
+
+
 
     app.endPriv();
   }

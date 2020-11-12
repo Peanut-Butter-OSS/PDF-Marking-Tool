@@ -31,18 +31,18 @@ var selectRubric = app.trustedFunction(
                 console.println("Rubric File Name: " + rubric.path)
                 var oFile = this.getDataObjectContents("Rubric");
                 var strRubric = util.stringFromStream(oFile, "utf-8");
-                console.println("Rubric content:");
-                console.println(strRubric);
+                //console.println("Rubric content:");
+                //console.println(strRubric);
                 var jsonRubric = eval("(" + strRubric + ")");
-                console.println("Parsed Rubric:");
-                console.println(" - rubricId: " + jsonRubric.rubricId);
-                console.println(" - courseCode: " + jsonRubric.courseCode);
-                console.println(" - assignmentId: " + jsonRubric.assignmentId);
-                console.println(" - Sections (" + jsonRubric.sections.length + "): ");
-                var i;
-                for (i = 0; i < jsonRubric.sections.length; i++) {
-                    console.println("    - sectionName=" + jsonRubric.sections[i].sectionName + "\t totalMarks=" + jsonRubric.sections[i].totalMarks);
-                }
+                //console.println("Parsed Rubric:");
+                //console.println(" - rubricId: " + jsonRubric.rubricId);
+                //console.println(" - courseCode: " + jsonRubric.courseCode);
+                //console.println(" - assignmentId: " + jsonRubric.assignmentId);
+                //console.println(" - Sections (" + jsonRubric.sections.length + "): ");
+                //var i;
+                //for (i = 0; i < jsonRubric.sections.length; i++) {
+                //    console.println("    - sectionName=" + jsonRubric.sections[i].sectionName + "\t totalMarks=" + jsonRubric.sections[i].totalMarks);
+                //}
 
                 validationResult = validateRubric(jsonRubric);
 
@@ -130,7 +130,7 @@ var viewRubricDetails = app.trustedFunction(
         detailsString += "Rubric File Name: \t" + rubricFileName + "\n";
         detailsString += "Rubric Version: \t" + rubricVersion + "\n";
 
-        console.println(detailsString);
+        //console.println(detailsString);
         app.alert(detailsString, 3);
 
         app.endPriv();
@@ -170,8 +170,13 @@ var applyRubricToDocument = app.trustedFunction(
                 global.selectedRubricContent) {
 
                 console.println("Applying Rubric to document");
+              
+                makeDocumentMarkable("RUBRIC");
 
-                // TODO - This is where the magic will happen
+                // TODO
+                // - Add Rubric page
+                // - Add Rubric fields
+
 
             } else {
                 var errorMsg = "Cannot apply rubric to current document, no Rubric has been selected";
