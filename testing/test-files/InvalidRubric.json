@@ -1,0 +1,39 @@
+{
+    "rubricName" : "COS101 Exam - Base Rubric",
+    "rubricVersion" : 1,
+    "courseCode" : "COS101",
+    "assignmentId" : "Exam1",
+    "sections" : [
+        {
+            "sectionName" : "Question 1",
+            "totalMarks" : 10,
+            "markerOptions" : [
+                {
+                    "optionName" : "Excellent",
+                    "optionMarks" : 10, 
+                    "optionDefaultComment" : "Very well described"
+                }, 
+                {
+                    "optionName" : "Good",
+                    "optionMarks" : 8, 
+                    "optionDefaultComment" : "Very well described, perhaps some details could be elaborated further"
+                },
+                {
+                    "optionName" : "Acceptable",
+                    "optionMarks" : 6, 
+                    "optionDefaultComment" : "Covers the basics, but many aspects should be elaborated further"
+                },
+                {
+                    "optionName" : "Poor",
+                    "optionMarks" : 3, 
+                    "optionDefaultComment" : "Incorrect description"
+                },
+                {
+                    "optionName" : "Missing",
+                    "optionMarks" : 0, 
+                    "optionDefaultComment" : "Section had no response"
+                }
+            ]
+        } 
+    ]
+}

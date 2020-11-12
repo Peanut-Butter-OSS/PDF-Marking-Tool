@@ -2,16 +2,6 @@
 
 This file contains reusable JavaScript functions related to Rubric functionality
 
-TODO - Select Rubric should
-    - Load Rubric into the Doc as a Data Object
-    - Write out the Rubric to the configured Rubrics folder (Subfolder under JavaScripts)
-    - Initialize a global variable with the Name of the selected Rubric
-    - Initialize a gloabl variable stating that a rubric is selected
-
-TODO - Generate Rubric marking page should:
-    - Read the data strcuture of the Rubric from the DataObject
-    - Create a new marking page from the Rubric
-
 TODO - On loading of a new document we should:
     - Check if a Rubric is selected (in global variables)
     - Check if the Rubric file is attached to the document as a DataObject
@@ -110,7 +100,7 @@ var validateRubric = app.trustedFunction(
         if (!rubric.rubricId) {
             var errorMsg = " - No rubricId was specified. \n";
             validationResult.isValid = false;
-            validationErrors += errorMsg;
+            validationResult.validationErrors += errorMsg;
         }
 
         app.endPriv();  
@@ -147,11 +137,43 @@ var viewRubricDetails = app.trustedFunction(
     }
   );
 
-
-
+  var clearRubricSelection = app.trustedFunction(
+    function() {
+      app.beginPriv();
   
-function DumpDataObjectInfo(dataobj)
-{
-  for (var i in dataobj)
-  console.println(dataobj.name + "[" + i + "]=" + dataobj[i]);
-}
+      global.selectedRubricContent = null;
+      global.setPersistent("selectedRubricContent", true);
+      global.selectedRubricFileName = null;
+      global.setPersistent("selectedRubricFileName", true);
+      global.selectedRubricName = null;
+      global.setPersistent("selectedRubricName", true);
+      global.selectedRubricVersion = null;
+      global.setPersistent("selectedRubricVersion", true);
+
+      app.endPriv();  
+    }
+  );
+
+  var applyRubricToDocument = app.trustedFunction(
+    function() {
+      app.beginPriv();
+  
+      if ((global.selectedRubricName) && 
+            (global.selectedRubricFileName) &&
+            (global.selectedRubricVersion) &&
+            global.selectedRubricContent) {
+
+      } else {
+        var errorMsg = "Cannot apply rubric to current document, no Rubric has been selected";
+        console.println(errorMsg)
+        app.alert(errorMsg);
+      }
+
+      app.endPriv();  
+    }
+  );
+
+
+
+
+

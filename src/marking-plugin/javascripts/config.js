@@ -103,6 +103,10 @@ var initMarkingMenu = app.trustedFunction(
         cParent: "Rubric", 
         cExec: "selectRubric();"});
       app.addMenuItem({ 
+        cName: "Clear Selected Rubric",
+        cParent: "Rubric", 
+        cExec: "clearRubricSelection();"});
+      app.addMenuItem({ 
         cName: "View Rubric Details",
         cParent: "Rubric", 
         cExec: "viewRubricDetails();"});
