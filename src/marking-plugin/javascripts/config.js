@@ -110,6 +110,10 @@ var initMarkingMenu = app.trustedFunction(
         cName: "View Rubric Details",
         cParent: "Rubric", 
         cExec: "viewRubricDetails();"});
+      app.addMenuItem({ 
+        cName: "Apply Rubric to Active Document",
+        cParent: "Rubric", 
+        cExec: "applyRubricToDocument();"});
     } catch(Error) {
       errorMsg = "Error while initializing marking tool menu: "+Error;
       console.println(errorMsg);
