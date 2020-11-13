@@ -171,10 +171,9 @@ var applyRubricToDocument = app.trustedFunction(
               
                 makeDocumentMarkable("RUBRIC");
 
-                buildRubricPage();
-                // TODO
-                // - Add Rubric page
-                // - Add Rubric fields
+                var rubricPageNumber = buildRubricPage();
+                this.pageNum = rubricPageNumber;
+
 
             } else {
                 var errorMsg = "Cannot apply rubric to current document, no Rubric has been selected";
@@ -271,6 +270,12 @@ var buildRubricPage = app.trustedFunction(
         valueAssignmentId.fillColor = color.ltGray;
         currentTopY = bottomY -1;
 
+        // Header row for sections table
+        topY = currentTopY - 20;
+        bottomY = topY - lineHeight;
+        addRubricSectionHeader(topY, bottomY);
+        currentTopY = bottomY -1;
+
         // Now build individual entries for each element in the Rubric
         var i;
         for (i = 0; i < global.selectedRubricContent.sections.length; i++) {
@@ -282,9 +287,76 @@ var buildRubricPage = app.trustedFunction(
         }
  
        app.endPriv();
+       return rubricPageNumber;
     }
   );
 
+var addRubricSectionHeader = app.trustedFunction(
+    function(topY, bottomY) {
+        app.beginPriv();
+
+        leftX = 0;
+
+        // Col 1
+        colWidth = 100;
+        rightX = leftX + colWidth;
+        var rubricSectionsCol1Header = aNewDoc.addField("rubricSectionsCol1Header", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        rubricSectionsCol1Header.value = "Section Name";
+        rubricSectionsCol1Header.readonly = true;
+        rubricSectionsCol1Header.alignment = "center";
+        rubricSectionsCol1Header.fillColor = color.white;
+        leftX = rightX + 1;
+
+        // Col 2
+        colWidth = 150;
+        rightX = leftX + colWidth;
+        var rubricSectionsCol2Header = aNewDoc.addField("rubricSectionsCol2Header", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        rubricSectionsCol2Header.value = "Rating";
+        rubricSectionsCol2Header.readonly = true;
+        rubricSectionsCol2Header.alignment = "center";
+        rubricSectionsCol2Header.fillColor = color.white;
+        rubricSectionsCol2Header.borderStyle = "solid";
+        leftX = rightX + 1;
+
+        // Col 3
+        colWidth = 257;
+        rightX = leftX + colWidth;
+        var rubricSectionsCol3Header = aNewDoc.addField("rubricSectionsCol3Header", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        rubricSectionsCol3Header.value = "Comments";
+        rubricSectionsCol3Header.readonly = true;
+        rubricSectionsCol3Header.alignment = "center";
+        rubricSectionsCol3Header.fillColor = color.white;
+        rubricSectionsCol2Header.borderStyle = "solid";
+        leftX = rightX + 1;
+
+        // Col 4
+        colWidth = 50;
+        rightX = leftX + colWidth;
+        var rubricSectionsCol4Header = aNewDoc.addField("rubricSectionsCol4Header", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        rubricSectionsCol4Header.value = "Marks";
+        rubricSectionsCol4Header.readonly = true;
+        rubricSectionsCol4Header.alignment = "center";
+        rubricSectionsCol4Header.fillColor = color.white;
+        rubricSectionsCol2Header.borderStyle = "solid";
+        leftX = rightX + 1;
+
+        // Col 5
+        colWidth = 50;
+        rightX = leftX + colWidth;
+        var rubricSectionsCol5Header = aNewDoc.addField("rubricSectionsCol5Header", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        rubricSectionsCol5Header.value = "Out of";
+        rubricSectionsCol5Header.readonly = true;
+        rubricSectionsCol5Header.alignment = "center";
+        rubricSectionsCol5Header.fillColor = color.white;
+        rubricSectionsCol2Header.borderStyle = "solid";
+        leftX = rightX + 1;
+
+        app.endPriv();
+    }
+  );
+
+
+// TODO: Should return the row height that was actually used, so that we can dynamically adjust
 var addRubricSectionRow = app.trustedFunction(
     function(section, leftX, topY, rightX, bottomY) {
         app.beginPriv();
@@ -313,6 +385,9 @@ var addRubricSectionRow = app.trustedFunction(
             col2Field.insertItemAt(section.markerOptions[n].optionName,n);
         }
         col2Field.fillColor = color.ltGray;
+        var cscript="changeSectionRating('"+ section.sectionName +"');";
+        col2Field.setAction("Keystroke", cscript);
+        col2Field.commitOnSelChange = "true";
         leftX = rightX + 1;
 
         // Col 3
@@ -320,6 +395,7 @@ var addRubricSectionRow = app.trustedFunction(
         rightX = leftX + colWidth;
         var col3FieldName = "col3"+section.sectionName;
         var col3Field = aNewDoc.addField(col3FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        col3Field.multiline = true
         col3Field.alignment = "left";
         col3Field.fillColor = color.ltGray;
         leftX = rightX + 1;
@@ -329,7 +405,6 @@ var addRubricSectionRow = app.trustedFunction(
         rightX = leftX + colWidth;
         var col4FieldName = "col4"+section.sectionName;
         var col4Field = aNewDoc.addField(col4FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
-        col4Field.readonly = true;
         col4Field.alignment = "right";
         col4Field.fillColor = color.ltGray;
         leftX = rightX + 1;
@@ -344,6 +419,17 @@ var addRubricSectionRow = app.trustedFunction(
         col5Field.alignment = "right";
         col5Field.fillColor = color.ltGray;
         leftX = rightX + 1;
+
+        app.endPriv();
+    }
+);
+
+
+var changeSectionRating = app.trustedFunction(
+    function(sectionName) {
+        app.beginPriv();
+
+        console.println("Changing selection for section: "+sectionName)
 
         app.endPriv();
     }
