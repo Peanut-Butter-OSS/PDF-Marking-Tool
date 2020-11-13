@@ -26,6 +26,7 @@ var markingState = "UNKNOWN";
 // Marking can be done as either UNSTRUCTURED, or RUBRIC-BASED
 // This value is embedded as a field in the form, so that it is available on subsequent opening
 var markingType = "UNKNOWN";
+var rubricPageNumber;
 
 // The active flag indicates whether the tools are currently active
 var markingToolsActive = false;

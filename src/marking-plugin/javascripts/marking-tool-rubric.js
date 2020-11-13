@@ -162,8 +162,6 @@ var applyRubricToDocument = app.trustedFunction(
         aNewDoc = aActiveDocs[0];
         if (aNewDoc != null) {
 
-            // TODO - Verify not more than one document is open
-
             if ((global.selectedRubricName) &&
                 (global.selectedRubricFileName) &&
                 (global.selectedRubricVersion) &&
@@ -173,10 +171,10 @@ var applyRubricToDocument = app.trustedFunction(
               
                 makeDocumentMarkable("RUBRIC");
 
+                buildRubricPage();
                 // TODO
                 // - Add Rubric page
                 // - Add Rubric fields
-
 
             } else {
                 var errorMsg = "Cannot apply rubric to current document, no Rubric has been selected";
@@ -195,6 +193,160 @@ var applyRubricToDocument = app.trustedFunction(
 );
 
 
+var buildRubricPage = app.trustedFunction(
+    function() {
+       app.beginPriv();
+       
+       rubricPageNumber = addBlankPage(aNewDoc);
+       var pageRect = this.getPageBox("Crop", rubricPageNumber);
+       console.println("Page rectangle: "+pageRect[0]+", "+pageRect[1]+","+pageRect[2]+", "+pageRect[3]);
+       var pageBoxWidth = pageRect[2] - pageRect[0];
+       var pageBoxHeight = pageRect[1] - pageRect[3];
+       console.println("Rubric page (#"+rubricPageNumber+") has a width of " + pageBoxWidth + " and a height of "
+       + pageBoxHeight);
+       // Page rectangle: 0, 792,612, 0
+       // Rubric page (#1) has a width of 612 and a height of 792
+       
+       var lineHeight = 20;
+       var lineWidth = pageBoxWidth;
 
+        var yMax = pageBoxHeight;
+        var topY = 0;
+        var bottomY = 0;
+
+        var xMax = pageBoxWidth;
+        var leftX = 0;
+        var rightX = 0;
+
+       var currentTopY = yMax;
+       // Header
+       topY = currentTopY;
+       bottomY = currentTopY - 40;
+       leftX = 0;
+       rightX = xMax;
+       var rubricHeader = aNewDoc.addField("rubricHeader", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+       rubricHeader.value = "RUBRIC";
+       rubricHeader.readonly = true;
+       rubricHeader.alignment = "center";
+       rubricHeader.fillColor = color.blue;
+       currentTopY = bottomY -1;
+
+        // Course Code
+        topY = currentTopY;
+        bottomY = currentTopY - lineHeight;
+        leftX = 0;
+        rightX = 100;
+        var labelCourseCode = aNewDoc.addField("labelCourseCode", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        labelCourseCode.value = "Course Code";
+        labelCourseCode.readonly = true;
+        labelCourseCode.alignment = "left";
+        labelCourseCode.fillColor = color.red;
+
+        leftX = rightX + 1;
+        rightX = xMax;
+        var valueCourseCode = aNewDoc.addField("valueCourseCode", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        valueCourseCode.value = global.selectedRubricContent.courseCode;
+        valueCourseCode.readonly = true;
+        valueCourseCode.alignment = "left";
+        valueCourseCode.fillColor = color.gray;
+        currentTopY = bottomY -1;
+
+        // Assignment
+        topY = currentTopY;
+        bottomY = currentTopY - lineHeight;
+        leftX = 0;
+        rightX = 100;
+        var labelAssignmentId = aNewDoc.addField("labelAssignmentId", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        labelAssignmentId.value = "Assignment";
+        labelAssignmentId.readonly = true;
+        labelAssignmentId.alignment = "left";
+        labelAssignmentId.fillColor = color.magenta;
+
+        leftX = rightX + 1;
+        rightX = xMax;
+        var valueAssignmentId = aNewDoc.addField("valueAssignmentId", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        valueAssignmentId.value = global.selectedRubricContent.assignmentId;
+        valueAssignmentId.readonly = true;
+        valueAssignmentId.alignment = "left";
+        valueAssignmentId.fillColor = color.ltGray;
+        currentTopY = bottomY -1;
+
+        // Now build individual entries for each element in the Rubric
+        var i;
+        for (i = 0; i < global.selectedRubricContent.sections.length; i++) {
+            leftX = 0;
+            topY = currentTopY;
+            bottomY = currentTopY - lineHeight;
+            addRubricSectionRow(global.selectedRubricContent.sections[i], leftX, topY, rightX, bottomY)
+            currentTopY = bottomY -1;
+        }
+ 
+       app.endPriv();
+    }
+  );
+
+var addRubricSectionRow = app.trustedFunction(
+    function(section, leftX, topY, rightX, bottomY) {
+        app.beginPriv();
+
+        var colWidth = 0;
+        
+        // Col 1
+        colWidth = 100;
+        rightX = leftX + colWidth;
+        var col1FieldName = "col1"+section.sectionName;
+        var col1Field = aNewDoc.addField(col1FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        col1Field.value = section.sectionName;
+        col1Field.readonly = true;
+        col1Field.alignment = "left";
+        col1Field.fillColor = color.ltGray;
+        leftX = rightX + 1;
+
+        // Col 2
+        colWidth = 150;
+        rightX = leftX + colWidth;
+        var col2FieldName = "col2"+section.sectionName;
+        var col2Field = aNewDoc.addField(col2FieldName, "combobox", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+
+        var n;
+        for (n = 0; n < section.markerOptions.length; n++) {
+            col2Field.insertItemAt(section.markerOptions[n].optionName,n);
+        }
+        col2Field.fillColor = color.ltGray;
+        leftX = rightX + 1;
+
+        // Col 3
+        colWidth = 257;
+        rightX = leftX + colWidth;
+        var col3FieldName = "col3"+section.sectionName;
+        var col3Field = aNewDoc.addField(col3FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        col3Field.alignment = "left";
+        col3Field.fillColor = color.ltGray;
+        leftX = rightX + 1;
+
+        // Col 4
+        colWidth = 50;
+        rightX = leftX + colWidth;
+        var col4FieldName = "col4"+section.sectionName;
+        var col4Field = aNewDoc.addField(col4FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        col4Field.readonly = true;
+        col4Field.alignment = "right";
+        col4Field.fillColor = color.ltGray;
+        leftX = rightX + 1;
+
+        // Col 5
+        colWidth = 50;
+        rightX = leftX + colWidth;
+        var col5FieldName = "col5"+section.sectionName;
+        var col5Field = aNewDoc.addField(col5FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
+        col5Field.value = section.totalMarks;
+        col5Field.readonly = true;
+        col5Field.alignment = "right";
+        col5Field.fillColor = color.ltGray;
+        leftX = rightX + 1;
+
+        app.endPriv();
+    }
+);
 
 

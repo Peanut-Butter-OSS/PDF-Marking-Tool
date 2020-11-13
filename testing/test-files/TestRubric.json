@@ -35,6 +35,22 @@
                     "optionDefaultComment" : "Section had no response"
                 }
             ]
-        } 
+        },
+        {
+            "sectionName" : "Question 2",
+            "totalMarks" : 40,
+            "markerOptions" : [
+                {
+                    "optionName" : "Correct",
+                    "optionMarks" : 40, 
+                    "optionDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "optionName" : "Incorrect",
+                    "optionMarks" : 0, 
+                    "optionDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        }  
     ]
 }
