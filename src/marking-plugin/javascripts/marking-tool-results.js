@@ -1,0 +1,5 @@
+/*
+
+This script contains everything related to calculating results
+
+*/

@@ -1,5 +1,8 @@
 /*
-  Config.js runs once when Acrobat is opened with a document. 
+  Config.js runs once when Acrobat is opened.
+  
+  Effectively it serves as the startup script for the marking tool
+
   According to the Acrobat scripting API the file titled "config.js" is guaranteed to be executed first
   It performs various initialization steps that are required by other scripts, including:
    - Adding the marking tool menu

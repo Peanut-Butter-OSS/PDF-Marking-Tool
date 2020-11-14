@@ -92,10 +92,12 @@ var validateRubric = app.trustedFunction(
         //    - sectionName is specified
         //    - totalMarks is specified
         //    - At least one markerOption specified
+        //    - No duplication of sectionId or Section name
         //    - For each markerOption:
         //        - optionName is specified
         //        - optionMarks is specified
         //        - optionDefaultComment is specified
+        //        - no duplication of optionName
 
         if (!rubric.rubricId) {
             var errorMsg = " - No rubricId was specified. \n";
@@ -357,6 +359,7 @@ var addRubricSectionHeader = app.trustedFunction(
 
 
 // TODO: Should return the row height that was actually used, so that we can dynamically adjust
+// TODO: Need to add a method to re-layout the table based on the length of the text.
 var addRubricSectionRow = app.trustedFunction(
     function(section, leftX, topY, rightX, bottomY) {
         app.beginPriv();
@@ -366,7 +369,7 @@ var addRubricSectionRow = app.trustedFunction(
         // Col 1
         colWidth = 100;
         rightX = leftX + colWidth;
-        var col1FieldName = "col1"+section.sectionName;
+        var col1FieldName = "col1"+section.sectionId;
         var col1Field = aNewDoc.addField(col1FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
         col1Field.value = section.sectionName;
         col1Field.readonly = true;
@@ -377,15 +380,16 @@ var addRubricSectionRow = app.trustedFunction(
         // Col 2
         colWidth = 150;
         rightX = leftX + colWidth;
-        var col2FieldName = "col2"+section.sectionName;
+        var col2FieldName = "col2"+section.sectionId;
         var col2Field = aNewDoc.addField(col2FieldName, "combobox", rubricPageNumber, [leftX, topY, rightX, bottomY]);
 
         var n;
         for (n = 0; n < section.markerOptions.length; n++) {
-            col2Field.insertItemAt(section.markerOptions[n].optionName,n);
+            col2Field.insertItemAt(section.markerOptions[n].optionName);
         }
+        col2Field.insertItemAt("Awaiting Marker ...");
         col2Field.fillColor = color.ltGray;
-        var cscript="changeSectionRating('"+ section.sectionName +"');";
+        var cscript="changeSectionRating('"+ section.sectionId +"',event);";
         col2Field.setAction("Keystroke", cscript);
         col2Field.commitOnSelChange = "true";
         leftX = rightX + 1;
@@ -393,7 +397,7 @@ var addRubricSectionRow = app.trustedFunction(
         // Col 3
         colWidth = 257;
         rightX = leftX + colWidth;
-        var col3FieldName = "col3"+section.sectionName;
+        var col3FieldName = "col3"+section.sectionId;
         var col3Field = aNewDoc.addField(col3FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
         col3Field.multiline = true
         col3Field.alignment = "left";
@@ -403,7 +407,7 @@ var addRubricSectionRow = app.trustedFunction(
         // Col 4
         colWidth = 50;
         rightX = leftX + colWidth;
-        var col4FieldName = "col4"+section.sectionName;
+        var col4FieldName = "col4"+section.sectionId;
         var col4Field = aNewDoc.addField(col4FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
         col4Field.alignment = "right";
         col4Field.fillColor = color.ltGray;
@@ -412,7 +416,7 @@ var addRubricSectionRow = app.trustedFunction(
         // Col 5
         colWidth = 50;
         rightX = leftX + colWidth;
-        var col5FieldName = "col5"+section.sectionName;
+        var col5FieldName = "col5"+section.sectionId;
         var col5Field = aNewDoc.addField(col5FieldName, "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
         col5Field.value = section.totalMarks;
         col5Field.readonly = true;
@@ -426,10 +430,54 @@ var addRubricSectionRow = app.trustedFunction(
 
 
 var changeSectionRating = app.trustedFunction(
-    function(sectionName) {
+    function(sectionId, event) {
         app.beginPriv();
 
-        console.println("Changing selection for section: "+sectionName)
+        // console.println("Event object: "+event);
+        // console.println(" - event.name: "+event.name);
+        // console.println(" - event.target: "+event.target);
+        // console.println(" - event.targetName: "+event.targetName);
+        // console.println(" - event.change: "+event.change);
+        // console.println(" - event.changeEx: "+event.changeEx);
+        // console.println(" - event.value: "+event.value);
+        // console.println(" - event.commitKey: "+event.commitKey);
+        // console.println(" - event.willCommit: "+event.willCommit);
+        // console.println(" - event.type: "+event.type);
+        // console.println(" - event.selStart: "+event.selStart);
+        // console.println(" - event.selEnd: "+event.selEnd);
+        // console.println(" - event.modifier: "+event.modifier);
+
+        // Only executing when the new value is committed
+        if (event.willCommit) {
+            console.println("Changing selection for section: "+sectionId+" to "+event.value);
+
+            // Get the default comment and marks from the Rubric:
+            var newRating = event.value;
+            var i;
+            var rubricComment = "";
+            var rubricMark = 0;
+            for (i = 0; i < global.selectedRubricContent.sections.length; i++) {
+                if (global.selectedRubricContent.sections[i].sectionId === sectionId) {
+                    var n;
+                    for (n = 0; n < global.selectedRubricContent.sections[i].markerOptions.length; n++) {
+                        if (global.selectedRubricContent.sections[i].markerOptions[n].optionName === newRating) {
+                            rubricComment = global.selectedRubricContent.sections[i].markerOptions[n].optionDefaultComment;
+                            rubricMark = global.selectedRubricContent.sections[i].markerOptions[n].optionMarks;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            var commentFieldName = "col3"+sectionId;
+            var commentField = aNewDoc.getField(commentFieldName);
+            commentField.value = rubricComment;
+            var markFieldName = "col4"+sectionId;
+            var markField = aNewDoc.getField(markFieldName);
+            markField.value = rubricMark;
+
+        }
 
         app.endPriv();
     }

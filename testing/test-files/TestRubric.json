@@ -6,6 +6,7 @@
     "assignmentId" : "Exam1",
     "sections" : [
         {
+            "sectionId" : "q1",
             "sectionName" : "Question 1",
             "totalMarks" : 10,
             "markerOptions" : [
@@ -37,6 +38,7 @@
             ]
         },
         {
+            "sectionId" : "q2",
             "sectionName" : "Question 2",
             "totalMarks" : 40,
             "markerOptions" : [
