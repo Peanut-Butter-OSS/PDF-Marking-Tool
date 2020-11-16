@@ -42,7 +42,50 @@ var crossToolLoadStatus = "NOT LOADED";
 var deselectToolLoadStatus = "NOT LOADED";
 var markToolLoadStatus = "NOT LOADED";
 var commentMarkToolLoadStatus = "NOT LOADED";
+var rubricMarkToolLoadStatus = "NOT LOADED";
 var countToolLoadStatus = "NOT LOADED";
+
+// Variables that track which tool is currently selected
+var isHalfMarkSelected = false;
+var isTickSelected = false;
+var isCheckSelected = false;
+var isCrossSelected = false;
+var isMarkSelected = false;
+var isCommentMarkSelected = false;
+var isRubricMarkSelected = false;
+var isDeselectAvailable = false;
+
+// The marking buttons are a series of invisible form buttons that are added as an overlay to each page of the
+// document. These buttons then "capture" the marking clicks as they are applied.
+// This variables simply tracks whether marking buttons have been applied to the form
+var hasMarkingButtons = false;
+
+var firstInitialization = true;
+
+var count = 0;
+var isPortrait = true;
+var addDeselectIcon;
+
+var isOrientationChanged = false;
+
+var commentFromFile = "";
+var labelForMark = "";
+
+var totalMarks = 0;
+var assigmentTotal = -1;
+
+var resultsPageNumber = -1;
+
+var skipRemoveButtons = false;
+
+var attachedRubricMark = "";
+var hasRubricAttached = false;
+
+var skipTotalDialog = false;
+
+var rubricDoc;
+var currentRubricOpened = "";
+
 
 var showStatusInfo = app.trustedFunction(
   function() {
@@ -71,6 +114,7 @@ var showStatusInfo = app.trustedFunction(
     statusString += "Deselect Tool Load Status: \t\t"+deselectToolLoadStatus+"\n";
     statusString += "Mark Tool Load Status: \t\t"+markToolLoadStatus+"\n";
     statusString += "Comment Mark Tool Load Status: \t"+commentMarkToolLoadStatus+"\n";
+    statusString += "Rubric Mark Tool Load Status: \t\t"+rubricMarkToolLoadStatus+"\n";
     statusString += "Count Tool Load Status: \t\t"+countToolLoadStatus+"\n";
     statusString += "--------------------------\n\n";
     statusString += "Document Marking Status: \t\t"+markingState+"\n";
@@ -83,6 +127,8 @@ var showStatusInfo = app.trustedFunction(
       console.println(initErrorMsg);
     }
     app.alert(statusString, 3);
+
+    showToolSelectionStatus();
 
     app.endPriv();  
   }
@@ -146,28 +192,31 @@ var addMarkingTools = app.trustedFunction(
 
     if (aNewDoc != null) {
       if (halfTickToolLoadStatus==="NOT LOADED") {
-        halfTickToolLoadStatus = addTool(aNewDoc, iconPath, "halftickmark", "Add a Half Tick Mark.", "addMark(aNewDoc, 'HALFT');", "setIndentOnHalfTick();",0);
+        halfTickToolLoadStatus = addTool(aNewDoc, iconPath, "halftickmark", "Add a Half Tick Mark.", "selectToolFromToolbar(aNewDoc, 'HALFT');", "isToolMarked('HALFT');",0);
       }
       if (tickToolLoadStatus==="NOT LOADED") {
-        tickToolLoadStatus = addTool(aNewDoc, iconPath, "tickmark", "Add a tick", "addMark(aNewDoc, 'TICK');", "setIndentOnTick();",1);
+        tickToolLoadStatus = addTool(aNewDoc, iconPath, "tickmark", "Add a tick", "selectToolFromToolbar(aNewDoc, 'TICK');", "isToolMarked('TICK');",1);
       }
       if (checkToolLoadStatus==="NOT LOADED") {
-        checkToolLoadStatus = addTool(aNewDoc, iconPath, "check", "Add a Checked Stamp.", "addMark(aNewDoc, 'CHECK');", "setIndentOnCheck();",2);
+        checkToolLoadStatus = addTool(aNewDoc, iconPath, "check", "Add a Checked Stamp.", "selectToolFromToolbar(aNewDoc, 'CHECK');", "isToolMarked('CHECK');",2);
       }
       if (crossToolLoadStatus==="NOT LOADED") {
-        crossToolLoadStatus = addTool(aNewDoc, iconPath, "crossmark", "Add a Cross", "addMark(aNewDoc, 'CROSS');", "setIndentOnCross();",3);
+        crossToolLoadStatus = addTool(aNewDoc, iconPath, "crossmark", "Add a Cross", "selectToolFromToolbar(aNewDoc, 'CROSS');", "isToolMarked('CROSS');",3);
       }
       if (deselectToolLoadStatus==="NOT LOADED") {
-        deselectToolLoadStatus = addTool(aNewDoc, iconPath, "deselect", "Deselect Current Tool.", "removeContinuesMarking(aNewDoc)", "setEnableOnDeselect();",4);
+        deselectToolLoadStatus = addTool(aNewDoc, iconPath, "deselect", "Deselect Current Tool.", "deselectCurrentTool(aNewDoc)", "isToolMarked('DESELECT');",4);
       }
       if (markToolLoadStatus==="NOT LOADED") {
-        markToolLoadStatus = addTool(aNewDoc, iconPath, "mark", "Add a Mark", "addMark(aNewDoc, 'MARK');", "setIndentOnMark();",5);
+        markToolLoadStatus = addTool(aNewDoc, iconPath, "mark", "Add a Mark", "selectToolFromToolbar(aNewDoc, 'MARK');", "isToolMarked('MARK');",5);
       }
       if (commentMarkToolLoadStatus==="NOT LOADED") {
-        commentMarkToolLoadStatus = addTool(aNewDoc, iconPath, "commentmark", "Comment Mark.", "addMark(aNewDoc, 'COMMENTM');", "setIndentOnCommentMark();",6);
+        commentMarkToolLoadStatus = addTool(aNewDoc, iconPath, "commentmark", "Comment Mark.", "selectToolFromToolbar(aNewDoc, 'COMMENTM');", "isToolMarked('COMMENTM');",6);
+      }
+      if (rubricMarkToolLoadStatus==="NOT LOADED") {
+        rubricMarkToolLoadStatus = addTool(aNewDoc, iconPath, "rubricmark", "Rubric Mark.", "selectToolFromToolbar(aNewDoc, 'RUBRICM');", "isToolMarked('RUBRICM');",7);
       }
       if (countToolLoadStatus==="NOT LOADED") {
-        countToolLoadStatus = addTool(aNewDoc, iconPath, "count", "Count Marks.", "countMarks(aNewDoc)", "",7);
+        countToolLoadStatus = addTool(aNewDoc, iconPath, "count", "Count Marks.", "countMarks(aNewDoc)", "",8);
       }
     } else {
       console.println("Cannot add marking tools because there is no active document");
@@ -220,7 +269,7 @@ var addTool = app.trustedFunction(
           });
           loadStatus = "LOADED WITH ICON";
         } catch(Error) {
-          var errMsg = "Error while adding "+toolName+" toolbar button";
+          var errMsg = "Error while adding "+toolName+" toolbar button: "+Error;
           console.println(errMsg);
           initError = true;
           initErrorMsg = initErrorMsg + " - " + errMsg + "\n";
@@ -251,6 +300,53 @@ var addTool = app.trustedFunction(
     return loadStatus;
   }
 );
+
+
+// This function is used to determine which tools in the toolbar are currently marked as "in use"
+// Setting event.rc is how we plug  into Acrobat's built-in capability to mark selected tools
+var isToolMarked = app.trustedFunction(function (type) {
+
+  var toolIsMarked = false;
+  switch (type) {
+    case "HALFT": {
+      toolIsMarked = isHalfMarkSelected;
+      break;
+    }
+    case "TICK": {
+      toolIsMarked = isTickSelected;
+      break;
+    }
+    case "CHECK": {
+      toolIsMarked = isCheckSelected;
+      break;
+    }
+    case "CROSS": {
+      toolIsMarked = isCrossSelected;
+      break;
+    }
+    case "MARK": {
+      toolIsMarked = isMarkSelected;
+      break;
+    }
+    case "COMMENTM": {
+      toolIsMarked = isCommentMarkSelected;
+      break;
+    }
+    case "RUBRICM": {
+      toolIsMarked = isRubricMarkSelected;
+      break;
+    }
+    case "DESELECT": {
+      toolIsMarked = isDeselectAvailable;
+      break;
+    }
+  }
+
+  event.rc = toolIsMarked;
+  return toolIsMarked;
+});
+
+
 
 var determineMarkingStatus = app.trustedFunction(
   function() {

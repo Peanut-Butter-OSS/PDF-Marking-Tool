@@ -226,10 +226,10 @@ var buildRubricPage = app.trustedFunction(
        leftX = 0;
        rightX = xMax;
        var rubricHeader = aNewDoc.addField("rubricHeader", "text", rubricPageNumber, [leftX, topY, rightX, bottomY]);
-       rubricHeader.value = "RUBRIC";
+       rubricHeader.value = "Marking Rubric";
        rubricHeader.readonly = true;
        rubricHeader.alignment = "center";
-       rubricHeader.fillColor = color.blue;
+       rubricHeader.fillColor = color.white;
        currentTopY = bottomY -1;
 
         // Course Code
@@ -241,7 +241,7 @@ var buildRubricPage = app.trustedFunction(
         labelCourseCode.value = "Course Code";
         labelCourseCode.readonly = true;
         labelCourseCode.alignment = "left";
-        labelCourseCode.fillColor = color.red;
+        labelCourseCode.fillColor = color.ltGray;
 
         leftX = rightX + 1;
         rightX = xMax;
@@ -249,7 +249,7 @@ var buildRubricPage = app.trustedFunction(
         valueCourseCode.value = global.selectedRubricContent.courseCode;
         valueCourseCode.readonly = true;
         valueCourseCode.alignment = "left";
-        valueCourseCode.fillColor = color.gray;
+        valueCourseCode.fillColor = color.white;
         currentTopY = bottomY -1;
 
         // Assignment
@@ -261,7 +261,7 @@ var buildRubricPage = app.trustedFunction(
         labelAssignmentId.value = "Assignment";
         labelAssignmentId.readonly = true;
         labelAssignmentId.alignment = "left";
-        labelAssignmentId.fillColor = color.magenta;
+        labelAssignmentId.fillColor = color.ltGray;
 
         leftX = rightX + 1;
         rightX = xMax;
@@ -269,7 +269,7 @@ var buildRubricPage = app.trustedFunction(
         valueAssignmentId.value = global.selectedRubricContent.assignmentId;
         valueAssignmentId.readonly = true;
         valueAssignmentId.alignment = "left";
-        valueAssignmentId.fillColor = color.ltGray;
+        valueAssignmentId.fillColor = color.white;
         currentTopY = bottomY -1;
 
         // Header row for sections table
@@ -484,3 +484,59 @@ var changeSectionRating = app.trustedFunction(
 );
 
 
+// ======================================================================================== 
+// ======================================================================================== 
+// EVERYTHING BELOW THIS COMMENT IS OLD FUNCTIONALITY THAT IS LIKELY NOT APPLICABLE ANYMORE
+// ======================================================================================== 
+// ======================================================================================== 
+
+
+// TODO - Removing old Rubric functionality
+// var openRubricForMarking = app.trustedFunction(function (aNewDoc) {
+//   app.beginPriv();
+
+//   var allDocs = app.activeDocs;
+//   var stillOpen = false;
+//   if (rubricDoc != null) {
+//     for (var i in allDocs) {
+//       try {
+//         if (allDocs[i].path == rubricDoc.path) {
+//           stillOpen = true;
+//           break;
+//         }
+//       } catch (Error) {}
+//     }
+//   }
+
+//   if (!stillOpen) {
+//     rubricDoc = null;
+//   }
+
+//   if (rubricDoc == null) {
+//     var arrText = readCommentTextFile(aNewDoc, "RUBRIC_ENGINE");
+//     var rubricFile = arrText[1];
+
+//     if (rubricFile != "</empty>") {
+//       rubricDoc = app.openDoc(rubricFile);
+
+//       var docFileName = aNewDoc.documentFileName;
+//       var fileName = docFileName.substring(0, docFileName.indexOf("."));
+
+//       currentRubricOpened =
+//         "/C/Program Files/UNISA/Rubrics/" + fileName + "_UNMARKED_RUBRIC.pdf";
+//       rubricDoc.saveAs({
+//         cPath: currentRubricOpened,
+//       });
+
+//       hasRubricAttached = true;
+//     } else {
+//       app.alert(
+//         "There is no Rubric accossiated with this Assignment, please re-specify Rubric in Comment Tool!"
+//       );
+//     }
+//   } else {
+//     app.alert("You have already opened the Rubric!", 1);
+//   }
+
+//   app.endPriv();
+// });
