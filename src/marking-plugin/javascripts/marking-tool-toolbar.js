@@ -5,7 +5,8 @@ This file contains all functions that relate to the working of the toolbar
 */
 
 var firstMarkForTick = true;
-var currentMarkForTick = 1;
+var currentMarkForTick = "1";
+var configuredTickMark = false;
 
 // This is the main method that gets called When a tool is selected from the toolbar
 var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
@@ -55,27 +56,20 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
       isRubricMarkSelected = false;
 
       if (firstMarkForTick) {
-        var configuredTickMark = configureTickMark(aNewDoc);
-        if (configuredTickMark) {
-          firstMarkForTick = false;
-          isTickSelected = true;
-        } else {
-          isTickSelected = false;
+        var tickmarkConfigDialog = getTickMarkConfigDialog(aNewDoc,currentMarkForTick);
+        var dialogResult = app.execDialog(tickmarkConfigDialog);
+        console.println("Result from the tickmark config dialog: "+dialogResult);
+        if (dialogResult === "ok") {
+            console.println("Tick successfully configured: Value="+currentMarkForTick);
+            isTickSelected = true;
+            firstMarkForTick = false;
+        } else if (dialogResult === "cancel") {
+            console.println("Cancelled configuration of tickmark");
+            deselectCurrentTool(aNewDoc);
         }
+      } else {
+        isTickSelected = true;
       }
-
-      // TODO - Logic here does not make sense to me. We seem to be combining the mysterious markButtons
-      // with the historical value of a tick
-      // Commenting out until it makes sense
-      //   if (firstMarkForTick) {
-      //     hasMarkingButtons = getTickMarkDialog(aNewDoc);
-      //     firstMarkForTick = false;
-      //   }
-      //   if (hasMarkingButtons == false) {
-      //     isTickSelected = true;
-      //   } else {
-      //     isTickSelected = false;
-      //   }
       break;
     }
     case "CHECK": {
@@ -139,21 +133,32 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
   app.endPriv();
 });
 
-var configureTickMark = app.trustedFunction(function (aNewDoc) {
+var getTickMarkConfigDialog = app.trustedFunction(function (aNewDoc, currentValue) {
   app.beginPriv();
 
-  var configuredTickMark = false;
-
-  var dialog1 = {
+  var tickmarkConfigDialog = {
     initialize: function (dialog) {
       var todayDate = dialog.store()["date"];
       todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
       dialog.load({ date: todayDate });
-      dialog.load({ mark: currentMarkForTick });
+      dialog.load({ mark: currentValue });
     },
-    destroy: function (dialog) {
-      //deselectCurrentTool(aNewDoc);
-      configuredTickMark = false;
+    validate: function (dialog) {
+        var results = dialog.store();
+        var mark = results["mark"];
+        var regExNumber = /\D/;
+        if (regExNumber.test(mark)) {
+            app.alert("Only positive numbers are allowed!");
+            return false;
+          } else if (mark > 100) {
+            app.alert("Mark for tick cannot be greater than 100!");
+            return false;
+          } else if (mark < 0) {
+            app.alert("Mark for tick cannot be less than 0!");
+            return false;
+          } else {
+            return true;
+          }
     },
     commit: function (dialog) {
       var results = dialog.store();
@@ -164,20 +169,9 @@ var configureTickMark = app.trustedFunction(function (aNewDoc) {
         mark = 1;
       }
 
-      var regNumber = /\D/;
-      if (regNumber.test(mark)) {
-        configuredTickMark = false;
-        app.alert("Only numbers are allowed!");
-      } else if (mark > 100) {
-        configuredTickMark = false;
-        app.alert("Mark for tick cannot be greater than 100!");
-      } else if (mark < 0) {
-        configuredTickMark = false;
-        app.alert("Mark for tick cannot be less than 0!");
-      } else {
-        currentMarkForTick = mark;
-        configuredTickMark = true;
-      }
+      currentMarkForTick = mark;
+      configuredTickMark = true;
+      console.println("Successfully configured tick mark in the dialog? "+configuredTickMark);
     },
     description: {
       name: "Mark Data",
@@ -226,11 +220,8 @@ var configureTickMark = app.trustedFunction(function (aNewDoc) {
       ],
     },
   };
-
-  app.execDialog(dialog1);
   app.endPriv();
-
-  return configuredTickMark;
+  return tickmarkConfigDialog;
 });
 
 var getCommentMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
@@ -678,3 +669,47 @@ var deselectCurrentTool = app.trustedFunction(
        app.endPriv();
     }
   );
+
+  // This function is used to determine which tools in the toolbar are currently marked as "in use"
+// Setting event.rc is how we plug  into Acrobat's built-in capability to mark selected tools
+var isToolMarked = app.trustedFunction(function (type) {
+
+    var toolIsMarked = false;
+    switch (type) {
+      case "HALFT": {
+        toolIsMarked = isHalfMarkSelected;
+        break;
+      }
+      case "TICK": {
+        toolIsMarked = isTickSelected;
+        break;
+      }
+      case "CHECK": {
+        toolIsMarked = isCheckSelected;
+        break;
+      }
+      case "CROSS": {
+        toolIsMarked = isCrossSelected;
+        break;
+      }
+      case "MARK": {
+        toolIsMarked = isMarkSelected;
+        break;
+      }
+      case "COMMENTM": {
+        toolIsMarked = isCommentMarkSelected;
+        break;
+      }
+      case "RUBRICM": {
+        toolIsMarked = isRubricMarkSelected;
+        break;
+      }
+      case "DESELECT": {
+        toolIsMarked = isDeselectAvailable;
+        break;
+      }
+    }
+  
+    event.rc = toolIsMarked;
+    return toolIsMarked;
+  });

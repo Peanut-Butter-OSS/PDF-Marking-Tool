@@ -302,49 +302,7 @@ var addTool = app.trustedFunction(
 );
 
 
-// This function is used to determine which tools in the toolbar are currently marked as "in use"
-// Setting event.rc is how we plug  into Acrobat's built-in capability to mark selected tools
-var isToolMarked = app.trustedFunction(function (type) {
 
-  var toolIsMarked = false;
-  switch (type) {
-    case "HALFT": {
-      toolIsMarked = isHalfMarkSelected;
-      break;
-    }
-    case "TICK": {
-      toolIsMarked = isTickSelected;
-      break;
-    }
-    case "CHECK": {
-      toolIsMarked = isCheckSelected;
-      break;
-    }
-    case "CROSS": {
-      toolIsMarked = isCrossSelected;
-      break;
-    }
-    case "MARK": {
-      toolIsMarked = isMarkSelected;
-      break;
-    }
-    case "COMMENTM": {
-      toolIsMarked = isCommentMarkSelected;
-      break;
-    }
-    case "RUBRICM": {
-      toolIsMarked = isRubricMarkSelected;
-      break;
-    }
-    case "DESELECT": {
-      toolIsMarked = isDeselectAvailable;
-      break;
-    }
-  }
-
-  event.rc = toolIsMarked;
-  return toolIsMarked;
-});
 
 
 
