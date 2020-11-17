@@ -21,12 +21,32 @@ var addBlankPage = app.trustedFunction(function (aNewDoc) {
 });
 
 var trim = app.trustedFunction(function (str) {
-    str = str.replace(/\r?/gm, " ");
-    str = str.replace(/\s{2,}/g, "|");
-    str = str.replace(/\s/g, "");
-    str = str.replace(/\|/g, " ");
-  
-    str = str.replace(/^\s/, "");
-  
-    return str.toUpperCase();
-  });
+  str = str.replace(/\r?/gm, " ");
+  str = str.replace(/\s{2,}/g, "|");
+  str = str.replace(/\s/g, "");
+  str = str.replace(/\|/g, " ");
+
+  str = str.replace(/^\s/, "");
+
+  return str.toUpperCase();
+});
+
+var listFields = app.trustedFunction(function () {
+  app.beginPriv();
+
+  var statusString = "Form fields: \n------------------------\n";
+  statusString += "Total number of fields: " + this.numFields + "\n";
+  var tmpField;
+  for (var fieldNumber = 0; fieldNumber < this.numFields; fieldNumber ++)  {
+    tmpField = this.getField(this.getNthFieldName(fieldNumber));
+    var fieldName = tmpField.name;
+    var fieldPage = tmpField.page;
+    var fieldType = tmpField.type;
+    var fieldValue = tmpField.value;
+    statusString += " - Page="+fieldPage+", Name="+fieldName+", Type="+fieldType+", Value="+fieldValue+"\n";
+  }
+
+  console.println(statusString);
+
+  app.endPriv();
+});
