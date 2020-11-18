@@ -137,7 +137,6 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
   var circlePoints;
   var numberPoints;
 
-  var graphicType = "";
   var structuredMark = false;
 
   var drawPoints = [];
@@ -147,46 +146,39 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
   if (type == "RUBRICM") {
     numberPoints = createNumbers(aNewDoc, x, y, mark);
     drawPoints = numberPoints;
-    graphicType = "COMMENTM";
     structuredMark = true;
     hasTextContentForAnnot = true;
   } else if (type == "COMMENTM") {
     numberPoints = createNumbers(aNewDoc, x, y, mark);
     drawPoints = numberPoints;
-    graphicType = "COMMENTM";
     structuredMark = true;
     hasTextContentForAnnot = true;
   } else if (type == "MARK") {
     numberPoints = createNumbers(aNewDoc, x, y, mark);
     drawPoints = numberPoints;
-    graphicType = "MARK";
     structuredMark = true;
   } else if (type == "TICK") {
     tickPoints = createTick(aNewDoc, x, y);
     drawPoints = [tickPoints];
-    graphicType = "TICK";
   } else if (type == "CROSS") {
     crossPoints = createCross(aNewDoc, x, y);
     drawPoints = crossPoints;
     mark = 0
-    graphicType = "CROSS";
   } else if (type == "CHECK") {
     checkPoints = createCheck(aNewDoc, x, y);
     drawPoints = [checkPoints];
     mark = 0;
-    graphicType = "CHECK";
   } else if (type == "HALFT") {
     crossPoints = createHalfTick(aNewDoc, x, y);
     drawPoints = crossPoints;
     mark = 0.5;
-    graphicType = "HALFT";
   }
 
   if (!structuredMark) {
     aNewDoc.addAnnot({
       type: "Ink",
       page: currentPage,
-      name: graphicType + ":" + count,
+      name: type + ":" + totalAnnotationCount,
       subject: "MARK | " + mark,
       gestures: drawPoints,
       width: 2,
@@ -196,7 +188,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
       aNewDoc.addAnnot({
         type: "Ink",
         page: currentPage,
-        name: graphicType + ":" + count,
+        name: type + ":" + totalAnnotationCount,
         subject: "MARK: " + section + " | " + mark,
         gestures: drawPoints,
         contents: comment,
@@ -206,7 +198,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
       aNewDoc.addAnnot({
         type: "Ink",
         page: currentPage,
-        name: graphicType + ":" + count,
+        name: type + ":" + totalAnnotationCount,
         subject: "MARK: " + section + " | " + mark,
         gestures: drawPoints,
         width: 2,
@@ -214,7 +206,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
     }
   }
 
-  count++;
+  totalAnnotationCount++;
 
   app.endPriv();
 });
@@ -866,4 +858,23 @@ var coordinateAnnotInSpace = app.trustedFunction(function (
   }
 
   return coord;
+});
+
+var listAnnotations = app.trustedFunction(function () {
+  app.beginPriv();
+
+  this.syncAnnotScan();
+  var annots = this.getAnnots();
+
+  var statusString = "Annotations: \n------------------------\n";
+  statusString += "Total number of annotations: " + annots.length + "\n";
+
+  for (var i = 0; i < annots.length; i++) {
+    var tmpAnnotation = annots[i];
+    statusString += " - Page="+tmpAnnotation.page+", Name="+tmpAnnotation.name+", Type="+tmpAnnotation.type+", Subject="+tmpAnnotation.subject+"\n";
+  }
+ 
+  console.println(statusString);
+
+  app.endPriv();
 });

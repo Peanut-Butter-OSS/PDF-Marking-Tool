@@ -29,7 +29,11 @@ var markingState = "UNKNOWN";
 // Marking can be done as either UNSTRUCTURED, or RUBRIC-BASED
 // This value is embedded as a field in the form, so that it is available on subsequent opening
 var markingType = "UNKNOWN";
+
+// Storing the page numbers of the system generated pages
+// TODO - These should be stored in hidden fields too
 var rubricPageNumber;
+var resultsPageNumber = -1;
 
 // The active flag indicates whether the tools are currently active
 var markingToolsActive = false;
@@ -62,7 +66,10 @@ var hasMarkingButtons = false;
 
 var firstInitialization = true;
 
-var count = 0;
+// Global variable of the number of annotations
+// TODO: Not sure this adds any value, we could calculate at the time of adding the annotation
+var totalAnnotationCount = 0;
+
 var isPortrait = true;
 var addDeselectIcon;
 
@@ -74,7 +81,7 @@ var labelForMark = "";
 var totalMarks = 0;
 var assigmentTotal = -1;
 
-var resultsPageNumber = -1;
+
 
 var skipRemoveButtons = false;
 
@@ -301,11 +308,6 @@ var addTool = app.trustedFunction(
   }
 );
 
-
-
-
-
-
 var determineMarkingStatus = app.trustedFunction(
   function() {
     app.beginPriv();
@@ -433,13 +435,6 @@ var makeDocumentMarkable = app.trustedFunction(
       console.println(errorMsg);
       app.alert(errorMsg);
     }
-
-
-
-
-
-
-
     app.endPriv();
   }
 );

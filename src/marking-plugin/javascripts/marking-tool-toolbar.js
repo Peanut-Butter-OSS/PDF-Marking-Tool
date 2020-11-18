@@ -130,6 +130,10 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
       break;
     }
     case "RUBRICM": {
+      if (markingType!="RUBRIC") {
+        app.alert("Cannot select the Rubric Mark tool until a rubric has been applied to the document. Please add a rubric using the Edit > PDF Marking Tool > Rubric menu");
+        return;
+      }
       isHalfMarkSelected = false;
       isTickSelected = false;
       isCheckSelected = false;
@@ -866,7 +870,6 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
     },
     commit: function (dialog) {
       var results = dialog.store();
-      var sect = results["sect"];
 
       // Extract sectionId from the selection made in popup
       var sectElements = results["sect"];
@@ -899,7 +902,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       overrideSectionComment(sectionId, comment);
       overrideSectionMark(sectionId, mark);
 
-      // TODO: Figure out what the doAnnot method does with "sect"
+      // Apply annotation
       doAnnot(aNewDoc, x, y, sectionName, comment, mark, type);
     },
     description: {
