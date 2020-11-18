@@ -373,7 +373,7 @@ var addRubricSectionHeader = app.trustedFunction(function (topY, bottomY) {
   leftX = rightX + 1;
 
   // Col 3
-  colWidth = 257;
+  colWidth = 232;
   rightX = leftX + colWidth;
   var rubricSectionsCol3Header = aNewDoc.addField(
     "rubricSectionsCol3Header",
@@ -474,8 +474,8 @@ var addRubricSectionRow = app.trustedFunction(function (
   col2Field.commitOnSelChange = "true";
   leftX = rightX + 1;
 
-  // Col 3
-  colWidth = 257;
+  // Col 3 "Comments"
+  colWidth = 207;
   rightX = leftX + colWidth;
   var col3FieldName = "col3" + section.sectionId;
   var col3Field = aNewDoc.addField(col3FieldName, "text", rubricPageNumber, [
@@ -489,7 +489,7 @@ var addRubricSectionRow = app.trustedFunction(function (
   col3Field.fillColor = color.ltGray;
   leftX = rightX + 1;
 
-  // Col 4
+  // Col 4 "Marks"
   colWidth = 50;
   rightX = leftX + colWidth;
   var col4FieldName = "col4" + section.sectionId;
@@ -503,7 +503,7 @@ var addRubricSectionRow = app.trustedFunction(function (
   col4Field.fillColor = color.ltGray;
   leftX = rightX + 1;
 
-  // Col 5
+  // Col 5 "Out of"
   colWidth = 50;
   rightX = leftX + colWidth;
   var col5FieldName = "col5" + section.sectionId;
@@ -519,9 +519,51 @@ var addRubricSectionRow = app.trustedFunction(function (
   col5Field.fillColor = color.ltGray;
   leftX = rightX + 1;
 
-  // Col 6 (Invisible field to store details of linked annotation)
-  // TODO
+  // Col 6 (Invisible field to store page of linked annotation)
+  colWidth = 0;
+  rightX = leftX + colWidth;
+  var col6FieldName = "col6" + section.sectionId;
+  var col6Field = aNewDoc.addField(col6FieldName, "text", rubricPageNumber, [
+    leftX,
+    topY,
+    rightX,
+    bottomY,
+  ]);
+  col6Field.value = 0;
+  col6Field.hidden = true;
+  leftX = rightX;
 
+  // Col 7 (Invisible field to store annotation name of linked annotation)
+  colWidth = 0;
+  rightX = leftX + colWidth;
+  var col7FieldName = "col7" + section.sectionId;
+  var col7Field = aNewDoc.addField(col7FieldName, "text", rubricPageNumber, [
+    leftX,
+    topY,
+    rightX,
+    bottomY,
+  ]);
+  col7Field.value = "";
+  col7Field.hidden = true;
+  leftX = rightX;
+
+  // Col 8 (Button to go to the annotation)
+  colWidth = 25;
+  rightX = leftX + colWidth;
+  var col8FieldName = "col8" + section.sectionId;
+  var col8Field = aNewDoc.addField(col8FieldName, "button", rubricPageNumber, [
+    leftX,
+    topY,
+    rightX,
+    bottomY,
+  ]);
+  col8Field.fillColor = color.ltGray;
+  col8Field.borderStyle = border.b;
+  col8Field.display = display.noPrint;
+  col8Field.highlight = "push";
+  col8Field.lineWidth = 2;
+  col8Field.hidden = true;
+  leftX = rightX + 1;
 
   app.endPriv();
 });
@@ -632,6 +674,7 @@ var updateSectionRating = app.trustedFunction(function (sectionId, rating) {
 });
 
 // This method allows the automatically selected comment to be overridden
+// This is needed when a Rubric mark is applied but the marks are adjusted
 var overrideSectionComment = app.trustedFunction(function (sectionId, comment) {
   app.beginPriv();
   
@@ -645,6 +688,7 @@ var overrideSectionComment = app.trustedFunction(function (sectionId, comment) {
 });
 
 // This method allows the automatically selected mark to be overridden
+// This is needed when a Rubric mark is applied with custom comments
 var overrideSectionMark = app.trustedFunction(function (sectionId, mark) {
   app.beginPriv();
   
@@ -657,8 +701,33 @@ var overrideSectionMark = app.trustedFunction(function (sectionId, mark) {
   app.endPriv();
 });
 
+// When a rubric mark is applied via the toolbar, we link the table row with the annotation
+// by setting two inivible columns in the table row. At this point we also make the button active
+var addAnnotationDetailsToRubricSection = app.trustedFunction(function (sectionId, annotPage, annotName) {
+  app.beginPriv();
+  
+  console.println("Linking rubric table row for " + sectionId + " to with annotation: " + annotName + "on page "+ annotPage);
 
+  var annotPageFieldName = "col6" + sectionId;
+  var annotPageField = this.getField(annotPageFieldName);
+  annotPageField.value = annotPage;
 
+  var annotNameFieldName = "col7" + sectionId;
+  var annotNameField = this.getField(annotNameFieldName);
+  annotNameField.value = annotName;
+  
+  var navButtonFieldName = "col8" + sectionId;
+  var navButtonField = this.getField(navButtonFieldName);
+  var cmd = "goToAnnotation("+annotPage+",'"+annotName+"')";
+  navButtonField.setAction("MouseUp", cmd);
+  navButtonField.buttonSetCaption("p"+annotPage);
+  navButtonField.hidden = false;
+
+  app.endPriv();
+});
+
+// When marking via Rubric, this method determines whether a specific section has already been marked
+// This allows the Rubric marking tool to always default to the next unmarked question
 var sectionIsAlreadyMarked = app.trustedFunction(function (sectionId) {
     app.beginPriv();
 

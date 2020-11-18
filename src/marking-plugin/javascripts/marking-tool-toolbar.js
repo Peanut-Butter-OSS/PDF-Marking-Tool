@@ -748,10 +748,13 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       //    "the value should be an object literal consisting of the displayed entry as the
       //      label and a numeric value as the contents. If the numeric value is greater than 0, 
       //      the item was selected, otherwise it was not selected.
+      console.println("Initializing rubric dialog");
       var i;
       var sectionPopupData = {};
       var defaultSelectionFound = false;
       var selectedSectionIndex = 0;
+      console.println("1");
+      console.println("Section Count: "+global.selectedRubricContent.sections.length);
       for (i = 1; i <= global.selectedRubricContent.sections.length; i++) {
         var sectionId = global.selectedRubricContent.sections[i-1].sectionId;
         if ((!sectionIsAlreadyMarked(sectionId))&&(!defaultSelectionFound)) {
@@ -903,7 +906,8 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       overrideSectionMark(sectionId, mark);
 
       // Apply annotation
-      doAnnot(aNewDoc, x, y, sectionName, comment, mark, type);
+      var annotName = doAnnot(aNewDoc, x, y, sectionName, comment, mark, type);
+      addAnnotationDetailsToRubricSection(sectionId, aNewDoc.pageNum, annotName);
     },
     description: {
       name: "Rubric Mark Data",

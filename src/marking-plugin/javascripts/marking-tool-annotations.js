@@ -128,7 +128,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
   app.beginPriv();
 
   console.println("Adding annotation: Coords=("+x+","+y+"), Section="+section+", Mark="+mark+", Type="+type);
-
+  var annotationName = "";
   var currentPage = aNewDoc.pageNum;
 
   var tickPoints;
@@ -174,11 +174,12 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
     mark = 0.5;
   }
 
+  annotationName = type + ":" + totalAnnotationCount;
   if (!structuredMark) {
     aNewDoc.addAnnot({
       type: "Ink",
       page: currentPage,
-      name: type + ":" + totalAnnotationCount,
+      name: annotationName,
       subject: "MARK | " + mark,
       gestures: drawPoints,
       width: 2,
@@ -188,7 +189,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
       aNewDoc.addAnnot({
         type: "Ink",
         page: currentPage,
-        name: type + ":" + totalAnnotationCount,
+        name: annotationName,
         subject: "MARK: " + section + " | " + mark,
         gestures: drawPoints,
         contents: comment,
@@ -198,7 +199,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
       aNewDoc.addAnnot({
         type: "Ink",
         page: currentPage,
-        name: type + ":" + totalAnnotationCount,
+        name: annotationName,
         subject: "MARK: " + section + " | " + mark,
         gestures: drawPoints,
         width: 2,
@@ -209,6 +210,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
   totalAnnotationCount++;
 
   app.endPriv();
+  return annotationName;
 });
 
 var createCheck = app.trustedFunction(function (aNewDoc, x, y) {
@@ -859,6 +861,17 @@ var coordinateAnnotInSpace = app.trustedFunction(function (
 
   return coord;
 });
+
+var goToAnnotation = app.trustedFunction(function (annotationPage, annotationName) {
+  app.beginPriv();
+
+  this.syncAnnotScan();
+  var annotation = this.getAnnot(annotationPage, annotationName);
+  this.pageNum=annotationPage;
+
+  app.endPriv();
+});
+
 
 var listAnnotations = app.trustedFunction(function () {
   app.beginPriv();
