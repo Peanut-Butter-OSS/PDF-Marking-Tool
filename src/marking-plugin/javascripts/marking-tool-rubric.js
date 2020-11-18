@@ -519,6 +519,10 @@ var addRubricSectionRow = app.trustedFunction(function (
   col5Field.fillColor = color.ltGray;
   leftX = rightX + 1;
 
+  // Col 6 (Invisible field to store details of linked annotation)
+  // TODO
+
+
   app.endPriv();
 });
 

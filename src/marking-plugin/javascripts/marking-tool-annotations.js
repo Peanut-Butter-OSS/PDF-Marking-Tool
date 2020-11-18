@@ -72,15 +72,16 @@ var doMark = app.trustedFunction(function (aNewDoc, type) {
       aNewDoc.mouseX,
       aNewDoc.mouseY,
       null,
+      null,
       currentMarkForTick,
       type
     );
   } else if (type == "CROSS") {
-    doAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, null, 0, type);
+    doAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, null, null, 0, type);
   } else if (type == "CHECK") {
-    doAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, null, 0, type);
+    doAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, null, null, 0, type);
   } else if (type == "HALFT") {
-    doAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, null, 0.5, type);
+    doAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, null, null, 0.5, type);
   }
 
   app.endPriv();
@@ -115,8 +116,18 @@ var doAimAnnot = app.trustedFunction(function (aNewDoc, x, y) {
 });
 
 // This is the main method for applying annotations to the document
-var doAnnot = app.trustedFunction(function (aNewDoc, x, y, q, m, type) {
+// Arguments:
+// - aNewDoc: The document on which to apply the annotation (There should be only one)
+// - x: The X coordinate where to place the annotation
+// - y: The Y coordinate where to place the annotation
+// - section: The section to which the annotation applies (For unstructured marks, this value is passed as null)
+// - comment: A comment to be applied with the annotation (For unstructured marks, this value is passed as null)
+// - mark: The mark value associated with the annotation
+// - type: the annotation type
+var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mark, type) {
   app.beginPriv();
+
+  console.println("Adding annotation: Coords=("+x+","+y+"), Section="+section+", Mark="+mark+", Type="+type);
 
   var currentPage = aNewDoc.pageNum;
 
@@ -127,79 +138,68 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, q, m, type) {
   var numberPoints;
 
   var graphicType = "";
-  var qmAnnot = false;
+  var structuredMark = false;
 
   var drawPoints = [];
 
-  var hasSubjectForAnnot = false;
+  var hasTextContentForAnnot = false;
 
-  if (type == "COMMENTM") {
-    numberPoints = createNumbers(aNewDoc, x, y, m);
-
+  if (type == "RUBRICM") {
+    numberPoints = createNumbers(aNewDoc, x, y, mark);
     drawPoints = numberPoints;
-
     graphicType = "COMMENTM";
-
-    qmAnnot = true;
-    hasSubjectForAnnot = true;
-  } else if (type == "MARK") {
-    numberPoints = createNumbers(aNewDoc, x, y, m);
-
+    structuredMark = true;
+    hasTextContentForAnnot = true;
+  } else if (type == "COMMENTM") {
+    numberPoints = createNumbers(aNewDoc, x, y, mark);
     drawPoints = numberPoints;
-
+    graphicType = "COMMENTM";
+    structuredMark = true;
+    hasTextContentForAnnot = true;
+  } else if (type == "MARK") {
+    numberPoints = createNumbers(aNewDoc, x, y, mark);
+    drawPoints = numberPoints;
     graphicType = "MARK";
-
-    qmAnnot = true;
+    structuredMark = true;
   } else if (type == "TICK") {
     tickPoints = createTick(aNewDoc, x, y);
-
     drawPoints = [tickPoints];
-
     graphicType = "TICK";
   } else if (type == "CROSS") {
     crossPoints = createCross(aNewDoc, x, y);
-
     drawPoints = crossPoints;
-
-    m = 0;
-
+    mark = 0
     graphicType = "CROSS";
   } else if (type == "CHECK") {
     checkPoints = createCheck(aNewDoc, x, y);
-
     drawPoints = [checkPoints];
-
-    m = 0;
-
+    mark = 0;
     graphicType = "CHECK";
   } else if (type == "HALFT") {
     crossPoints = createHalfTick(aNewDoc, x, y);
-
     drawPoints = crossPoints;
-
-    m = 0.5;
-
+    mark = 0.5;
     graphicType = "HALFT";
   }
 
-  if (!qmAnnot) {
+  if (!structuredMark) {
     aNewDoc.addAnnot({
       type: "Ink",
       page: currentPage,
       name: graphicType + ":" + count,
-      subject: "MARK | " + m,
+      subject: "MARK | " + mark,
       gestures: drawPoints,
       width: 2,
     });
   } else {
-    if (hasSubjectForAnnot) {
+    if (hasTextContentForAnnot) {
       aNewDoc.addAnnot({
         type: "Ink",
         page: currentPage,
         name: graphicType + ":" + count,
-        subject: "MARK: " + q + " | " + m,
+        subject: "MARK: " + section + " | " + mark,
         gestures: drawPoints,
-        contents: commentFromFile,
+        contents: comment,
         width: 2,
       });
     } else {
@@ -207,7 +207,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, q, m, type) {
         type: "Ink",
         page: currentPage,
         name: graphicType + ":" + count,
-        subject: "MARK: " + q + " | " + m,
+        subject: "MARK: " + section + " | " + mark,
         gestures: drawPoints,
         width: 2,
       });

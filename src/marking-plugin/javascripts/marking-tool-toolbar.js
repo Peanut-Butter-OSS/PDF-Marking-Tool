@@ -491,7 +491,7 @@ var getCommentMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
         } else {
           commentFromFile = comm;
 
-          doAnnot(aNewDoc, x, y, ques, mark, type);
+          doAnnot(aNewDoc, x, y, ques, comm, mark, type);
         }
       }
     },
@@ -658,7 +658,7 @@ var getMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
         } else {
           labelForMark = ques;
 
-          doAnnot(aNewDoc, x, y, ques, mark, type);
+          doAnnot(aNewDoc, x, y, ques, null, mark, type);
         }
       }
     },
@@ -736,8 +736,6 @@ var getMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
 var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
   app.beginPriv();
 
-  //var qc = "";
-
   var rubricMarkDialog = {
     initialize: function (dialog) {
       // Prepare initial lookup data for the section dropdown
@@ -777,20 +775,6 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       } else {
         dialog.enable({ rate : false})
       }
-
-      // // Test
-      // dialog.load({
-      //   sela: {
-      //     "Question 1": -1,
-      //     "Question 2": -2,
-      //     "Question 3": -3
-      //     }
-      // });
-
-      // dialog.enable({
-      //   sela : true,
-      //   selb : false
-      // })
     },
     destroy: function (dialog) {
       var aim_annot = aNewDoc.getAnnot({
@@ -840,14 +824,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       var selectedSectionIndex = 0;
       for (var i in elements) {
         if (elements[i] > 0) {
-          console.println(
-            'You chose "' + i + '", which has a value of ' + elements[i]
-          );
           selectedSectionIndex = elements[i]-1;
-        } else {
-          console.println(
-            'You DID NOT choose "' + i + '", which has a value of ' + elements[i]
-          );
         }
       }
 
@@ -873,14 +850,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       var selectedRatingIndex = 0;
       for (var m in rateElements) {
         if (rateElements[m] > 0) {
-          console.println(
-            'You chose "' + m + '", which has a value of ' + rateElements[m]
-          );
           selectedRatingIndex = rateElements[m]-1;
-        } else {
-          console.println(
-            'You DID NOT choose "' + m + '", which has a value of ' + rateElements[m]
-          );
         }
       }
 
@@ -889,50 +859,11 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
         var defaultComment = global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionDefaultComment;
         var defaultMark =  global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionMarks;
         dialog.load({
-          mark: defaultMark,
+          mark: defaultMark.toString(),
           comm: defaultComment,
         });
       }    
     },
-    // sela: function (dialog) {
-    //   var elements = dialog.store()["sela"];
-
-    //   for (var i in elements) {
-    //     if (elements[i] > 0) {
-    //       console.println(
-    //         'You chose "' + i + '", which has a value of ' + elements[i]
-    //       );
-    //     } else {
-    //       console.println(
-    //         'You DID NOT choose "' + i + '", which has a value of ' + elements[i]
-    //       );
-    //     }
-    //   }
-
-    //   // Now prepa2e the list of ratings available for the section
-    //   dialog.load({
-    //     selb: {
-    //       "Good": -1,
-    //       "Average": -2,
-    //       "Poor" : -3
-    //     }
-    //   });
-
-    //   dialog.enable({
-    //     sela : true,
-    //     selb : true
-    //   })
-    // },
-    // selb: function (dialog) {
-    //   var selectionB = dialog.store()["selb"];
-    //   app.alert("Selection BB: " + selectionB);
-
-    //   // Populate the default mark and comment
-    //   dialog.load({
-    //     mark: "10",
-    //     comm: "Hello world",
-    //   });
-    // },
     commit: function (dialog) {
       var results = dialog.store();
       var sect = results["sect"];
@@ -946,6 +877,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
         }
       }
       var sectionId = global.selectedRubricContent.sections[selectedSectionIndex].sectionId;
+      var sectionName = global.selectedRubricContent.sections[selectedSectionIndex].sectionName;
 
       // Extract rating from the selection made in popup
       var rateElements = results["rate"];
@@ -968,7 +900,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       overrideSectionMark(sectionId, mark);
 
       // TODO: Figure out what the doAnnot method does with "sect"
-      doAnnot(aNewDoc, x, y, sect, mark, type);
+      doAnnot(aNewDoc, x, y, sectionName, comment, mark, type);
     },
     description: {
       name: "Rubric Mark Data",
@@ -982,30 +914,6 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
           name: "Apply Rubric Mark",
           align_children: "align_left",
           elements: [
-            // {
-            //   type: "static_text",
-            //   name: "Selection A:",
-            // },
-            // {
-            //   item_id: "sela",
-            //   type: "popup",
-            //   alignment: "align_fill",
-            //   width: 200,
-            //   height: 20,
-            //   next_tab: "selb",
-            // },
-            // {
-            //   type: "static_text",
-            //   name: "Selection B:",
-            // },
-            // {
-            //   item_id: "selb",
-            //   type: "popup",
-            //   alignment: "align_fill",
-            //   width: 200,
-            //   height: 20,
-            //   next_tab: "sect",
-            // },
             {
               type: "static_text",
               name: "Select Section:",
