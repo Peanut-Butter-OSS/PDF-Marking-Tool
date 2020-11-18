@@ -753,8 +753,6 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       var sectionPopupData = {};
       var defaultSelectionFound = false;
       var selectedSectionIndex = 0;
-      console.println("1");
-      console.println("Section Count: "+global.selectedRubricContent.sections.length);
       for (i = 1; i <= global.selectedRubricContent.sections.length; i++) {
         var sectionId = global.selectedRubricContent.sections[i-1].sectionId;
         if ((!sectionIsAlreadyMarked(sectionId))&&(!defaultSelectionFound)) {

@@ -186,13 +186,14 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
     });
   } else {
     if (hasTextContentForAnnot) {
+      var fullComment = "Rubric: "+section + "\n" + comment;
       aNewDoc.addAnnot({
         type: "Ink",
         page: currentPage,
         name: annotationName,
         subject: "MARK: " + section + " | " + mark,
         gestures: drawPoints,
-        contents: comment,
+        contents: fullComment,
         width: 2,
       });
     } else {
