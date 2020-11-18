@@ -892,9 +892,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
           mark: defaultMark,
           comm: defaultComment,
         });
-      }
-      
-
+      }    
     },
     // sela: function (dialog) {
     //   var elements = dialog.store()["sela"];
@@ -937,8 +935,39 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
     // },
     commit: function (dialog) {
       var results = dialog.store();
-      var mark = results["mark"];
       var sect = results["sect"];
+
+      // Extract sectionId from the selection made in popup
+      var sectElements = results["sect"];
+      var selectedSectionIndex = 0;
+      for (var i in sectElements) {
+        if (sectElements[i] > 0) {
+          selectedSectionIndex = sectElements[i]-1;
+        }
+      }
+      var sectionId = global.selectedRubricContent.sections[selectedSectionIndex].sectionId;
+
+      // Extract rating from the selection made in popup
+      var rateElements = results["rate"];
+      var selectedRatingIndex = 0;
+      for (var m in rateElements) {
+        if (rateElements[m] > 0) {
+          selectedRatingIndex = rateElements[m]-1;
+        }
+      }
+      var rating = global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionName;
+      
+      var comment = results["comm"];
+      var mark = results["mark"];
+
+      console.println("Committing rubric mark: SectionId="+sectionId+", Rating="+rating+", Mark="+mark+", Comment="+comment);
+      
+      // Apply selection to Rubric form
+      updateSectionRating(sectionId, rating);
+      overrideSectionComment(sectionId, comment);
+      overrideSectionMark(sectionId, mark);
+
+      // TODO: Figure out what the doAnnot method does with "sect"
       doAnnot(aNewDoc, x, y, sect, mark, type);
     },
     description: {

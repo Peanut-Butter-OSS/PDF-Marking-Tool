@@ -627,6 +627,33 @@ var updateSectionRating = app.trustedFunction(function (sectionId, rating) {
   app.endPriv();
 });
 
+// This method allows the automatically selected comment to be overridden
+var overrideSectionComment = app.trustedFunction(function (sectionId, comment) {
+  app.beginPriv();
+  
+  console.println("Overriding comment for section: " + sectionId + " to " + comment);
+
+  var commentFieldName = "col3" + sectionId;
+  var commentField = this.getField(commentFieldName);
+  commentField.value = comment;
+  
+  app.endPriv();
+});
+
+// This method allows the automatically selected mark to be overridden
+var overrideSectionMark = app.trustedFunction(function (sectionId, mark) {
+  app.beginPriv();
+  
+  console.println("Overriding mark for section: " + sectionId + " to " + mark);
+
+  var markFieldName = "col4" + sectionId;
+  var markField = this.getField(markFieldName);
+  markField.value = mark;
+  
+  app.endPriv();
+});
+
+
 
 var sectionIsAlreadyMarked = app.trustedFunction(function (sectionId) {
     app.beginPriv();
