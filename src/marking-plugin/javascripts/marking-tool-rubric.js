@@ -627,6 +627,25 @@ var updateSectionRating = app.trustedFunction(function (sectionId, rating) {
   app.endPriv();
 });
 
+
+var sectionIsAlreadyMarked = app.trustedFunction(function (sectionId) {
+    app.beginPriv();
+
+    var isMarked = false;
+    console.println("Checking if we already have a rating for section: " + sectionId);
+    var ratingFieldName = "col2" + sectionId;
+    var ratingField = this.getField(ratingFieldName);
+
+    if (ratingField.value === "Awaiting Marker ...") {
+        isMarked = false;
+    } else {
+        isMarked = true;
+    }
+
+    app.endPriv();
+    return isMarked;
+});
+
 // ========================================================================================
 // ========================================================================================
 // EVERYTHING BELOW THIS COMMENT IS OLD FUNCTIONALITY THAT IS LIKELY NOT APPLICABLE ANYMORE

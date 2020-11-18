@@ -9,11 +9,14 @@ var currentMarkForTick = "1";
 var configuredTickMark = false;
 
 // This is the main method that gets called When a tool is selected from the toolbar
+// TODO - Selection of tools should depend on the current marking state of the document
 var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
   app.beginPriv();
 
   console.println("Tool selected: " + type);
-  // Check if we already has a results page.
+
+  // Check if we already have a results page.
+  // TODO - This should be moved elsewhere (Perhaps an init js file)
   if (firstInitialization) {
     try {
       var edtSpecial = aNewDoc.getField("ResultPage");
@@ -45,6 +48,7 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
       isMarkSelected = false;
       isCommentMarkSelected = false;
       isRubricMarkSelected = false;
+      isDeselectAvailable = true;
       break;
     }
     case "TICK": {
@@ -56,19 +60,28 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
       isRubricMarkSelected = false;
 
       if (firstMarkForTick) {
-        var tickmarkConfigDialog = getTickMarkConfigDialog(aNewDoc,currentMarkForTick);
+        var tickmarkConfigDialog = getTickMarkConfigDialog(
+          aNewDoc,
+          currentMarkForTick
+        );
         var dialogResult = app.execDialog(tickmarkConfigDialog);
-        console.println("Result from the tickmark config dialog: "+dialogResult);
+        console.println(
+          "Result from the tickmark config dialog: " + dialogResult
+        );
         if (dialogResult === "ok") {
-            console.println("Tick successfully configured: Value="+currentMarkForTick);
-            isTickSelected = true;
-            firstMarkForTick = false;
+          console.println(
+            "Tick successfully configured: Value=" + currentMarkForTick
+          );
+          isTickSelected = true;
+          isDeselectAvailable = true;
+          firstMarkForTick = false;
         } else if (dialogResult === "cancel") {
-            console.println("Cancelled configuration of tickmark");
-            deselectCurrentTool(aNewDoc);
+          console.println("Cancelled configuration of tickmark");
+          deselectCurrentTool(aNewDoc);
         }
       } else {
         isTickSelected = true;
+        isDeselectAvailable = true;
       }
       break;
     }
@@ -80,6 +93,7 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
       isMarkSelected = false;
       isCommentMarkSelected = false;
       isRubricMarkSelected = false;
+      isDeselectAvailable = true;
       break;
     }
     case "CROSS": {
@@ -90,6 +104,7 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
       isMarkSelected = false;
       isCommentMarkSelected = false;
       isRubricMarkSelected = false;
+      isDeselectAvailable = true;
       break;
     }
     case "MARK": {
@@ -100,6 +115,7 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
       isMarkSelected = true;
       isCommentMarkSelected = false;
       isRubricMarkSelected = false;
+      isDeselectAvailable = true;
       break;
     }
     case "COMMENTM": {
@@ -110,6 +126,7 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
       isMarkSelected = false;
       isCommentMarkSelected = true;
       isRubricMarkSelected = false;
+      isDeselectAvailable = true;
       break;
     }
     case "RUBRICM": {
@@ -120,12 +137,13 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
       isMarkSelected = false;
       isCommentMarkSelected = false;
       isRubricMarkSelected = true;
+      isDeselectAvailable = true;
       break;
     }
   }
 
+  // If we don't currently have marking buttons, add them
   if (hasMarkingButtons == false) {
-    isDeselectAvailable = true;
     addMarkingButtons(aNewDoc, type);
     hasMarkingButtons = true;
   }
@@ -133,7 +151,150 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
   app.endPriv();
 });
 
-var getTickMarkConfigDialog = app.trustedFunction(function (aNewDoc, currentValue) {
+var deselectCurrentTool = app.trustedFunction(function (aNewDoc) {
+  app.beginPriv();
+
+  isDeselectAvailable = false;
+  isHalfMarkSelected = false;
+  isTickSelected = false;
+  isCheckSelected = false;
+  isCrossSelected = false;
+  isMarkSelected = false;
+  isCommentMarkSelected = false;
+
+  firstMarkForTick = true;
+
+  // Also Remove marking buttons, so that we do not intercept any click events
+  removeMarkingButtons(aNewDoc);
+  hasMarkingButtons = false;
+
+  app.endPriv();
+});
+
+// This function is used to determine which tools in the toolbar are currently marked as "in use"
+// Setting event.rc is how we plug  into Acrobat's built-in capability to mark selected tools
+var isToolMarked = app.trustedFunction(function (type) {
+  var toolIsMarked = false;
+  switch (type) {
+    case "HALFT": {
+      toolIsMarked = isHalfMarkSelected;
+      break;
+    }
+    case "TICK": {
+      toolIsMarked = isTickSelected;
+      break;
+    }
+    case "CHECK": {
+      toolIsMarked = isCheckSelected;
+      break;
+    }
+    case "CROSS": {
+      toolIsMarked = isCrossSelected;
+      break;
+    }
+    case "MARK": {
+      toolIsMarked = isMarkSelected;
+      break;
+    }
+    case "COMMENTM": {
+      toolIsMarked = isCommentMarkSelected;
+      break;
+    }
+    case "RUBRICM": {
+      toolIsMarked = isRubricMarkSelected;
+      break;
+    }
+    case "DESELECT": {
+      toolIsMarked = isDeselectAvailable;
+      break;
+    }
+  }
+
+  event.rc = toolIsMarked;
+  return toolIsMarked;
+});
+
+// Simple function that prints the current tool selection data to the console.
+// Useful for debugging
+var showToolSelectionStatus = app.trustedFunction(function () {
+  app.beginPriv();
+
+  var statusString = "Tool Selection Status: \n------------------------\n";
+  statusString += "HalfTick Selected:      " + isHalfMarkSelected + "\n";
+  statusString += "Tick Selected:          " + isTickSelected + "\n";
+  statusString += "Check Selected:         " + isCheckSelected + "\n";
+  statusString += "Cross Selected:         " + isCrossSelected + "\n";
+  statusString += "Mark Selected:          " + isMarkSelected + "\n";
+  statusString += "Comment Mark Selected:  " + isCommentMarkSelected + "\n";
+  statusString += "Rubric Mark Selected:   " + isRubricMarkSelected + "\n";
+  statusString += "Deselect Available:     " + isDeselectAvailable + "\n";
+
+  console.println(statusString);
+
+  app.endPriv();
+});
+
+// To enable the ability to add marks anywhere on the document we are applying a bit of a
+// hack: We are adding an invisible button on top of the entire document for each of the
+// tools in the toolbar.
+var addMarkingButtons = app.trustedFunction(function (aNewDoc, type) {
+  app.beginPriv();
+
+  var annotButton;
+  var copy_annot_btn;
+  var numpages = aNewDoc.numPages;
+
+  var coords = [];
+  for (var i = 0; i < numpages; i++) {
+    var pageSizeBox = aNewDoc.getPageBox("Media", i);
+
+    annotButton = {
+      cName: "btn" + i,
+      cFieldType: "button",
+      nPageNum: i,
+      oCoords: pageSizeBox,
+    };
+
+    copy_annot_btn = aNewDoc.addField(annotButton);
+
+    if (type == "RUBRICM") {
+      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'RUBRICM')");
+    } else if (type == "COMMENTM") {
+      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'COMMENTM')");
+    } else if (type == "MARK") {
+      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'MARK')");
+    } else if (type == "TICK") {
+      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'TICK')");
+    } else if (type == "CROSS") {
+      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'CROSS')");
+    } else if (type == "CHECK") {
+      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'CHECK')");
+    } else if (type == "HALFT") {
+      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'HALFT')");
+    }
+
+    copy_annot_btn.highlight = highlight.n;
+  }
+
+  app.endPriv();
+});
+
+var removeMarkingButtons = app.trustedFunction(function (aNewDoc) {
+  app.beginPriv();
+
+  var numpages = aNewDoc.numPages;
+
+  for (var i = 0; i < numpages; i++) {
+    aNewDoc.removeField("btn" + i);
+  }
+
+  app.endPriv();
+});
+
+var getTickMarkConfigDialog = app.trustedFunction(function (
+  aNewDoc,
+  currentValue
+) {
   app.beginPriv();
 
   var tickmarkConfigDialog = {
@@ -144,21 +305,21 @@ var getTickMarkConfigDialog = app.trustedFunction(function (aNewDoc, currentValu
       dialog.load({ mark: currentValue });
     },
     validate: function (dialog) {
-        var results = dialog.store();
-        var mark = results["mark"];
-        var regExNumber = /\D/;
-        if (regExNumber.test(mark)) {
-            app.alert("Only positive numbers are allowed!");
-            return false;
-          } else if (mark > 100) {
-            app.alert("Mark for tick cannot be greater than 100!");
-            return false;
-          } else if (mark < 0) {
-            app.alert("Mark for tick cannot be less than 0!");
-            return false;
-          } else {
-            return true;
-          }
+      var results = dialog.store();
+      var mark = results["mark"];
+      var regExNumber = /\D/;
+      if (regExNumber.test(mark)) {
+        app.alert("Only positive numbers are allowed!");
+        return false;
+      } else if (mark > 100) {
+        app.alert("Mark for tick cannot be greater than 100!");
+        return false;
+      } else if (mark < 0) {
+        app.alert("Mark for tick cannot be less than 0!");
+        return false;
+      } else {
+        return true;
+      }
     },
     commit: function (dialog) {
       var results = dialog.store();
@@ -171,7 +332,9 @@ var getTickMarkConfigDialog = app.trustedFunction(function (aNewDoc, currentValu
 
       currentMarkForTick = mark;
       configuredTickMark = true;
-      console.println("Successfully configured tick mark in the dialog? "+configuredTickMark);
+      console.println(
+        "Successfully configured tick mark in the dialog? " + configuredTickMark
+      );
     },
     description: {
       name: "Mark Data",
@@ -229,7 +392,7 @@ var getCommentMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
 
   var qc = "";
 
-  var dialog1 = {
+  var commentMarkDialog = {
     initialize: function (dialog) {
       var todayDate = dialog.store()["date"];
       todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
@@ -419,13 +582,13 @@ var getCommentMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
 
   app.endPriv();
 
-  return dialog1;
+  return commentMarkDialog;
 });
 
 var getMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
   app.beginPriv();
 
-  var dialog1 = {
+  var markDialog = {
     initialize: function (dialog) {
       var todayDate = dialog.store()["date"];
       todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
@@ -567,149 +730,315 @@ var getMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
 
   app.endPriv();
 
-  return dialog1;
+  return markDialog;
 });
 
-// To enable the ability to add marks anywhere on the document we are applying a bit of a
-// hack: We are adding an invisible button on top of the entire document for each of the
-// tools in the toolbar.
-var addMarkingButtons = app.trustedFunction(function (aNewDoc, type) {
+var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
   app.beginPriv();
 
-  var annotButton;
-  var copy_annot_btn;
-  var numpages = aNewDoc.numPages;
+  //var qc = "";
 
-  var coords = [];
-  for (var i = 0; i < numpages; i++) {
-    var pageSizeBox = aNewDoc.getPageBox("Media", i);
+  var rubricMarkDialog = {
+    initialize: function (dialog) {
+      // Prepare initial lookup data for the section dropdown
+      // Note: the lookup list must be structured in a specific way for Acrobat to
+      // behave correctly. From the API docs:
+      //    "the value should be an object literal consisting of the displayed entry as the
+      //      label and a numeric value as the contents. If the numeric value is greater than 0, 
+      //      the item was selected, otherwise it was not selected.
+      var i;
+      var sectionPopupData = {};
+      var defaultSelectionFound = false;
+      var selectedSectionIndex = 0;
+      for (i = 1; i <= global.selectedRubricContent.sections.length; i++) {
+        var sectionId = global.selectedRubricContent.sections[i-1].sectionId;
+        if ((!sectionIsAlreadyMarked(sectionId))&&(!defaultSelectionFound)) {
+          sectionPopupData[global.selectedRubricContent.sections[i-1].sectionName] = i ;
+          defaultSelectionFound = true;
+          selectedSectionIndex = i-1;
+        } else {
+          sectionPopupData[global.selectedRubricContent.sections[i-1].sectionName] = i*-1 ;
+        }
+      }
+      dialog.load({ sect: sectionPopupData });
 
-    annotButton = {
-      cName: "btn" + i,
-      cFieldType: "button",
-      nPageNum: i,
-      oCoords: pageSizeBox,
-    };
+      // Prepare initial lookup data for the rating dropdown - based on the default 
+      // selection for the sections dropdown above.
+      // If no default section was selected, disable the rating field
+      console.println("Selected section index: "+selectedSectionIndex);
+      var ratingsPopupData = {};
+      if (selectedSectionIndex > -1) {
+        var n;
+        for (n = 1; n <= global.selectedRubricContent.sections[selectedSectionIndex].markerOptions.length; n++) {
+          var optionName = global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[n-1].optionName;
+          ratingsPopupData[optionName] = n*-1 ;
+        }
+        dialog.load({ rate: ratingsPopupData });
+      } else {
+        dialog.enable({ rate : false})
+      }
 
-    copy_annot_btn = aNewDoc.addField(annotButton);
+      // // Test
+      // dialog.load({
+      //   sela: {
+      //     "Question 1": -1,
+      //     "Question 2": -2,
+      //     "Question 3": -3
+      //     }
+      // });
 
-    if (type == "RUBRICM") {
-      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'RUBRICM')");
-    } else if (type == "COMMENTM") {
-      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'COMMENTM')");
-    } else if (type == "MARK") {
-      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'MARK')");
-    } else if (type == "TICK") {
-      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'TICK')");
-    } else if (type == "CROSS") {
-      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'CROSS')");
-    } else if (type == "CHECK") {
-      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'CHECK')");
-    } else if (type == "HALFT") {
-      copy_annot_btn.setAction("MouseUp", "doMark(aNewDoc, 'HALFT')");
-    }
+      // dialog.enable({
+      //   sela : true,
+      //   selb : false
+      // })
+    },
+    destroy: function (dialog) {
+      var aim_annot = aNewDoc.getAnnot({
+        nPage: aNewDoc.pageNum,
+        cName: "AIM",
+      });
+      aim_annot.destroy();
+      commentFromFile = "";
+    },
+    validate: function (dialog) {
+      var results = dialog.store();
+      var mark = results["mark"];
 
-    copy_annot_btn.highlight = highlight.n;
-  }
+      var dot = mark.substring(mark.indexOf("."), mark.indexOf(".") + 1);
+      var indexOfDot;
+      var lastNumber;
+
+      if (dot == ".") {
+        indexOfDot = mark.indexOf(".");
+        if (indexOfDot == 0) {
+          mark = "0.5";
+        } else {
+          lastNumber = mark.substring(mark.indexOf(".") + 1, mark.length);
+          if (lastNumber != "5") {
+            app.alert("Only decimals of .5 are allowed!");
+            return false;
+          }
+        }
+      }
+
+      var regExNumber = /\D/;
+      if (regExNumber.test(mark)) {
+        app.alert("Only positive numbers are allowed!");
+        return false;
+      } else if (mark > 100) {
+        app.alert("Mark for tick cannot be greater than 100!");
+        return false;
+      } else if (mark < 0) {
+        app.alert("Mark for tick cannot be less than 0!");
+        return false;
+      } else {
+        return true;
+      }
+    },
+    sect: function (dialog) {
+      var elements = dialog.store()["sect"];
+      var selectedSectionIndex = 0;
+      for (var i in elements) {
+        if (elements[i] > 0) {
+          console.println(
+            'You chose "' + i + '", which has a value of ' + elements[i]
+          );
+          selectedSectionIndex = elements[i]-1;
+        } else {
+          console.println(
+            'You DID NOT choose "' + i + '", which has a value of ' + elements[i]
+          );
+        }
+      }
+
+      // Now prepare the list of ratings available for the selected section
+      var ratingsPopupData = {};
+      var n;
+      for (n = 1; n <= global.selectedRubricContent.sections[selectedSectionIndex].markerOptions.length; n++) {
+        var optionName = global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[n-1].optionName;
+        ratingsPopupData[optionName] = n*-1 ;
+      }
+      dialog.load({ rate: ratingsPopupData });
+    },
+    rate: function (dialog) {
+      var sectElements = dialog.store()["sect"];
+      var selectedSectionIndex = 0;
+      for (var i in sectElements) {
+        if (sectElements[i] > 0) {
+          selectedSectionIndex = sectElements[i]-1;
+        }
+      }
+
+      var rateElements = dialog.store()["rate"];
+      var selectedRatingIndex = 0;
+      for (var m in rateElements) {
+        if (rateElements[m] > 0) {
+          console.println(
+            'You chose "' + m + '", which has a value of ' + rateElements[m]
+          );
+          selectedRatingIndex = rateElements[m]-1;
+        } else {
+          console.println(
+            'You DID NOT choose "' + m + '", which has a value of ' + rateElements[m]
+          );
+        }
+      }
+
+      // Populate the default mark and comment
+      if ((selectedSectionIndex > -1)&&(selectedRatingIndex > -1)) {
+        var defaultComment = global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionDefaultComment;
+        var defaultMark =  global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionMarks;
+        dialog.load({
+          mark: defaultMark,
+          comm: defaultComment,
+        });
+      }
+      
+
+    },
+    // sela: function (dialog) {
+    //   var elements = dialog.store()["sela"];
+
+    //   for (var i in elements) {
+    //     if (elements[i] > 0) {
+    //       console.println(
+    //         'You chose "' + i + '", which has a value of ' + elements[i]
+    //       );
+    //     } else {
+    //       console.println(
+    //         'You DID NOT choose "' + i + '", which has a value of ' + elements[i]
+    //       );
+    //     }
+    //   }
+
+    //   // Now prepa2e the list of ratings available for the section
+    //   dialog.load({
+    //     selb: {
+    //       "Good": -1,
+    //       "Average": -2,
+    //       "Poor" : -3
+    //     }
+    //   });
+
+    //   dialog.enable({
+    //     sela : true,
+    //     selb : true
+    //   })
+    // },
+    // selb: function (dialog) {
+    //   var selectionB = dialog.store()["selb"];
+    //   app.alert("Selection BB: " + selectionB);
+
+    //   // Populate the default mark and comment
+    //   dialog.load({
+    //     mark: "10",
+    //     comm: "Hello world",
+    //   });
+    // },
+    commit: function (dialog) {
+      var results = dialog.store();
+      var mark = results["mark"];
+      var sect = results["sect"];
+      doAnnot(aNewDoc, x, y, sect, mark, type);
+    },
+    description: {
+      name: "Rubric Mark Data",
+      align_children: "align_left",
+      width: 100,
+      height: 100,
+      first_tab: "mark",
+      elements: [
+        {
+          type: "cluster",
+          name: "Apply Rubric Mark",
+          align_children: "align_left",
+          elements: [
+            // {
+            //   type: "static_text",
+            //   name: "Selection A:",
+            // },
+            // {
+            //   item_id: "sela",
+            //   type: "popup",
+            //   alignment: "align_fill",
+            //   width: 200,
+            //   height: 20,
+            //   next_tab: "selb",
+            // },
+            // {
+            //   type: "static_text",
+            //   name: "Selection B:",
+            // },
+            // {
+            //   item_id: "selb",
+            //   type: "popup",
+            //   alignment: "align_fill",
+            //   width: 200,
+            //   height: 20,
+            //   next_tab: "sect",
+            // },
+            {
+              type: "static_text",
+              name: "Select Section:",
+            },
+            {
+              item_id: "sect",
+              type: "popup",
+              alignment: "align_fill",
+              width: 200,
+              height: 20,
+              next_tab: "rate",
+            },
+            {
+              type: "static_text",
+              name: "Select Rating:",
+            },
+            {
+              item_id: "rate",
+              type: "popup",
+              alignment: "align_fill",
+              width: 200,
+              height: 20,
+              next_tab: "mark",
+            },
+            {
+              type: "static_text",
+              name: "Mark:       ",
+            },
+            {
+              item_id: "mark",
+              type: "edit_text",
+              alignment: "align_fill",
+              width: 80,
+              height: 20,
+              next_tab: "comm",
+            },
+            {
+              type: "static_text",
+              name: "Comment:",
+            },
+            {
+              item_id: "comm",
+              type: "edit_text",
+              multiline: true,
+              alignment: "align_fill",
+              width: 200,
+              height: 150,
+              next_tab: "sect",
+            },
+          ],
+        },
+        {
+          alignment: "align_left",
+          type: "ok_cancel",
+          ok_name: "Ok",
+          cancel_name: "Cancel",
+        },
+      ],
+    },
+  };
 
   app.endPriv();
+
+  return rubricMarkDialog;
 });
-
-var removeMarkingButtons = app.trustedFunction(function (aNewDoc) {
-  app.beginPriv();
-
-  var numpages = aNewDoc.numPages;
-
-  for (var i = 0; i < numpages; i++) {
-    aNewDoc.removeField("btn" + i);
-  }
-
-  app.endPriv();
-});
-
-// Simple function that prints the current tool selection data to the console.
-// Useful for debugging
-var showToolSelectionStatus = app.trustedFunction(function () {
-  app.beginPriv();
-
-  var statusString = "Tool Selection Status: \n------------------------\n";
-  statusString += "HalfTick Selected:      "+isHalfMarkSelected+"\n";
-  statusString += "Tick Selected:          "+isTickSelected+"\n";
-  statusString += "Check Selected:         "+isCheckSelected+"\n";
-  statusString += "Cross Selected:         "+isCrossSelected+"\n";
-  statusString += "Mark Selected:          "+isMarkSelected+"\n";
-  statusString += "Comment Mark Selected:  "+isCommentMarkSelected+"\n";
-  statusString += "Rubric Mark Selected:   "+isRubricMarkSelected+"\n";
-  statusString += "Deselect Available:     "+isDeselectAvailable+"\n";
-
-  console.println(statusString);
-
-  app.endPriv();
-});
-
-
-var deselectCurrentTool = app.trustedFunction(
-    function(aNewDoc) {
-       app.beginPriv();
-  
-       isDeselectAvailable = false;
-       isHalfMarkSelected = false;
-       isTickSelected = false;
-       isCheckSelected = false;
-       isCrossSelected = false;
-       isMarkSelected = false;
-       isCommentMarkSelected = false;
-  
-       firstMarkForTick = true;
-  
-       // Also Remove marking buttons, so that we do not intercept any click events
-       removeMarkingButtons(aNewDoc);
-       hasMarkingButtons = false;
-  
-       app.endPriv();
-    }
-  );
-
-  // This function is used to determine which tools in the toolbar are currently marked as "in use"
-// Setting event.rc is how we plug  into Acrobat's built-in capability to mark selected tools
-var isToolMarked = app.trustedFunction(function (type) {
-
-    var toolIsMarked = false;
-    switch (type) {
-      case "HALFT": {
-        toolIsMarked = isHalfMarkSelected;
-        break;
-      }
-      case "TICK": {
-        toolIsMarked = isTickSelected;
-        break;
-      }
-      case "CHECK": {
-        toolIsMarked = isCheckSelected;
-        break;
-      }
-      case "CROSS": {
-        toolIsMarked = isCrossSelected;
-        break;
-      }
-      case "MARK": {
-        toolIsMarked = isMarkSelected;
-        break;
-      }
-      case "COMMENTM": {
-        toolIsMarked = isCommentMarkSelected;
-        break;
-      }
-      case "RUBRICM": {
-        toolIsMarked = isRubricMarkSelected;
-        break;
-      }
-      case "DESELECT": {
-        toolIsMarked = isDeselectAvailable;
-        break;
-      }
-    }
-  
-    event.rc = toolIsMarked;
-    return toolIsMarked;
-  });
