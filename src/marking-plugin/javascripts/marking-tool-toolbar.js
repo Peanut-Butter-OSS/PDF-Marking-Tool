@@ -753,14 +753,14 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       var sectionPopupData = {};
       var defaultSelectionFound = false;
       var selectedSectionIndex = 0;
-      for (i = 1; i <= global.selectedRubricContent.sections.length; i++) {
-        var sectionId = global.selectedRubricContent.sections[i-1].sectionId;
+      for (i = 1; i <= selectedRubricContent.sections.length; i++) {
+        var sectionId = selectedRubricContent.sections[i-1].sectionId;
         if ((!sectionIsAlreadyMarked(sectionId))&&(!defaultSelectionFound)) {
-          sectionPopupData[global.selectedRubricContent.sections[i-1].sectionName] = i ;
+          sectionPopupData[selectedRubricContent.sections[i-1].sectionName] = i ;
           defaultSelectionFound = true;
           selectedSectionIndex = i-1;
         } else {
-          sectionPopupData[global.selectedRubricContent.sections[i-1].sectionName] = i*-1 ;
+          sectionPopupData[selectedRubricContent.sections[i-1].sectionName] = i*-1 ;
         }
       }
       dialog.load({ sect: sectionPopupData });
@@ -772,8 +772,8 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       var ratingsPopupData = {};
       if (selectedSectionIndex > -1) {
         var n;
-        for (n = 1; n <= global.selectedRubricContent.sections[selectedSectionIndex].markerOptions.length; n++) {
-          var optionName = global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[n-1].optionName;
+        for (n = 1; n <= selectedRubricContent.sections[selectedSectionIndex].markerOptions.length; n++) {
+          var optionName = selectedRubricContent.sections[selectedSectionIndex].markerOptions[n-1].optionName;
           ratingsPopupData[optionName] = n*-1 ;
         }
         dialog.load({ rate: ratingsPopupData });
@@ -836,8 +836,8 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       // Now prepare the list of ratings available for the selected section
       var ratingsPopupData = {};
       var n;
-      for (n = 1; n <= global.selectedRubricContent.sections[selectedSectionIndex].markerOptions.length; n++) {
-        var optionName = global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[n-1].optionName;
+      for (n = 1; n <= selectedRubricContent.sections[selectedSectionIndex].markerOptions.length; n++) {
+        var optionName = selectedRubricContent.sections[selectedSectionIndex].markerOptions[n-1].optionName;
         ratingsPopupData[optionName] = n*-1 ;
       }
       dialog.load({ rate: ratingsPopupData });
@@ -861,8 +861,8 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
 
       // Populate the default mark and comment
       if ((selectedSectionIndex > -1)&&(selectedRatingIndex > -1)) {
-        var defaultComment = global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionDefaultComment;
-        var defaultMark =  global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionMarks;
+        var defaultComment = selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionDefaultComment;
+        var defaultMark =  selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionMarks;
         dialog.load({
           mark: defaultMark.toString(),
           comm: defaultComment,
@@ -880,8 +880,8 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
           selectedSectionIndex = sectElements[i]-1;
         }
       }
-      var sectionId = global.selectedRubricContent.sections[selectedSectionIndex].sectionId;
-      var sectionName = global.selectedRubricContent.sections[selectedSectionIndex].sectionName;
+      var sectionId = selectedRubricContent.sections[selectedSectionIndex].sectionId;
+      var sectionName = selectedRubricContent.sections[selectedSectionIndex].sectionName;
 
       // Extract rating from the selection made in popup
       var rateElements = results["rate"];
@@ -891,7 +891,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
           selectedRatingIndex = rateElements[m]-1;
         }
       }
-      var rating = global.selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionName;
+      var rating = selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionName;
       
       var comment = results["comm"];
       var mark = results["mark"];

@@ -48,21 +48,43 @@ var selectRubric = app.trustedFunction(function () {
       validationResult = validateRubric(jsonRubric);
 
       if (validationResult.isValid) {
-        global.selectedRubricContent = jsonRubric;
-        global.setPersistent("selectedRubricContent", true);
-        global.selectedRubricFileName = rubric.path;
-        global.setPersistent("selectedRubricFileName", true);
-        global.selectedRubricName = jsonRubric.rubricName;
-        global.setPersistent("selectedRubricName", true);
-        global.selectedRubricVersion = jsonRubric.rubricVersion;
-        global.setPersistent("selectedRubricVersion", true);
+        selectedRubricContent = jsonRubric;
+
+        // Save rubric details into document level fields. These will be read when
+        // the document is opened in subsequent occasions
+        var rubricFileNameField = aNewDoc.getField("RubricFileName");
+        if (rubricFileNameField == null) {
+          rubricFileNameField = aNewDoc.addField("RubricFileName", "text", 0, [0,0,0,0]);
+          rubricFileNameField.hidden = true;
+        } 
+        rubricFileNameField.value = rubric.path;
+        selectedRubricFileName = rubricFileNameField.value;
+
+        var rubricNameField = aNewDoc.getField("RubricName");
+        if (rubricNameField == null) {
+          rubricNameField = aNewDoc.addField("RubricName", "text", 0, [0,0,0,0]);
+          rubricNameField.hidden = true;
+        } 
+        rubricNameField.value = jsonRubric.rubricName;
+        selectedRubricName = rubricNameField.value;
+
+        var rubricVersionField = aNewDoc.getField("RubricVersion");
+        if (rubricVersionField == null) {
+          rubricVersionField = aNewDoc.addField("RubricVersion", "text", 0, [0,0,0,0]);
+          rubricVersionField.hidden = true;
+        } 
+        rubricVersionField.value = jsonRubric.rubricVersion;
+        selectedRubricVersion = rubricVersionField.value;
+
+        // Applying Rubric to document
+        makeDocumentMarkable("RUBRIC");
+        rubricPageNumber = buildRubricPage();
+        this.pageNum = rubricPageNumber;
 
         alertMsg =
           "The rubric " +
           rubric.path +
-          " was successfully attached to the current document \n\n";
-        alertMsg +=
-          "To add the rubric marking sheet to the document, select the 'Add Rubric Marking Sheet' tool";
+          " was successfully attached to the current document \n";
       } else {
         alertMsg =
           "The selected file (" +
@@ -123,14 +145,14 @@ var viewRubricDetails = app.trustedFunction(function () {
   var rubricName = "NO RUBRIC SELECTED";
   var rubricFileName = "Not Applicable";
   var rubricVersion = "Not Applicable";
-  if (global.selectedRubricName) {
-    rubricName = global.selectedRubricName;
+  if (selectedRubricName) {
+    rubricName = selectedRubricName;
   }
-  if (global.selectedRubricFileName) {
-    rubricFileName = global.selectedRubricFileName;
+  if (selectedRubricFileName) {
+    rubricFileName = selectedRubricFileName;
   }
-  if (global.selectedRubricVersion) {
-    rubricVersion = global.selectedRubricVersion;
+  if (selectedRubricVersion) {
+    rubricVersion = selectedRubricVersion;
   }
 
   var detailsString = "Rubric Tool Status: \n------------------------\n\n";
@@ -147,48 +169,16 @@ var viewRubricDetails = app.trustedFunction(function () {
 var clearRubricSelection = app.trustedFunction(function () {
   app.beginPriv();
 
-  global.selectedRubricContent = null;
-  global.setPersistent("selectedRubricContent", true);
-  global.selectedRubricFileName = null;
-  global.setPersistent("selectedRubricFileName", true);
-  global.selectedRubricName = null;
-  global.setPersistent("selectedRubricName", true);
-  global.selectedRubricVersion = null;
-  global.setPersistent("selectedRubricVersion", true);
+  // TODO - Add confirmation dialog
+  // If confirmed:
+  // Set variables to null
+  // Remove the form fields
+  // Remove the Rubric page
 
-  app.endPriv();
-});
-
-var applyRubricToDocument = app.trustedFunction(function () {
-  app.beginPriv();
-
-  aActiveDocs = app.activeDocs;
-  aNewDoc = aActiveDocs[0];
-  if (aNewDoc != null) {
-    if (
-      global.selectedRubricName &&
-      global.selectedRubricFileName &&
-      global.selectedRubricVersion &&
-      global.selectedRubricContent
-    ) {
-      console.println("Applying Rubric to document");
-
-      makeDocumentMarkable("RUBRIC");
-
-      var rubricPageNumber = buildRubricPage();
-      this.pageNum = rubricPageNumber;
-    } else {
-      var errorMsg =
-        "Cannot apply rubric to current document, no Rubric has been selected";
-      console.println(errorMsg);
-      app.alert(errorMsg);
-    }
-  } else {
-    var errorMsg =
-      "Cannot apply rubric because there is no currently active document. Please ensure you have a single document open before applying the rubric";
-    console.println(errorMsg);
-    app.alert(errorMsg);
-  }
+  selectedRubricContent = null;
+  selectedRubricFileName = null;
+  selectedRubricName = null;
+  selectedRubricVersion = null;
 
   app.endPriv();
 });
@@ -274,7 +264,7 @@ var buildRubricPage = app.trustedFunction(function () {
     rubricPageNumber,
     [leftX, topY, rightX, bottomY]
   );
-  valueCourseCode.value = global.selectedRubricContent.courseCode;
+  valueCourseCode.value = selectedRubricContent.courseCode;
   valueCourseCode.readonly = true;
   valueCourseCode.alignment = "left";
   valueCourseCode.fillColor = color.white;
@@ -304,7 +294,7 @@ var buildRubricPage = app.trustedFunction(function () {
     rubricPageNumber,
     [leftX, topY, rightX, bottomY]
   );
-  valueAssignmentId.value = global.selectedRubricContent.assignmentId;
+  valueAssignmentId.value = selectedRubricContent.assignmentId;
   valueAssignmentId.readonly = true;
   valueAssignmentId.alignment = "left";
   valueAssignmentId.fillColor = color.white;
@@ -318,12 +308,12 @@ var buildRubricPage = app.trustedFunction(function () {
 
   // Now build individual entries for each element in the Rubric
   var i;
-  for (i = 0; i < global.selectedRubricContent.sections.length; i++) {
+  for (i = 0; i < selectedRubricContent.sections.length; i++) {
     leftX = 0;
     topY = currentTopY;
     bottomY = currentTopY - lineHeight;
     addRubricSectionRow(
-      global.selectedRubricContent.sections[i],
+      selectedRubricContent.sections[i],
       leftX,
       topY,
       rightX,
@@ -604,23 +594,23 @@ var retrieveDefaultCommentAndMarkFromRubric = app.trustedFunction(function (
   var i;
   var rubricComment = "";
   var rubricMark = 0;
-  for (i = 0; i < global.selectedRubricContent.sections.length; i++) {
-    if (global.selectedRubricContent.sections[i].sectionId === sectionId) {
+  for (i = 0; i < selectedRubricContent.sections.length; i++) {
+    if (selectedRubricContent.sections[i].sectionId === sectionId) {
       var n;
       for (
         n = 0;
-        n < global.selectedRubricContent.sections[i].markerOptions.length;
+        n < selectedRubricContent.sections[i].markerOptions.length;
         n++
       ) {
         if (
-          global.selectedRubricContent.sections[i].markerOptions[n]
+          selectedRubricContent.sections[i].markerOptions[n]
             .optionName === rating
         ) {
           rubricComment =
-            global.selectedRubricContent.sections[i].markerOptions[n]
+            selectedRubricContent.sections[i].markerOptions[n]
               .optionDefaultComment;
           rubricMark =
-            global.selectedRubricContent.sections[i].markerOptions[n]
+            selectedRubricContent.sections[i].markerOptions[n]
               .optionMarks;
           break;
         }
