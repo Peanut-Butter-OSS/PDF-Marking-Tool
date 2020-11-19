@@ -1,18 +1,19 @@
 {
     "rubricId" : 1,
-    "rubricName" : "COS101 Exam - Base Rubric",
+    "rubricName" : "CS50 Lab 1 - Base Rubric",
     "rubricVersion" : 1,
-    "courseCode" : "COS101",
-    "assignmentId" : "Exam1",
+    "courseCode" : "CS50",
+    "assignmentId" : "Lab 1",
+    "totalMarks" : 100,
     "sections" : [
         {
             "sectionId" : "q1",
             "sectionName" : "Question 1",
-            "totalMarks" : 10,
+            "totalMarks" : 15,
             "markerOptions" : [
                 {
                     "optionName" : "Excellent",
-                    "optionMarks" : 10, 
+                    "optionMarks" : 15, 
                     "optionDefaultComment" : "Very well described"
                 }, 
                 {
@@ -53,6 +54,58 @@
                     "optionDefaultComment" : "Unfortunately not correct"
                 }
             ]
+        },
+        {
+            "sectionId" : "q3",
+            "sectionName" : "Question 3",
+            "totalMarks" : 15,
+            "markerOptions" : [
+                {
+                    "optionName" : "Correct",
+                    "optionMarks" : 15, 
+                    "optionDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "optionName" : "Incorrect",
+                    "optionMarks" : 0, 
+                    "optionDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        },
+        {
+            "sectionId" : "q4",
+            "sectionName" : "Question 4",
+            "totalMarks" : 15,
+            "markerOptions" : [
+                {
+                    "optionName" : "Correct",
+                    "optionMarks" : 15, 
+                    "optionDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "optionName" : "Incorrect",
+                    "optionMarks" : 0, 
+                    "optionDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        }, 
+        {
+            "sectionId" : "q5",
+            "sectionName" : "Question 5",
+            "totalMarks" : 15,
+            "markerOptions" : [
+                {
+                    "optionName" : "Correct",
+                    "optionMarks" : 15, 
+                    "optionDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "optionName" : "Incorrect",
+                    "optionMarks" : 0, 
+                    "optionDefaultComment" : "Unfortunately not correct"
+                }
+            ]
         }  
+
     ]
 }
