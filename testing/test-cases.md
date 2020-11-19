@@ -24,18 +24,31 @@ TODO
 TODO
 
 ### IMP-10 Replacement rubric functionality
-TODO
+1. Select valid rubric
+2. Try to select rubric while no active document is open (Expect failure alert)
+3. Try to select rubric while multiple documents are open (Expect failure alert)
+4. Try to select a rubric if the current active document already has a rubric (Expect failure alert)
+5. Try to select a rubric if the current active document has already been finalised (Expect failure alert)
+6. Try to select invalid rubric - No rubricId
+7. Try to select invalid rubric - No rubricName
+8. Try to select invalid rubric - No rubricVersion
+9. Try to select invalid rubric - No courseCode
+10. Try to select invalid rubric - No assignmentId
+11. Try to select invalid rubric - No totalMarks
+12. Try to select invalid rubric - No sections specified
 
 
-6. Open PDF in read mode, Acrobat current closed
-7. Open PDF in read mode, Acrobat already open
-8. Open PDF in edit mode
-9. Open a document with a Rubric
-10. Open a document without a rubric
-11. Open a document that has already been finalised
-12. Open a document at an HTTP path
-13. Icons accidentally deleted from resources folder
-14. 
+
+
+13. Open PDF in read mode, Acrobat current closed
+14. Open PDF in read mode, Acrobat already open
+15. Open PDF in edit mode
+16. Open a document with a Rubric
+17. Open a document without a rubric
+18. Open a document that has already been finalised
+19. Open a document at an HTTP path
+20. Icons accidentally deleted from resources folder
+21. 
 
 ## Windows Installer
 

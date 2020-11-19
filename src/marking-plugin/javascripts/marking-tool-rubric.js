@@ -2,102 +2,106 @@
 
 This file contains reusable JavaScript functions related to Rubric functionality
 
-TODO - On loading of a new document we should:
-    - Check if a Rubric is selected (in global variables)
-    - Check if the Rubric file is attached to the document as a DataObject
-    - If not attached, import it from the Rubrics folder
-
-
 */
 
+// Allow the user to select a rubric JSON file. Once the file is selected it is uploaded,
+// validated and applied to the current document.
 var selectRubric = app.trustedFunction(function () {
   app.beginPriv();
 
-  // TODO - Check that document doesn't already have a Rubric applied, this  looks at two things:
-  //  - An attachment titled "Rubric"
-  //  - A Rubric page
-
   aActiveDocs = app.activeDocs;
   aNewDoc = aActiveDocs[0];
-  if (aNewDoc != null) {
-    var alertMsg =
-      "In the next screen, please select the required Rubric file from your file system. \n\n";
-    alertMsg +=
-      "Once the rubric file is selected, it will be attached to the document, but the marking sheet will not automatically appear \n";
 
-    var continueImport = app.alert(alertMsg, 3, 1);
-    if (continueImport == 1) {
-      this.importDataObject("Rubric");
-      var rubric = this.getDataObject("Rubric");
-      console.println("Rubric File Name: " + rubric.path);
-      var oFile = this.getDataObjectContents("Rubric");
-      var strRubric = util.stringFromStream(oFile, "utf-8");
-      //console.println("Rubric content:");
-      //console.println(strRubric);
-      var jsonRubric = eval("(" + strRubric + ")");
-      //console.println("Parsed Rubric:");
-      //console.println(" - rubricId: " + jsonRubric.rubricId);
-      //console.println(" - courseCode: " + jsonRubric.courseCode);
-      //console.println(" - assignmentId: " + jsonRubric.assignmentId);
-      //console.println(" - Sections (" + jsonRubric.sections.length + "): ");
-      //var i;
-      //for (i = 0; i < jsonRubric.sections.length; i++) {
-      //    console.println("    - sectionName=" + jsonRubric.sections[i].sectionName + "\t totalMarks=" + jsonRubric.sections[i].totalMarks);
-      //}
+  if (aNewDoc != null) { // Only allow rubric attachment if we have an active doc
+    if (!hasRubricAttached) { // Document can only have one rubric at a time
+      var alertMsg =
+        "In the next screen, please select the required rubric file from your file system. \n\n";
+      alertMsg +=
+        "Once the rubric file is selected, it will be attached to the document. \n";
 
-      validationResult = validateRubric(jsonRubric);
+      var continueImport = app.alert(alertMsg, 3, 1);
+      if (continueImport == 1) {
+        this.importDataObject("Rubric");
+        var rubric = this.getDataObject("Rubric");
+        console.println("Rubric File Name: " + rubric.path);
+        var oFile = this.getDataObjectContents("Rubric");
+        var strRubric = util.stringFromStream(oFile, "utf-8");
+        //console.println("Rubric content:");
+        //console.println(strRubric);
+        var jsonRubric = eval("(" + strRubric + ")");
+        validationResult = validateRubric(jsonRubric);
 
-      if (validationResult.isValid) {
-        selectedRubricContent = jsonRubric;
+        if (validationResult.isValid) { // Only proceed to attach the rubric if it passed validation
+          selectedRubricContent = jsonRubric;
 
-        // Save rubric details into document level fields. These will be read when
-        // the document is opened in subsequent occasions
-        var rubricFileNameField = aNewDoc.getField("RubricFileName");
-        if (rubricFileNameField == null) {
-          rubricFileNameField = aNewDoc.addField("RubricFileName", "text", 0, [0,0,0,0]);
-          rubricFileNameField.hidden = true;
-        } 
-        rubricFileNameField.value = rubric.path;
-        selectedRubricFileName = rubricFileNameField.value;
+          // Save rubric details into document level fields. These will be read when
+          // the document is opened in subsequent occasions
+          var rubricFileNameField = aNewDoc.getField("RubricFileName");
+          if (rubricFileNameField == null) {
+            rubricFileNameField = aNewDoc.addField(
+              "RubricFileName",
+              "text",
+              0,
+              [0, 0, 0, 0]
+            );
+            rubricFileNameField.hidden = true;
+          }
+          rubricFileNameField.value = rubric.path;
+          selectedRubricFileName = rubricFileNameField.value;
 
-        var rubricNameField = aNewDoc.getField("RubricName");
-        if (rubricNameField == null) {
-          rubricNameField = aNewDoc.addField("RubricName", "text", 0, [0,0,0,0]);
-          rubricNameField.hidden = true;
-        } 
-        rubricNameField.value = jsonRubric.rubricName;
-        selectedRubricName = rubricNameField.value;
+          var rubricNameField = aNewDoc.getField("RubricName");
+          if (rubricNameField == null) {
+            rubricNameField = aNewDoc.addField("RubricName", "text", 0, [
+              0,
+              0,
+              0,
+              0,
+            ]);
+            rubricNameField.hidden = true;
+          }
+          rubricNameField.value = jsonRubric.rubricName;
+          selectedRubricName = rubricNameField.value;
 
-        var rubricVersionField = aNewDoc.getField("RubricVersion");
-        if (rubricVersionField == null) {
-          rubricVersionField = aNewDoc.addField("RubricVersion", "text", 0, [0,0,0,0]);
-          rubricVersionField.hidden = true;
-        } 
-        rubricVersionField.value = jsonRubric.rubricVersion;
-        selectedRubricVersion = rubricVersionField.value;
+          var rubricVersionField = aNewDoc.getField("RubricVersion");
+          if (rubricVersionField == null) {
+            rubricVersionField = aNewDoc.addField("RubricVersion", "text", 0, [
+              0,
+              0,
+              0,
+              0,
+            ]);
+            rubricVersionField.hidden = true;
+          }
+          rubricVersionField.value = jsonRubric.rubricVersion;
+          selectedRubricVersion = rubricVersionField.value;
 
-        // Applying Rubric to document
-        makeDocumentMarkable("RUBRIC");
-        rubricPageNumber = buildRubricPage();
-        this.pageNum = rubricPageNumber;
+          // Applying Rubric to document
+          makeDocumentMarkable("RUBRIC");
+          rubricPageNumber = buildRubricPage();
+          this.pageNum = rubricPageNumber;
+          hasRubricAttached = true;
 
-        alertMsg =
-          "The rubric " +
-          rubric.path +
-          " was successfully attached to the current document \n";
-      } else {
-        alertMsg =
-          "The selected file (" +
-          rubric.path +
-          ") is not a valid Rubric. The following validation errors were reported: \n\n";
-        alertMsg += validationResult.validationErrors;
+          alertMsg =
+            "The rubric " +
+            rubric.path +
+            " was successfully attached to the current document \n";
+        } else {
+          alertMsg =
+            "The selected file (" +
+            rubric.path +
+            ") is not a valid rubric. The following validation errors were reported: \n\n";
+          alertMsg += validationResult.validationErrors;
+        }
+        app.alert(alertMsg, 3, 0);
       }
-
-      app.alert(alertMsg, 3, 0);
+    } else {
+      app.alert(
+        "There is already a rubric attached to the document. To replace it, you must first remove the existing rubric"
+      );
     }
   } else {
     app.alert(
-      "To select a Rubric, you must first have single active document open"
+      "To select a rubric, you must first have single active document open"
     );
   }
 
@@ -112,8 +116,6 @@ var validateRubric = app.trustedFunction(function (rubric) {
   };
 
   // TODO
-  // - rubricId is specified
-  // - rubricName is specified
   // - rubricVersion is specified
   // - courseCode Specified
   // - assignmentId specified
@@ -131,6 +133,18 @@ var validateRubric = app.trustedFunction(function (rubric) {
 
   if (!rubric.rubricId) {
     var errorMsg = " - No rubricId was specified. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  }
+
+  if (!rubric.rubricName) {
+    var errorMsg = " - No rubricName was specified. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  }
+
+  if (!rubric.rubricName) {
+    var errorMsg = " - No rubricName was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }
@@ -571,8 +585,15 @@ var catchSectionRatingChange = app.trustedFunction(function (sectionId, event) {
 
     // Get the default comment and marks from the Rubric:
     var newRating = event.value;
-    var rubricSpec = retrieveDefaultCommentAndMarkFromRubric(sectionId, newRating);
-    updateRubricSectionCommentsAndMarks(sectionId, rubricSpec.rubricComment, rubricSpec.rubricMark)
+    var rubricSpec = retrieveDefaultCommentAndMarkFromRubric(
+      sectionId,
+      newRating
+    );
+    updateRubricSectionCommentsAndMarks(
+      sectionId,
+      rubricSpec.rubricComment,
+      rubricSpec.rubricMark
+    );
   }
 
   app.endPriv();
@@ -588,7 +609,7 @@ var retrieveDefaultCommentAndMarkFromRubric = app.trustedFunction(function (
 
   var response = {
     rubricComment: "",
-    rubricMark: 0
+    rubricMark: 0,
   };
 
   var i;
@@ -603,15 +624,14 @@ var retrieveDefaultCommentAndMarkFromRubric = app.trustedFunction(function (
         n++
       ) {
         if (
-          selectedRubricContent.sections[i].markerOptions[n]
-            .optionName === rating
+          selectedRubricContent.sections[i].markerOptions[n].optionName ===
+          rating
         ) {
           rubricComment =
             selectedRubricContent.sections[i].markerOptions[n]
               .optionDefaultComment;
           rubricMark =
-            selectedRubricContent.sections[i].markerOptions[n]
-              .optionMarks;
+            selectedRubricContent.sections[i].markerOptions[n].optionMarks;
           break;
         }
       }
@@ -622,7 +642,9 @@ var retrieveDefaultCommentAndMarkFromRubric = app.trustedFunction(function (
   response.rubricComment = rubricComment;
   response.rubricMark = rubricMark;
 
-  console.println("Found rubric spec: Mark="+rubricMark+", Comment="+rubricComment);
+  console.println(
+    "Found rubric spec: Mark=" + rubricMark + ", Comment=" + rubricComment
+  );
 
   app.endPriv();
   return response;
@@ -636,7 +658,14 @@ var updateRubricSectionCommentsAndMarks = app.trustedFunction(function (
 ) {
   app.beginPriv();
 
-  console.println("Updating marks and comment of section "+sectionId+" to: "+marks+" -- "+comment );
+  console.println(
+    "Updating marks and comment of section " +
+      sectionId +
+      " to: " +
+      marks +
+      " -- " +
+      comment
+  );
 
   var commentFieldName = "col3" + sectionId;
   var commentField = this.getField(commentFieldName);
@@ -653,13 +682,15 @@ var updateRubricSectionCommentsAndMarks = app.trustedFunction(function (
 // Marks and comment
 var updateSectionRating = app.trustedFunction(function (sectionId, rating) {
   app.beginPriv();
-  
-  console.println("Changing selection for section: " + sectionId + " to " + rating);
+
+  console.println(
+    "Changing selection for section: " + sectionId + " to " + rating
+  );
 
   var ratingFieldName = "col2" + sectionId;
   var ratingField = this.getField(ratingFieldName);
   ratingField.value = rating;
-  
+
   app.endPriv();
 });
 
@@ -667,13 +698,15 @@ var updateSectionRating = app.trustedFunction(function (sectionId, rating) {
 // This is needed when a Rubric mark is applied but the marks are adjusted
 var overrideSectionComment = app.trustedFunction(function (sectionId, comment) {
   app.beginPriv();
-  
-  console.println("Overriding comment for section: " + sectionId + " to " + comment);
+
+  console.println(
+    "Overriding comment for section: " + sectionId + " to " + comment
+  );
 
   var commentFieldName = "col3" + sectionId;
   var commentField = this.getField(commentFieldName);
   commentField.value = comment;
-  
+
   app.endPriv();
 });
 
@@ -681,22 +714,33 @@ var overrideSectionComment = app.trustedFunction(function (sectionId, comment) {
 // This is needed when a Rubric mark is applied with custom comments
 var overrideSectionMark = app.trustedFunction(function (sectionId, mark) {
   app.beginPriv();
-  
+
   console.println("Overriding mark for section: " + sectionId + " to " + mark);
 
   var markFieldName = "col4" + sectionId;
   var markField = this.getField(markFieldName);
   markField.value = mark;
-  
+
   app.endPriv();
 });
 
 // When a rubric mark is applied via the toolbar, we link the table row with the annotation
 // by setting two inivible columns in the table row. At this point we also make the button active
-var addAnnotationDetailsToRubricSection = app.trustedFunction(function (sectionId, annotPage, annotName) {
+var addAnnotationDetailsToRubricSection = app.trustedFunction(function (
+  sectionId,
+  annotPage,
+  annotName
+) {
   app.beginPriv();
-  
-  console.println("Linking rubric table row for " + sectionId + " to with annotation: " + annotName + "on page "+ annotPage);
+
+  console.println(
+    "Linking rubric table row for " +
+      sectionId +
+      " to with annotation: " +
+      annotName +
+      "on page " +
+      annotPage
+  );
 
   var annotPageFieldName = "col6" + sectionId;
   var annotPageField = this.getField(annotPageFieldName);
@@ -705,12 +749,12 @@ var addAnnotationDetailsToRubricSection = app.trustedFunction(function (sectionI
   var annotNameFieldName = "col7" + sectionId;
   var annotNameField = this.getField(annotNameFieldName);
   annotNameField.value = annotName;
-  
+
   var navButtonFieldName = "col8" + sectionId;
   var navButtonField = this.getField(navButtonFieldName);
-  var cmd = "goToAnnotation("+annotPage+",'"+annotName+"')";
+  var cmd = "goToAnnotation(" + annotPage + ",'" + annotName + "')";
   navButtonField.setAction("MouseUp", cmd);
-  navButtonField.buttonSetCaption("p"+annotPage);
+  navButtonField.buttonSetCaption("p" + annotPage);
   navButtonField.hidden = false;
 
   app.endPriv();
@@ -719,21 +763,23 @@ var addAnnotationDetailsToRubricSection = app.trustedFunction(function (sectionI
 // When marking via Rubric, this method determines whether a specific section has already been marked
 // This allows the Rubric marking tool to always default to the next unmarked question
 var sectionIsAlreadyMarked = app.trustedFunction(function (sectionId) {
-    app.beginPriv();
+  app.beginPriv();
 
-    var isMarked = false;
-    console.println("Checking if we already have a rating for section: " + sectionId);
-    var ratingFieldName = "col2" + sectionId;
-    var ratingField = this.getField(ratingFieldName);
+  var isMarked = false;
+  console.println(
+    "Checking if we already have a rating for section: " + sectionId
+  );
+  var ratingFieldName = "col2" + sectionId;
+  var ratingField = this.getField(ratingFieldName);
 
-    if (ratingField.value === "Awaiting Marker ...") {
-        isMarked = false;
-    } else {
-        isMarked = true;
-    }
+  if (ratingField.value === "Awaiting Marker ...") {
+    isMarked = false;
+  } else {
+    isMarked = true;
+  }
 
-    app.endPriv();
-    return isMarked;
+  app.endPriv();
+  return isMarked;
 });
 
 // ========================================================================================
