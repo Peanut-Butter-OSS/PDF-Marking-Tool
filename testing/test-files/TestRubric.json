@@ -5,104 +5,104 @@
     "courseCode" : "CS50",
     "assignmentId" : "Lab 1",
     "totalMarks" : 100,
-    "sections" : [
+    "criteria" : [
         {
-            "sectionId" : "q1",
-            "sectionName" : "Question 1",
+            "criterionId" : "q1",
+            "criterionName" : "Question 1",
             "totalMarks" : 15,
-            "markerOptions" : [
+            "levels" : [
                 {
-                    "optionName" : "Excellent",
-                    "optionMarks" : 15, 
-                    "optionDefaultComment" : "Very well described"
+                    "levelName" : "Excellent",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Very well described"
                 }, 
                 {
-                    "optionName" : "Good",
-                    "optionMarks" : 8, 
-                    "optionDefaultComment" : "Very well described, perhaps some details could be elaborated further"
+                    "levelName" : "Good",
+                    "levelMarks" : 8, 
+                    "levelDefaultComment" : "Very well described, perhaps some details could be elaborated further"
                 },
                 {
-                    "optionName" : "Acceptable",
-                    "optionMarks" : 6, 
-                    "optionDefaultComment" : "Covers the basics, but many aspects should be elaborated further"
+                    "levelName" : "Acceptable",
+                    "levelMarks" : 6, 
+                    "levelDefaultComment" : "Covers the basics, but many aspects should be elaborated further"
                 },
                 {
-                    "optionName" : "Poor",
-                    "optionMarks" : 3, 
-                    "optionDefaultComment" : "Incorrect description"
+                    "levelName" : "Poor",
+                    "levelMarks" : 3, 
+                    "levelDefaultComment" : "Incorrect description"
                 },
                 {
-                    "optionName" : "Missing",
-                    "optionMarks" : 0, 
-                    "optionDefaultComment" : "Section had no response"
+                    "levelName" : "Missing",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Section had no response"
                 }
             ]
         },
         {
-            "sectionId" : "q2",
-            "sectionName" : "Question 2",
+            "criterionId" : "q2",
+            "criterionName" : "Question 2",
             "totalMarks" : 40,
-            "markerOptions" : [
+            "levels" : [
                 {
-                    "optionName" : "Correct",
-                    "optionMarks" : 40, 
-                    "optionDefaultComment" : "Absolutely correct!"
+                    "levelName" : "Correct",
+                    "levelMarks" : 40, 
+                    "levelDefaultComment" : "Absolutely correct!"
                 }, 
                 {
-                    "optionName" : "Incorrect",
-                    "optionMarks" : 0, 
-                    "optionDefaultComment" : "Unfortunately not correct"
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
                 }
             ]
         },
         {
-            "sectionId" : "q3",
-            "sectionName" : "Question 3",
+            "criterionId" : "q3",
+            "criterionName" : "Question 3",
             "totalMarks" : 15,
-            "markerOptions" : [
+            "levels" : [
                 {
-                    "optionName" : "Correct",
-                    "optionMarks" : 15, 
-                    "optionDefaultComment" : "Absolutely correct!"
+                    "levelName" : "Correct",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Absolutely correct!"
                 }, 
                 {
-                    "optionName" : "Incorrect",
-                    "optionMarks" : 0, 
-                    "optionDefaultComment" : "Unfortunately not correct"
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
                 }
             ]
         },
         {
-            "sectionId" : "q4",
-            "sectionName" : "Question 4",
+            "criterionId" : "q4",
+            "criterionName" : "Question 4",
             "totalMarks" : 15,
-            "markerOptions" : [
+            "levels" : [
                 {
-                    "optionName" : "Correct",
-                    "optionMarks" : 15, 
-                    "optionDefaultComment" : "Absolutely correct!"
+                    "levelName" : "Correct",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Absolutely correct!"
                 }, 
                 {
-                    "optionName" : "Incorrect",
-                    "optionMarks" : 0, 
-                    "optionDefaultComment" : "Unfortunately not correct"
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
                 }
             ]
         }, 
         {
-            "sectionId" : "q5",
-            "sectionName" : "Question 5",
+            "criterionId" : "q5",
+            "criterionName" : "Question 5",
             "totalMarks" : 15,
-            "markerOptions" : [
+            "levels" : [
                 {
-                    "optionName" : "Correct",
-                    "optionMarks" : 15, 
-                    "optionDefaultComment" : "Absolutely correct!"
+                    "levelName" : "Correct",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Absolutely correct!"
                 }, 
                 {
-                    "optionName" : "Incorrect",
-                    "optionMarks" : 0, 
-                    "optionDefaultComment" : "Unfortunately not correct"
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
                 }
             ]
         }  

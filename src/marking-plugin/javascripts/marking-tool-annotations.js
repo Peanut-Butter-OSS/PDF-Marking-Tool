@@ -120,14 +120,14 @@ var doAimAnnot = app.trustedFunction(function (aNewDoc, x, y) {
 // - aNewDoc: The document on which to apply the annotation (There should be only one)
 // - x: The X coordinate where to place the annotation
 // - y: The Y coordinate where to place the annotation
-// - section: The section to which the annotation applies (For unstructured marks, this value is passed as null)
+// - criterion: The criterion to which the annotation applies (For unstructured marks, this value is passed as null)
 // - comment: A comment to be applied with the annotation (For unstructured marks, this value is passed as null)
 // - mark: The mark value associated with the annotation
 // - type: the annotation type
-var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mark, type) {
+var doAnnot = app.trustedFunction(function (aNewDoc, x, y, criterion, comment, mark, type) {
   app.beginPriv();
 
-  console.println("Adding annotation: Coords=("+x+","+y+"), Section="+section+", Mark="+mark+", Type="+type);
+  console.println("Adding annotation: Coords=("+x+","+y+"), Criterion="+criterion+", Mark="+mark+", Type="+type);
   var annotationName = "";
   var currentPage = aNewDoc.pageNum;
 
@@ -186,12 +186,12 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
     });
   } else {
     if (hasTextContentForAnnot) {
-      var fullComment = "Rubric: "+section + "\n" + comment;
+      var fullComment = "Rubric: "+criterion + "\n" + comment;
       aNewDoc.addAnnot({
         type: "Ink",
         page: currentPage,
         name: annotationName,
-        subject: "MARK: " + section + " | " + mark,
+        subject: "MARK: " + criterion + " | " + mark,
         gestures: drawPoints,
         contents: fullComment,
         width: 2,
@@ -201,7 +201,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, section, comment, mar
         type: "Ink",
         page: currentPage,
         name: annotationName,
-        subject: "MARK: " + section + " | " + mark,
+        subject: "MARK: " + criterion + " | " + mark,
         gestures: drawPoints,
         width: 2,
       });

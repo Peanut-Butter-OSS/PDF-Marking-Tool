@@ -119,17 +119,17 @@ var validateRubric = app.trustedFunction(function (rubric) {
   // - rubricVersion is specified
   // - courseCode Specified
   // - assignmentId specified
-  // - At least one section specified
-  // - For each section:
-  //    - sectionName is specified
+  // - At least one criteria specified
+  // - For each criteria:
+  //    - criteriaName is specified
   //    - totalMarks is specified
-  //    - At least one markerOption specified
-  //    - No duplication of sectionId or Section name
-  //    - For each markerOption:
-  //        - optionName is specified
-  //        - optionMarks is specified
-  //        - optionDefaultComment is specified
-  //        - no duplication of optionName
+  //    - At least one level specified
+  //    - No duplication of criteriaId or criteriaName
+  //    - For each level:
+  //        - levelName is specified
+  //        - levelMarks is specified
+  //        - levelDefaultComment is specified
+  //        - no duplication of levelName
 
   if (!rubric.rubricId) {
     var errorMsg = " - No rubricId was specified. \n";
@@ -314,20 +314,20 @@ var buildRubricPage = app.trustedFunction(function () {
   valueAssignmentId.fillColor = color.white;
   currentTopY = bottomY - 1;
 
-  // Header row for sections table
+  // Header row for criteria table
   topY = currentTopY - 20;
   bottomY = topY - lineHeight;
-  addRubricSectionHeader(topY, bottomY);
+  addRubricCriterionHeader(topY, bottomY);
   currentTopY = bottomY - 1;
 
   // Now build individual entries for each element in the Rubric
   var i;
-  for (i = 0; i < selectedRubricContent.sections.length; i++) {
+  for (i = 0; i < selectedRubricContent.criteria.length; i++) {
     leftX = 0;
     topY = currentTopY;
     bottomY = currentTopY - lineHeight;
-    addRubricSectionRow(
-      selectedRubricContent.sections[i],
+    addRubricCriterionRow(
+      selectedRubricContent.criteria[i],
       leftX,
       topY,
       rightX,
@@ -340,7 +340,7 @@ var buildRubricPage = app.trustedFunction(function () {
   return rubricPageNumber;
 });
 
-var addRubricSectionHeader = app.trustedFunction(function (topY, bottomY) {
+var addRubricCriterionHeader = app.trustedFunction(function (topY, bottomY) {
   app.beginPriv();
 
   leftX = 0;
@@ -348,80 +348,80 @@ var addRubricSectionHeader = app.trustedFunction(function (topY, bottomY) {
   // Col 1
   colWidth = 100;
   rightX = leftX + colWidth;
-  var rubricSectionsCol1Header = aNewDoc.addField(
-    "rubricSectionsCol1Header",
+  var rubricCriteriaCol1Header = aNewDoc.addField(
+    "rubricCriteriaCol1Header",
     "text",
     rubricPageNumber,
     [leftX, topY, rightX, bottomY]
   );
-  rubricSectionsCol1Header.value = "Section Name";
-  rubricSectionsCol1Header.readonly = true;
-  rubricSectionsCol1Header.alignment = "center";
-  rubricSectionsCol1Header.fillColor = color.white;
+  rubricCriteriaCol1Header.value = "Criterion";
+  rubricCriteriaCol1Header.readonly = true;
+  rubricCriteriaCol1Header.alignment = "center";
+  rubricCriteriaCol1Header.fillColor = color.white;
   leftX = rightX + 1;
 
   // Col 2
   colWidth = 150;
   rightX = leftX + colWidth;
-  var rubricSectionsCol2Header = aNewDoc.addField(
-    "rubricSectionsCol2Header",
+  var rubricCriteriaCol2Header = aNewDoc.addField(
+    "rubricCriteriaCol2Header",
     "text",
     rubricPageNumber,
     [leftX, topY, rightX, bottomY]
   );
-  rubricSectionsCol2Header.value = "Rating";
-  rubricSectionsCol2Header.readonly = true;
-  rubricSectionsCol2Header.alignment = "center";
-  rubricSectionsCol2Header.fillColor = color.white;
-  rubricSectionsCol2Header.borderStyle = "solid";
+  rubricCriteriaCol2Header.value = "Level";
+  rubricCriteriaCol2Header.readonly = true;
+  rubricCriteriaCol2Header.alignment = "center";
+  rubricCriteriaCol2Header.fillColor = color.white;
+  rubricCriteriaCol2Header.borderStyle = "solid";
   leftX = rightX + 1;
 
   // Col 3
   colWidth = 232;
   rightX = leftX + colWidth;
-  var rubricSectionsCol3Header = aNewDoc.addField(
-    "rubricSectionsCol3Header",
+  var rubricCriteriaCol3Header = aNewDoc.addField(
+    "rubricCriteriaCol3Header",
     "text",
     rubricPageNumber,
     [leftX, topY, rightX, bottomY]
   );
-  rubricSectionsCol3Header.value = "Comments";
-  rubricSectionsCol3Header.readonly = true;
-  rubricSectionsCol3Header.alignment = "center";
-  rubricSectionsCol3Header.fillColor = color.white;
-  rubricSectionsCol2Header.borderStyle = "solid";
+  rubricCriteriaCol3Header.value = "Comments";
+  rubricCriteriaCol3Header.readonly = true;
+  rubricCriteriaCol3Header.alignment = "center";
+  rubricCriteriaCol3Header.fillColor = color.white;
+  rubricCriteriaCol2Header.borderStyle = "solid";
   leftX = rightX + 1;
 
   // Col 4
   colWidth = 50;
   rightX = leftX + colWidth;
-  var rubricSectionsCol4Header = aNewDoc.addField(
-    "rubricSectionsCol4Header",
+  var rubricCriteriaCol4Header = aNewDoc.addField(
+    "rubricCriteriaCol4Header",
     "text",
     rubricPageNumber,
     [leftX, topY, rightX, bottomY]
   );
-  rubricSectionsCol4Header.value = "Marks";
-  rubricSectionsCol4Header.readonly = true;
-  rubricSectionsCol4Header.alignment = "center";
-  rubricSectionsCol4Header.fillColor = color.white;
-  rubricSectionsCol2Header.borderStyle = "solid";
+  rubricCriteriaCol4Header.value = "Marks";
+  rubricCriteriaCol4Header.readonly = true;
+  rubricCriteriaCol4Header.alignment = "center";
+  rubricCriteriaCol4Header.fillColor = color.white;
+  rubricCriteriaCol2Header.borderStyle = "solid";
   leftX = rightX + 1;
 
   // Col 5
   colWidth = 50;
   rightX = leftX + colWidth;
-  var rubricSectionsCol5Header = aNewDoc.addField(
-    "rubricSectionsCol5Header",
+  var rubricCriteriaCol5Header = aNewDoc.addField(
+    "rubricCriteriaCol5Header",
     "text",
     rubricPageNumber,
     [leftX, topY, rightX, bottomY]
   );
-  rubricSectionsCol5Header.value = "Out of";
-  rubricSectionsCol5Header.readonly = true;
-  rubricSectionsCol5Header.alignment = "center";
-  rubricSectionsCol5Header.fillColor = color.white;
-  rubricSectionsCol2Header.borderStyle = "solid";
+  rubricCriteriaCol5Header.value = "Out of";
+  rubricCriteriaCol5Header.readonly = true;
+  rubricCriteriaCol5Header.alignment = "center";
+  rubricCriteriaCol5Header.fillColor = color.white;
+  rubricCriteriaCol2Header.borderStyle = "solid";
   leftX = rightX + 1;
 
   app.endPriv();
@@ -429,8 +429,8 @@ var addRubricSectionHeader = app.trustedFunction(function (topY, bottomY) {
 
 // TODO: Should return the row height that was actually used, so that we can dynamically adjust
 // TODO: Need to add a method to re-layout the table based on the length of the text.
-var addRubricSectionRow = app.trustedFunction(function (
-  section,
+var addRubricCriterionRow = app.trustedFunction(function (
+  criterion,
   leftX,
   topY,
   rightX,
@@ -443,14 +443,14 @@ var addRubricSectionRow = app.trustedFunction(function (
   // Col 1
   colWidth = 100;
   rightX = leftX + colWidth;
-  var col1FieldName = "col1" + section.sectionId;
+  var col1FieldName = "col1" + criterion.criterionId;
   var col1Field = aNewDoc.addField(col1FieldName, "text", rubricPageNumber, [
     leftX,
     topY,
     rightX,
     bottomY,
   ]);
-  col1Field.value = section.sectionName;
+  col1Field.value = criterion.criterionName;
   col1Field.readonly = true;
   col1Field.alignment = "left";
   col1Field.fillColor = color.ltGray;
@@ -459,7 +459,7 @@ var addRubricSectionRow = app.trustedFunction(function (
   // Col 2
   colWidth = 150;
   rightX = leftX + colWidth;
-  var col2FieldName = "col2" + section.sectionId;
+  var col2FieldName = "col2" + criterion.criterionId;
   var col2Field = aNewDoc.addField(
     col2FieldName,
     "combobox",
@@ -468,12 +468,12 @@ var addRubricSectionRow = app.trustedFunction(function (
   );
 
   var n;
-  for (n = 0; n < section.markerOptions.length; n++) {
-    col2Field.insertItemAt(section.markerOptions[n].optionName);
+  for (n = 0; n < criterion.levels.length; n++) {
+    col2Field.insertItemAt(criterion.levels[n].levelName);
   }
   col2Field.insertItemAt("Awaiting Marker ...");
   col2Field.fillColor = color.ltGray;
-  var cscript = "catchSectionRatingChange('" + section.sectionId + "',event);";
+  var cscript = "catchCriterionLevelChange('" + criterion.criterionId + "',event);";
   col2Field.setAction("Keystroke", cscript);
   col2Field.commitOnSelChange = "true";
   leftX = rightX + 1;
@@ -481,7 +481,7 @@ var addRubricSectionRow = app.trustedFunction(function (
   // Col 3 "Comments"
   colWidth = 207;
   rightX = leftX + colWidth;
-  var col3FieldName = "col3" + section.sectionId;
+  var col3FieldName = "col3" + criterion.criterionId;
   var col3Field = aNewDoc.addField(col3FieldName, "text", rubricPageNumber, [
     leftX,
     topY,
@@ -496,7 +496,7 @@ var addRubricSectionRow = app.trustedFunction(function (
   // Col 4 "Marks"
   colWidth = 50;
   rightX = leftX + colWidth;
-  var col4FieldName = "col4" + section.sectionId;
+  var col4FieldName = "col4" + criterion.criterionId;
   var col4Field = aNewDoc.addField(col4FieldName, "text", rubricPageNumber, [
     leftX,
     topY,
@@ -510,14 +510,14 @@ var addRubricSectionRow = app.trustedFunction(function (
   // Col 5 "Out of"
   colWidth = 50;
   rightX = leftX + colWidth;
-  var col5FieldName = "col5" + section.sectionId;
+  var col5FieldName = "col5" + criterion.criterionId;
   var col5Field = aNewDoc.addField(col5FieldName, "text", rubricPageNumber, [
     leftX,
     topY,
     rightX,
     bottomY,
   ]);
-  col5Field.value = section.totalMarks;
+  col5Field.value = criterion.totalMarks;
   col5Field.readonly = true;
   col5Field.alignment = "right";
   col5Field.fillColor = color.ltGray;
@@ -526,7 +526,7 @@ var addRubricSectionRow = app.trustedFunction(function (
   // Col 6 (Invisible field to store page of linked annotation)
   colWidth = 0;
   rightX = leftX + colWidth;
-  var col6FieldName = "col6" + section.sectionId;
+  var col6FieldName = "col6" + criterion.criterionId;
   var col6Field = aNewDoc.addField(col6FieldName, "text", rubricPageNumber, [
     leftX,
     topY,
@@ -540,7 +540,7 @@ var addRubricSectionRow = app.trustedFunction(function (
   // Col 7 (Invisible field to store annotation name of linked annotation)
   colWidth = 0;
   rightX = leftX + colWidth;
-  var col7FieldName = "col7" + section.sectionId;
+  var col7FieldName = "col7" + criterion.criterionId;
   var col7Field = aNewDoc.addField(col7FieldName, "text", rubricPageNumber, [
     leftX,
     topY,
@@ -554,7 +554,7 @@ var addRubricSectionRow = app.trustedFunction(function (
   // Col 8 (Button to go to the annotation)
   colWidth = 25;
   rightX = leftX + colWidth;
-  var col8FieldName = "col8" + section.sectionId;
+  var col8FieldName = "col8" + criterion.criterionId;
   var col8Field = aNewDoc.addField(col8FieldName, "button", rubricPageNumber, [
     leftX,
     topY,
@@ -572,25 +572,25 @@ var addRubricSectionRow = app.trustedFunction(function (
   app.endPriv();
 });
 
-// This method catches the event when a user picks a new rating value for
+// This method catches the event when a user picks a new level value for
 // a single rubric item
-var catchSectionRatingChange = app.trustedFunction(function (sectionId, event) {
+var catchCriterionLevelChange = app.trustedFunction(function (criterionId, event) {
   app.beginPriv();
 
   // Only executing when the new value is committed
   if (event.willCommit) {
     console.println(
-      "Changing selection for section: " + sectionId + " to " + event.value
+      "Changing selection for criterion: " + criterionId + " to " + event.value
     );
 
     // Get the default comment and marks from the Rubric:
-    var newRating = event.value;
+    var newLevel = event.value;
     var rubricSpec = retrieveDefaultCommentAndMarkFromRubric(
-      sectionId,
-      newRating
+      criterionId,
+      newLevel
     );
-    updateRubricSectionCommentsAndMarks(
-      sectionId,
+    updateRubricCriterionCommentsAndMarks(
+      criterionId,
       rubricSpec.rubricComment,
       rubricSpec.rubricMark
     );
@@ -599,11 +599,11 @@ var catchSectionRatingChange = app.trustedFunction(function (sectionId, event) {
   app.endPriv();
 });
 
-// This method catches the event when a user picks a new rating value for
+// This method catches the event when a user picks a new level value for
 // a single rubric item
 var retrieveDefaultCommentAndMarkFromRubric = app.trustedFunction(function (
-  sectionId,
-  rating
+  criterionId,
+  level
 ) {
   app.beginPriv();
 
@@ -615,23 +615,23 @@ var retrieveDefaultCommentAndMarkFromRubric = app.trustedFunction(function (
   var i;
   var rubricComment = "";
   var rubricMark = 0;
-  for (i = 0; i < selectedRubricContent.sections.length; i++) {
-    if (selectedRubricContent.sections[i].sectionId === sectionId) {
+  for (i = 0; i < selectedRubricContent.criteria.length; i++) {
+    if (selectedRubricContent.criteria[i].criterionId === criterionId) {
       var n;
       for (
         n = 0;
-        n < selectedRubricContent.sections[i].markerOptions.length;
+        n < selectedRubricContent.criteria[i].levels.length;
         n++
       ) {
         if (
-          selectedRubricContent.sections[i].markerOptions[n].optionName ===
-          rating
+          selectedRubricContent.criteria[i].levels[n].levelName ===
+          level
         ) {
           rubricComment =
-            selectedRubricContent.sections[i].markerOptions[n]
-              .optionDefaultComment;
+            selectedRubricContent.criteria[i].levels[n]
+              .levelDefaultComment;
           rubricMark =
-            selectedRubricContent.sections[i].markerOptions[n].optionMarks;
+            selectedRubricContent.criteria[i].levels[n].levelMarks;
           break;
         }
       }
@@ -650,60 +650,60 @@ var retrieveDefaultCommentAndMarkFromRubric = app.trustedFunction(function (
   return response;
 });
 
-// This method populates the rubric Comments and Marks values for a specific section
-var updateRubricSectionCommentsAndMarks = app.trustedFunction(function (
-  sectionId,
+// This method populates the rubric Comments and Marks values for a specific criterion
+var updateRubricCriterionCommentsAndMarks = app.trustedFunction(function (
+  criterionId,
   comment,
   marks
 ) {
   app.beginPriv();
 
   console.println(
-    "Updating marks and comment of section " +
-      sectionId +
+    "Updating marks and comment of criterion " +
+      criterionId +
       " to: " +
       marks +
       " -- " +
       comment
   );
 
-  var commentFieldName = "col3" + sectionId;
+  var commentFieldName = "col3" + criterionId;
   var commentField = this.getField(commentFieldName);
   commentField.value = comment;
-  var markFieldName = "col4" + sectionId;
+  var markFieldName = "col4" + criterionId;
   var markField = aNewDoc.getField(markFieldName);
   markField.value = marks;
 
   app.endPriv();
 });
 
-// This method allows setting the section rating on the rubric from any dialog in the
-// application. Once the rating is updated, it will automatically trigger the update of the
+// This method allows setting the criterion level on the rubric from any dialog in the
+// application. Once the level is updated, it will automatically trigger the update of the
 // Marks and comment
-var updateSectionRating = app.trustedFunction(function (sectionId, rating) {
+var updateCriterionLevel = app.trustedFunction(function (criterionId, level) {
   app.beginPriv();
 
   console.println(
-    "Changing selection for section: " + sectionId + " to " + rating
+    "Changing selection for criterion: " + criterionId + " to " + level
   );
 
-  var ratingFieldName = "col2" + sectionId;
-  var ratingField = this.getField(ratingFieldName);
-  ratingField.value = rating;
+  var levelFieldName = "col2" + criterionId;
+  var levelField = this.getField(levelFieldName);
+  levelField.value = level;
 
   app.endPriv();
 });
 
 // This method allows the automatically selected comment to be overridden
 // This is needed when a Rubric mark is applied but the marks are adjusted
-var overrideSectionComment = app.trustedFunction(function (sectionId, comment) {
+var overrideCriterionComment = app.trustedFunction(function (criterionId, comment) {
   app.beginPriv();
 
   console.println(
-    "Overriding comment for section: " + sectionId + " to " + comment
+    "Overriding comment for criterion: " + criterionId + " to " + comment
   );
 
-  var commentFieldName = "col3" + sectionId;
+  var commentFieldName = "col3" + criterionId;
   var commentField = this.getField(commentFieldName);
   commentField.value = comment;
 
@@ -712,12 +712,12 @@ var overrideSectionComment = app.trustedFunction(function (sectionId, comment) {
 
 // This method allows the automatically selected mark to be overridden
 // This is needed when a Rubric mark is applied with custom comments
-var overrideSectionMark = app.trustedFunction(function (sectionId, mark) {
+var overrideCriterionMark = app.trustedFunction(function (criterionId, mark) {
   app.beginPriv();
 
-  console.println("Overriding mark for section: " + sectionId + " to " + mark);
+  console.println("Overriding mark for criterion: " + criterionId + " to " + mark);
 
-  var markFieldName = "col4" + sectionId;
+  var markFieldName = "col4" + criterionId;
   var markField = this.getField(markFieldName);
   markField.value = mark;
 
@@ -726,8 +726,8 @@ var overrideSectionMark = app.trustedFunction(function (sectionId, mark) {
 
 // When a rubric mark is applied via the toolbar, we link the table row with the annotation
 // by setting two inivible columns in the table row. At this point we also make the button active
-var addAnnotationDetailsToRubricSection = app.trustedFunction(function (
-  sectionId,
+var addAnnotationDetailsToRubricCriterion = app.trustedFunction(function (
+  criterionId,
   annotPage,
   annotName
 ) {
@@ -735,22 +735,22 @@ var addAnnotationDetailsToRubricSection = app.trustedFunction(function (
 
   console.println(
     "Linking rubric table row for " +
-      sectionId +
+      criterionId +
       " to with annotation: " +
       annotName +
       "on page " +
       annotPage
   );
 
-  var annotPageFieldName = "col6" + sectionId;
+  var annotPageFieldName = "col6" + criterionId;
   var annotPageField = this.getField(annotPageFieldName);
   annotPageField.value = annotPage;
 
-  var annotNameFieldName = "col7" + sectionId;
+  var annotNameFieldName = "col7" + criterionId;
   var annotNameField = this.getField(annotNameFieldName);
   annotNameField.value = annotName;
 
-  var navButtonFieldName = "col8" + sectionId;
+  var navButtonFieldName = "col8" + criterionId;
   var navButtonField = this.getField(navButtonFieldName);
   var cmd = "goToAnnotation(" + annotPage + ",'" + annotName + "')";
   navButtonField.setAction("MouseUp", cmd);
@@ -760,19 +760,19 @@ var addAnnotationDetailsToRubricSection = app.trustedFunction(function (
   app.endPriv();
 });
 
-// When marking via Rubric, this method determines whether a specific section has already been marked
+// When marking via Rubric, this method determines whether a specific criterion has already been marked
 // This allows the Rubric marking tool to always default to the next unmarked question
-var sectionIsAlreadyMarked = app.trustedFunction(function (sectionId) {
+var criterionIsAlreadyMarked = app.trustedFunction(function (criterionId) {
   app.beginPriv();
 
   var isMarked = false;
   console.println(
-    "Checking if we already have a rating for section: " + sectionId
+    "Checking if we already have a level for criterion: " + criterionId
   );
-  var ratingFieldName = "col2" + sectionId;
-  var ratingField = this.getField(ratingFieldName);
+  var levelFieldName = "col2" + criterionId;
+  var levelField = this.getField(levelFieldName);
 
-  if (ratingField.value === "Awaiting Marker ...") {
+  if (levelField.value === "Awaiting Marker ...") {
     isMarked = false;
   } else {
     isMarked = true;

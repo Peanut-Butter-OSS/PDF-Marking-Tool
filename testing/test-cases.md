@@ -35,20 +35,22 @@ TODO
 9. Try to select invalid rubric - No courseCode
 10. Try to select invalid rubric - No assignmentId
 11. Try to select invalid rubric - No totalMarks
-12. Try to select invalid rubric - No sections specified
+12. Try to select invalid rubric - No criteria specified
+13. Try to select invalid rubric - Duplicate criteria specified (same criteriaId)
+14. Try to select invalid rubric - Duplicate criteria specified (same criteriaName)
 
 
 
 
-13. Open PDF in read mode, Acrobat current closed
-14. Open PDF in read mode, Acrobat already open
-15. Open PDF in edit mode
-16. Open a document with a Rubric
-17. Open a document without a rubric
-18. Open a document that has already been finalised
-19. Open a document at an HTTP path
-20. Icons accidentally deleted from resources folder
-21. 
+15. Open PDF in read mode, Acrobat current closed
+16. Open PDF in read mode, Acrobat already open
+17. Open PDF in edit mode
+18. Open a document with a Rubric
+19. Open a document without a rubric
+20. Open a document that has already been finalised
+21. Open a document at an HTTP path
+22. Icons accidentally deleted from resources folder
+23. 
 
 ## Windows Installer
 

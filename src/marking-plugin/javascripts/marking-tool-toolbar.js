@@ -742,7 +742,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
 
   var rubricMarkDialog = {
     initialize: function (dialog) {
-      // Prepare initial lookup data for the section dropdown
+      // Prepare initial lookup data for the criterion dropdown
       // Note: the lookup list must be structured in a specific way for Acrobat to
       // behave correctly. From the API docs:
       //    "the value should be an object literal consisting of the displayed entry as the
@@ -750,33 +750,33 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       //      the item was selected, otherwise it was not selected.
       console.println("Initializing rubric dialog");
       var i;
-      var sectionPopupData = {};
+      var criterionPopupData = {};
       var defaultSelectionFound = false;
-      var selectedSectionIndex = 0;
-      for (i = 1; i <= selectedRubricContent.sections.length; i++) {
-        var sectionId = selectedRubricContent.sections[i-1].sectionId;
-        if ((!sectionIsAlreadyMarked(sectionId))&&(!defaultSelectionFound)) {
-          sectionPopupData[selectedRubricContent.sections[i-1].sectionName] = i ;
+      var selectedCriterionIndex = 0;
+      for (i = 1; i <= selectedRubricContent.criteria.length; i++) {
+        var criterionId = selectedRubricContent.criteria[i-1].criterionId;
+        if ((!criterionIsAlreadyMarked(criterionId))&&(!defaultSelectionFound)) {
+          criterionPopupData[selectedRubricContent.criteria[i-1].criterionName] = i ;
           defaultSelectionFound = true;
-          selectedSectionIndex = i-1;
+          selectedCriterionIndex = i-1;
         } else {
-          sectionPopupData[selectedRubricContent.sections[i-1].sectionName] = i*-1 ;
+          criterionPopupData[selectedRubricContent.criteria[i-1].criterionName] = i*-1 ;
         }
       }
-      dialog.load({ sect: sectionPopupData });
+      dialog.load({ sect: criterionPopupData });
 
-      // Prepare initial lookup data for the rating dropdown - based on the default 
-      // selection for the sections dropdown above.
-      // If no default section was selected, disable the rating field
-      console.println("Selected section index: "+selectedSectionIndex);
-      var ratingsPopupData = {};
-      if (selectedSectionIndex > -1) {
+      // Prepare initial lookup data for the level dropdown - based on the default 
+      // selection for the criteria dropdown above.
+      // If no default criterion was selected, disable the level field
+      console.println("Selected criterion index: "+selectedCriterionIndex);
+      var levelsPopupData = {};
+      if (selectedCriterionIndex > -1) {
         var n;
-        for (n = 1; n <= selectedRubricContent.sections[selectedSectionIndex].markerOptions.length; n++) {
-          var optionName = selectedRubricContent.sections[selectedSectionIndex].markerOptions[n-1].optionName;
-          ratingsPopupData[optionName] = n*-1 ;
+        for (n = 1; n <= selectedRubricContent.criteria[selectedCriterionIndex].levels.length; n++) {
+          var levelName = selectedRubricContent.criteria[selectedCriterionIndex].levels[n-1].levelName;
+          levelsPopupData[levelName] = n*-1 ;
         }
-        dialog.load({ rate: ratingsPopupData });
+        dialog.load({ rate: levelsPopupData });
       } else {
         dialog.enable({ rate : false})
       }
@@ -826,43 +826,43 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
     },
     sect: function (dialog) {
       var elements = dialog.store()["sect"];
-      var selectedSectionIndex = 0;
+      var selectedCriterionIndex = 0;
       for (var i in elements) {
         if (elements[i] > 0) {
-          selectedSectionIndex = elements[i]-1;
+          selectedCriterionIndex = elements[i]-1;
         }
       }
 
-      // Now prepare the list of ratings available for the selected section
-      var ratingsPopupData = {};
+      // Now prepare the list of levels available for the selected criterion
+      var levelsPopupData = {};
       var n;
-      for (n = 1; n <= selectedRubricContent.sections[selectedSectionIndex].markerOptions.length; n++) {
-        var optionName = selectedRubricContent.sections[selectedSectionIndex].markerOptions[n-1].optionName;
-        ratingsPopupData[optionName] = n*-1 ;
+      for (n = 1; n <= selectedRubricContent.criteria[selectedCriterionIndex].levels.length; n++) {
+        var levelName = selectedRubricContent.criteria[selectedCriterionIndex].levels[n-1].levelName;
+        levelsPopupData[levelName] = n*-1 ;
       }
-      dialog.load({ rate: ratingsPopupData });
+      dialog.load({ rate: levelsPopupData });
     },
     rate: function (dialog) {
       var sectElements = dialog.store()["sect"];
-      var selectedSectionIndex = 0;
+      var selectedCriterionIndex = 0;
       for (var i in sectElements) {
         if (sectElements[i] > 0) {
-          selectedSectionIndex = sectElements[i]-1;
+          selectedCriterionIndex = sectElements[i]-1;
         }
       }
 
       var rateElements = dialog.store()["rate"];
-      var selectedRatingIndex = 0;
+      var selectedLevelIndex = 0;
       for (var m in rateElements) {
         if (rateElements[m] > 0) {
-          selectedRatingIndex = rateElements[m]-1;
+          selectedLevelIndex = rateElements[m]-1;
         }
       }
 
       // Populate the default mark and comment
-      if ((selectedSectionIndex > -1)&&(selectedRatingIndex > -1)) {
-        var defaultComment = selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionDefaultComment;
-        var defaultMark =  selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionMarks;
+      if ((selectedCriterionIndex > -1)&&(selectedLevelIndex > -1)) {
+        var defaultComment = selectedRubricContent.criteria[selectedCriterionIndex].levels[selectedLevelIndex].levelDefaultComment;
+        var defaultMark =  selectedRubricContent.criteria[selectedCriterionIndex].levels[selectedLevelIndex].levelMarks;
         dialog.load({
           mark: defaultMark.toString(),
           comm: defaultComment,
@@ -872,40 +872,40 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
     commit: function (dialog) {
       var results = dialog.store();
 
-      // Extract sectionId from the selection made in popup
+      // Extract criterionId from the selection made in popup
       var sectElements = results["sect"];
-      var selectedSectionIndex = 0;
+      var selectedCriterionIndex = 0;
       for (var i in sectElements) {
         if (sectElements[i] > 0) {
-          selectedSectionIndex = sectElements[i]-1;
+          selectedCriterionIndex = sectElements[i]-1;
         }
       }
-      var sectionId = selectedRubricContent.sections[selectedSectionIndex].sectionId;
-      var sectionName = selectedRubricContent.sections[selectedSectionIndex].sectionName;
+      var criterionId = selectedRubricContent.criteria[selectedCriterionIndex].criterionId;
+      var criterionName = selectedRubricContent.criteria[selectedCriterionIndex].criterionName;
 
-      // Extract rating from the selection made in popup
+      // Extract level from the selection made in popup
       var rateElements = results["rate"];
-      var selectedRatingIndex = 0;
+      var selectedLevelIndex = 0;
       for (var m in rateElements) {
         if (rateElements[m] > 0) {
-          selectedRatingIndex = rateElements[m]-1;
+          selectedLevelIndex = rateElements[m]-1;
         }
       }
-      var rating = selectedRubricContent.sections[selectedSectionIndex].markerOptions[selectedRatingIndex].optionName;
+      var level = selectedRubricContent.criteria[selectedCriterionIndex].levels[selectedLevelIndex].levelName;
       
       var comment = results["comm"];
       var mark = results["mark"];
 
-      console.println("Committing rubric mark: SectionId="+sectionId+", Rating="+rating+", Mark="+mark+", Comment="+comment);
+      console.println("Committing rubric mark: CriterionId="+criterionId+", Level="+level+", Mark="+mark+", Comment="+comment);
       
       // Apply selection to Rubric form
-      updateSectionRating(sectionId, rating);
-      overrideSectionComment(sectionId, comment);
-      overrideSectionMark(sectionId, mark);
+      updateCriterionLevel(criterionId, level);
+      overrideCriterionComment(criterionId, comment);
+      overrideCriterionMark(criterionId, mark);
 
       // Apply annotation
-      var annotName = doAnnot(aNewDoc, x, y, sectionName, comment, mark, type);
-      addAnnotationDetailsToRubricSection(sectionId, aNewDoc.pageNum, annotName);
+      var annotName = doAnnot(aNewDoc, x, y, criterionName, comment, mark, type);
+      addAnnotationDetailsToRubricCriterion(criterionId, aNewDoc.pageNum, annotName);
     },
     description: {
       name: "Rubric Mark Data",
@@ -921,7 +921,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
           elements: [
             {
               type: "static_text",
-              name: "Select Section:",
+              name: "Select Criterion:",
             },
             {
               item_id: "sect",
@@ -933,7 +933,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
             },
             {
               type: "static_text",
-              name: "Select Rating:",
+              name: "Select Level:",
             },
             {
               item_id: "rate",
