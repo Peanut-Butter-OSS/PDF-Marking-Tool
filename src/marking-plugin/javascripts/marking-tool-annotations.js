@@ -186,7 +186,12 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, criterion, comment, m
     });
   } else {
     if (hasTextContentForAnnot) {
-      var fullComment = "Rubric: "+criterion + "\n" + comment;
+      var fullComment;
+      if (type === "RUBRICM") {
+        fullComment = "Rubric: "+criterion + "\n" + comment;
+      } else {
+        fullComment = comment;
+      }
       aNewDoc.addAnnot({
         type: "Ink",
         page: currentPage,
@@ -889,6 +894,27 @@ var listAnnotations = app.trustedFunction(function () {
   }
  
   console.println(statusString);
+
+  app.endPriv();
+});
+
+var removeRubricBasedAnnotations = app.trustedFunction(function () {
+  app.beginPriv();
+
+  console.println("Removing Rubric-based annotations");
+  this.syncAnnotScan();
+  var annots = this.getAnnots();
+
+  if (annots != null) {
+    for (var i = 0; i < annots.length; i++) {
+      var annotationName = annots[i].name;
+      markerIndex = annotationName.indexOf("RUBRICM");
+      if (markerIndex == 0) {
+        console.println("Removing annotation: "+annotationName);
+        annots[i].destroy();
+      }
+    }
+  }
 
   app.endPriv();
 });

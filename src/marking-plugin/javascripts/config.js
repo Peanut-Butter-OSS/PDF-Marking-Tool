@@ -32,7 +32,7 @@ var markingType = "UNKNOWN";
 
 // Storing the page numbers of the system generated pages
 // TODO - These should be stored in hidden fields too
-var rubricPageNumber;
+var rubricPageNumber = -1;
 var resultsPageNumber = -1;
 
 // The active flag indicates whether the tools are currently active
@@ -177,9 +177,9 @@ var initMarkingMenu = app.trustedFunction(function () {
       cExec: "selectRubric();",
     });
     app.addMenuItem({
-      cName: "Clear Selected Rubric",
+      cName: "Remove Rubric",
       cParent: "Rubric",
-      cExec: "clearRubricSelection();",
+      cExec: "removeRubric();",
     });
     app.addMenuItem({
       cName: "View Rubric Details",

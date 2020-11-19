@@ -38,19 +38,28 @@ TODO
 12. Try to select invalid rubric - No criteria specified
 13. Try to select invalid rubric - Duplicate criteria specified (same criteriaId)
 14. Try to select invalid rubric - Duplicate criteria specified (same criteriaName)
+15. Try to select invalid rubric - One criteria has no levels
+16. Try to select invalid rubric - One criteria has duplicate levels
+17. Try to select invalid rubric - One or more levels without levelName
+18. Try to select invalid rubric - One or more levels without levelMarks
+19. Try to select invalid rubric - One or more levels without levelDefaultComment
+20. Add rubric marks
+21. Try to add a duplicate rubric mark (for a criterion that is already marked)
+22. Remove a rubric before any annotations were added
+23. Remove a reubric after annotations were added 
 
 
 
 
-15. Open PDF in read mode, Acrobat current closed
-16. Open PDF in read mode, Acrobat already open
-17. Open PDF in edit mode
-18. Open a document with a Rubric
-19. Open a document without a rubric
-20. Open a document that has already been finalised
-21. Open a document at an HTTP path
-22. Icons accidentally deleted from resources folder
-23. 
+24. Open PDF in read mode, Acrobat current closed
+25. Open PDF in read mode, Acrobat already open
+26. Open PDF in edit mode
+27. Open a document with a Rubric
+28. Open a document without a rubric
+29. Open a document that has already been finalised
+30. Open a document at an HTTP path
+31. Icons accidentally deleted from resources folder
+32. 
 
 ## Windows Installer
 

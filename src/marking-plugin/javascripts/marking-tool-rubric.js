@@ -12,8 +12,10 @@ var selectRubric = app.trustedFunction(function () {
   aActiveDocs = app.activeDocs;
   aNewDoc = aActiveDocs[0];
 
-  if (aNewDoc != null) { // Only allow rubric attachment if we have an active doc
-    if (!hasRubricAttached) { // Document can only have one rubric at a time
+  if (aNewDoc != null) {
+    // Only allow rubric attachment if we have an active doc
+    if (!hasRubricAttached) {
+      // Document can only have one rubric at a time
       var alertMsg =
         "In the next screen, please select the required rubric file from your file system. \n\n";
       alertMsg +=
@@ -31,7 +33,8 @@ var selectRubric = app.trustedFunction(function () {
         var jsonRubric = eval("(" + strRubric + ")");
         validationResult = validateRubric(jsonRubric);
 
-        if (validationResult.isValid) { // Only proceed to attach the rubric if it passed validation
+        if (validationResult.isValid) {
+          // Only proceed to attach the rubric if it passed validation
           selectedRubricContent = jsonRubric;
 
           // Save rubric details into document level fields. These will be read when
@@ -108,6 +111,7 @@ var selectRubric = app.trustedFunction(function () {
   app.endPriv();
 });
 
+// Validates a rubric JSON object to ensure all the values required from a Rubric are supplied
 var validateRubric = app.trustedFunction(function (rubric) {
   app.beginPriv();
   var validationResult = {
@@ -116,9 +120,6 @@ var validateRubric = app.trustedFunction(function (rubric) {
   };
 
   // TODO
-  // - rubricVersion is specified
-  // - courseCode Specified
-  // - assignmentId specified
   // - At least one criteria specified
   // - For each criteria:
   //    - criteriaName is specified
@@ -136,15 +137,23 @@ var validateRubric = app.trustedFunction(function (rubric) {
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }
-
   if (!rubric.rubricName) {
     var errorMsg = " - No rubricName was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }
-
-  if (!rubric.rubricName) {
-    var errorMsg = " - No rubricName was specified. \n";
+  if (!rubric.rubricVersion) {
+    var errorMsg = " - No rubricVersion was specified. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  }
+  if (!rubric.assignmentId) {
+    var errorMsg = " - No assignmentId was specified. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  }
+  if (!rubric.courseCode) {
+    var errorMsg = " - No courseCode was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }
@@ -153,6 +162,7 @@ var validateRubric = app.trustedFunction(function (rubric) {
   return validationResult;
 });
 
+// Allow a user to view Rubric details from a menu option
 var viewRubricDetails = app.trustedFunction(function () {
   app.beginPriv();
 
@@ -180,20 +190,48 @@ var viewRubricDetails = app.trustedFunction(function () {
   app.endPriv();
 });
 
-var clearRubricSelection = app.trustedFunction(function () {
+// Removes a rubric from the PDF
+var removeRubric = app.trustedFunction(function () {
   app.beginPriv();
 
-  // TODO - Add confirmation dialog
-  // If confirmed:
-  // Set variables to null
-  // Remove the form fields
-  // Remove the Rubric page
+  var alertMsg =
+    "This action will entirely remove the rubric and all rubric marks that were added to the document. \n\n";
+  alertMsg += "Are you sure \n";
 
-  selectedRubricContent = null;
-  selectedRubricFileName = null;
-  selectedRubricName = null;
-  selectedRubricVersion = null;
+  var continueDelete = app.alert(alertMsg, 1, 2);
 
+  if (continueDelete === 4) {
+
+    // Remove rubric-based annotations
+    removeRubricBasedAnnotations();
+
+    // Set variables to null
+    selectedRubricContent = null;
+    selectedRubricFileName = null;
+    selectedRubricName = null;
+    selectedRubricVersion = null;
+
+    // Remove the form fields
+    this.removeField("RubricFileName");
+    this.removeField("RubricName");
+    this.removeField("RubricVersion");
+
+    // Reset Marking Type
+    markingType = "UNKNOWN";
+    markingTypeField = this.getField("MarkingType");
+    if (markingTypeField != null) {
+      markingTypeField.value = markingType;
+    }
+
+    // Remove the Rubric page
+    this.deletePages(rubricPageNumber);
+    rubricPageNumber = -1;
+
+    // Remove Rubric data object
+    this.removeDataObject("Rubric");
+
+    hasRubricAttached = false;
+  }
   app.endPriv();
 });
 
@@ -377,7 +415,7 @@ var addRubricCriterionHeader = app.trustedFunction(function (topY, bottomY) {
   leftX = rightX + 1;
 
   // Col 3
-  colWidth = 232;
+  colWidth = 207;
   rightX = leftX + colWidth;
   var rubricCriteriaCol3Header = aNewDoc.addField(
     "rubricCriteriaCol3Header",
@@ -473,7 +511,8 @@ var addRubricCriterionRow = app.trustedFunction(function (
   }
   col2Field.insertItemAt("Awaiting Marker ...");
   col2Field.fillColor = color.ltGray;
-  var cscript = "catchCriterionLevelChange('" + criterion.criterionId + "',event);";
+  var cscript =
+    "catchCriterionLevelChange('" + criterion.criterionId + "',event);";
   col2Field.setAction("Keystroke", cscript);
   col2Field.commitOnSelChange = "true";
   leftX = rightX + 1;
@@ -574,7 +613,10 @@ var addRubricCriterionRow = app.trustedFunction(function (
 
 // This method catches the event when a user picks a new level value for
 // a single rubric item
-var catchCriterionLevelChange = app.trustedFunction(function (criterionId, event) {
+var catchCriterionLevelChange = app.trustedFunction(function (
+  criterionId,
+  event
+) {
   app.beginPriv();
 
   // Only executing when the new value is committed
@@ -618,20 +660,11 @@ var retrieveDefaultCommentAndMarkFromRubric = app.trustedFunction(function (
   for (i = 0; i < selectedRubricContent.criteria.length; i++) {
     if (selectedRubricContent.criteria[i].criterionId === criterionId) {
       var n;
-      for (
-        n = 0;
-        n < selectedRubricContent.criteria[i].levels.length;
-        n++
-      ) {
-        if (
-          selectedRubricContent.criteria[i].levels[n].levelName ===
-          level
-        ) {
+      for (n = 0; n < selectedRubricContent.criteria[i].levels.length; n++) {
+        if (selectedRubricContent.criteria[i].levels[n].levelName === level) {
           rubricComment =
-            selectedRubricContent.criteria[i].levels[n]
-              .levelDefaultComment;
-          rubricMark =
-            selectedRubricContent.criteria[i].levels[n].levelMarks;
+            selectedRubricContent.criteria[i].levels[n].levelDefaultComment;
+          rubricMark = selectedRubricContent.criteria[i].levels[n].levelMarks;
           break;
         }
       }
@@ -696,7 +729,10 @@ var updateCriterionLevel = app.trustedFunction(function (criterionId, level) {
 
 // This method allows the automatically selected comment to be overridden
 // This is needed when a Rubric mark is applied but the marks are adjusted
-var overrideCriterionComment = app.trustedFunction(function (criterionId, comment) {
+var overrideCriterionComment = app.trustedFunction(function (
+  criterionId,
+  comment
+) {
   app.beginPriv();
 
   console.println(
@@ -715,7 +751,9 @@ var overrideCriterionComment = app.trustedFunction(function (criterionId, commen
 var overrideCriterionMark = app.trustedFunction(function (criterionId, mark) {
   app.beginPriv();
 
-  console.println("Overriding mark for criterion: " + criterionId + " to " + mark);
+  console.println(
+    "Overriding mark for criterion: " + criterionId + " to " + mark
+  );
 
   var markFieldName = "col4" + criterionId;
   var markField = this.getField(markFieldName);
