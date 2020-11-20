@@ -2,17 +2,30 @@
 PDF Marking Tool (PMT)
 
 This file contains all functions that work with Acrobat annotations
-*/
 
-// Main controller function for applying marking annotations to the document.
-// This method is called by the currently active marking button when a user clicks
-// it.
-// Since the marking button fills the whole screen, and is invisible, it results in this
-// event firing when the user clicks anywhere on the screen
-//
-// For some types of mark, the system first pops up a dialog, others proceed without a dialog
-// The method then applies the relevant annotation to the document, at the current X,Y coordinates
-// of the mouse.
+NOTE: Acrobat defines a fixed number of properties for annotations. To enables the PMT to 
+track the value and type of each annotation, we use a strict naming convention on the "name"
+and "subject" properties of the annotations we create.
+
+The annotation name property follows this format: [TYPE]:[count], where
+ - TYPE is the tool type, eg. TICK, HALFT, CROSS, CHECK, MARK, COMMENTM, RUBRICM
+ - count is a simple sequence number incremented each time an annotation is added
+ - for example: "TICK:2"
+
+The annotation subject property follows 2 different formats, depending on whether 
+the type is for a structured annotation (MARK, COMMENTM, or RUBRICM) and for an 
+unstructured annotation (TICK, HALFT, CROSS, CHECK)
+
+For unstructured annotations, the format is: "MARK | " + [mark], where 
+ - mark is the value of the annotation
+ - for example: "MARK | 2"
+
+For structured annotations, the format is: "MARK:[criterion] | " + [mark], where 
+ - criterion is the criterion that the mark applies to
+ - mark is the value of the annotation 
+ - for example: "MARK:Question 2 | 5"
+
+*/
 
 // The Aim Annotation is a temporary annotation added to the document before a dialog is popped up
 var doAimAnnot = app.trustedFunction(function (aNewDoc, x, y) {
@@ -805,7 +818,7 @@ var goToAnnotation = app.trustedFunction(function (annotationPage, annotationNam
   app.endPriv();
 });
 
-
+// Print a list of annotations to the console. This is used for debugging purposes
 var listAnnotations = app.trustedFunction(function () {
   app.beginPriv();
 
@@ -824,6 +837,43 @@ var listAnnotations = app.trustedFunction(function () {
 
   app.endPriv();
 });
+
+// Determine the PMT marking tool type that created the annotation
+var getPmtAnnotType = app.trustedFunction(function (annot) {
+  app.beginPriv();
+
+  var annotName = annot.name;
+  var typeFound = false;
+  var type = "";
+
+  if ((annotName.indexOf("COMMENTM")==0)&&(!typeFound)) {
+    type = "COMMENTM";
+    typeFound = true;
+  } else if ((annotName.indexOf("MARK")==0)&&(!typeFound)) {
+    type = "MARK";
+    typeFound = true;
+  } else if ((annotName.indexOf("RUBRICM")==0)&&(!typeFound)) {
+    type = "RUBRICM";
+    typeFound = true;
+  } else if ((annotName.indexOf("TICK")==0)&&(!typeFound)) {
+    type = "TICK";
+    typeFound = true;
+  } else if ((annotName.indexOf("HALFT")==0)&&(!typeFound)) {
+    type = "HALFT";
+    typeFound = true;
+  } else if ((annotName.indexOf("CROSS")==0)&&(!typeFound)) {
+    type = "CROSS";
+    typeFound = true;
+  } else if ((annotName.indexOf("CHECK")==0)&&(!typeFound)) {
+    type = "CHECK";
+    typeFound = true;
+  } else {
+    type = "UNKNOWN";
+  }
+
+  app.endPriv();
+  return type;
+}); 
 
 var removeRubricBasedAnnotations = app.trustedFunction(function () {
   app.beginPriv();

@@ -9,23 +9,19 @@ This script contains everything related to calculating results and producing the
 var countMarks = app.trustedFunction(function (aNewDoc) {
   app.beginPriv();
 
-  // Double check whether we have a results page byu reading the persisted form field
-  if (firstInitialization) {
-    try {
-      var edtSpecial = aNewDoc.getField("ResultPage");
-      if (edtSpecial != null) {
-        resultsPageNumber = edtSpecial.page;
-      }
-    } catch (Error) {}
-    firstInitialization = false;
-  }
+  // // Double check whether we have a results page by reading the persisted form field
+  // // TODO: I'm not sure this is required at all
+  // if (firstInitialization) {
+  //   try {
+  //     var edtSpecial = aNewDoc.getField("ResultPage");
+  //     if (edtSpecial != null) {
+  //       resultsPageNumber = edtSpecial.page;
+  //     }
+  //   } catch (Error) {}
+  //   firstInitialization = false;
+  // }
 
-  // Delete the results page if it exists
-  if (resultsPageNumber != -1) {
-    aNewDoc.deletePages(resultsPageNumber);
-    resultsPageNumber = -1;
-  }
-
+  deleteResultsPage(aNewDoc)
   deselectCurrentTool(aNewDoc);
 
   // Here we iterate over all annotations in the PDF
@@ -43,65 +39,51 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
   var arrAnnotCross = new Array();
   var arrAnnotHalfTick = new Array();
   var arrAnnotCommentMark = new Array();
+  var arrAnnotRubricMark = new Array();
   var annots = aNewDoc.getAnnots();
   if (annots != null) {
     for (var i = 0; i < annots.length; i++) {
       var annot_data = annots[i].subject;
-
-      var annot_type = "";
+      var annot_type = getPmtAnnotType(annots[i]);
       try {
-        annot_type = annot_data.indexOf("COMMENTM");
-        if (annot_type == 0) {
-          arrAnnotCommentMark[countCommentMark] = annot_data;
-          countCommentMark++;
-          console.println("Counting COMMENTM annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
+        switch (annot_type) {
+          case "COMMENTM":
+            arrAnnotCommentMark[countCommentMark] = annot_data;
+            countCommentMark++;
+            console.println("Counting COMMENTM annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
+            break;
+          case "RUBRICM":
+            arrAnnotRubricMark[countRubricMark] = annot_data;
+            countRubricMark++;
+            console.println("Counting MARK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
+            break;
+          case "MARK":
+            arrAnnotMark[countMark] = annot_data;
+            countMark++;
+            console.println("Counting MARK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
+            break;
+          case "TICK":
+            arrAnnotTick[countTick] = annot_data;
+            countTick++;
+            console.println("Counting TICK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
+            break;
+          case "HALFT":
+            arrAnnotHalfTick[countHalfTick] = annot_data;
+            countHalfTick++;
+            console.println("Counting HALFT annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
+            break;
+          case "CROSS":
+            arrAnnotCross[countCross] = annot_data;
+            countCross++;
+            console.println("Counting CROSS annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
+            break;
         }
       } catch (Error) {
-        console.println("Error while counting COMMENTM annotation: "+Error);
-      }
-      try {
-        annot_type = annot_data.indexOf("MARK");
-        if (annot_type == 0) {
-          arrAnnotMark[countMark] = annot_data;
-          countMark++;
-          console.println("Counting MARK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-        }
-      } catch (Error) {
-        console.println("Error while counting MARK annotation: "+Error);
-      }
-      try {
-        annot_type = annot_data.indexOf("TICK");
-        if (annot_type == 0) {
-          arrAnnotTick[countTick] = annot_data;
-          countTick++;
-          console.println("Counting TICK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-        }
-      } catch (Error) {
-        console.println("Error while counting TICK annotation: "+Error);
-      }
-      try {
-        annot_type = annot_data.indexOf("HALFT");
-        if (annot_type == 0) {
-          arrAnnotHalfTick[countHalfTick] = annot_data;
-          countHalfTick++;
-          console.println("Counting HALFT annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-        }
-      } catch (Error) {
-        console.println("Error while counting HALFT annotation: "+Error);
-      }
-      try {
-        annot_type = annot_data.indexOf("CROSS");
-        if (annot_type == 0) {
-          arrAnnotCross[countCross] = annot_data;
-          countCross++;
-          console.println("Counting CROSS annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-        }
-      } catch (Error) {
-        console.println("Error while counting CROSS annotation: "+Error);
+        console.println("Error while counting PMT annotations: "+Error);
       }
     }
 
-    var annotationCountResults = "Annotation Count Results: \n ----------------------------";
+    var annotationCountResults = "Annotation Count Results: \n ----------------------------\n";
     annotationCountResults += "Half Ticks: "+countHalfTick+"\n";
     annotationCountResults += "Ticks: "+countTick+"\n";
     annotationCountResults += "Crosses: "+countCross+"\n";
@@ -109,7 +91,6 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
     annotationCountResults += "Comment Marks: "+countCommentMark+"\n";
     annotationCountResults += "Rubric Marks: "+countMark+"\n";
     console.println(annotationCountResults);
-
 
     var arrMarkM = [];
     var arrMarkQM = [];
@@ -329,7 +310,11 @@ var buildResultsPage = app.trustedFunction(function (
     totalMarks = 0;
   }
 
+  // Create the black page and store it's page number for reference
   resultsPageNumber = addBlankPage(aNewDoc);
+  var resultsPageNumberField = aNewDoc.addField("ResultPage", "text", 0, [0,0,0,0,]);
+  resultsPageNumberField.hidden = true;
+  resultsPageNumberField.value=resultsPageNumber
 
   var aRect = [0, 612, 792, 0];
 
@@ -370,13 +355,14 @@ var buildResultsPage = app.trustedFunction(function (
     app.alert("You have entered a total that is less then the given marks!", 1);
   }
 
-  var edtSpecial = aNewDoc.addField("ResultPage", "text", resultsPageNumber, [
-    0,
-    0,
-    0,
-    0,
-  ]);
-  edtSpecial.hidden = true;
+  // TODO - This is a very illogical way to store the results page number, I  makes no sense, will be removing
+  // var edtSpecial = aNewDoc.addField("ResultPage", "text", resultsPageNumber, [
+  //   0,
+  //   0,
+  //   0,
+  //   0,
+  // ]);
+  // edtSpecial.hidden = true;
 
   var edtFinish = aNewDoc.addField("edtFinish", "text", resultsPageNumber, [
     0,
@@ -512,6 +498,17 @@ var buildResultsPage = app.trustedFunction(function (
   app.endPriv();
 });
 
+var deleteResultsPage = app.trustedFunction(function (aNewDoc) {
+  app.beginPriv();
+
+  // Delete the results page if it exists
+  if (resultsPageNumber != -1) {
+    aNewDoc.deletePages(resultsPageNumber);
+    resultsPageNumber = -1;
+  }
+
+  app.endPriv();
+});
 
 var getTotalDialog = app.trustedFunction(function (aNewDoc) {
     app.beginPriv();

@@ -19,8 +19,11 @@ var initError = false;
 var initErrorMsg = "Initialization Errors: \n";
 var errorMsg = "";
 
+// aActiveDocs and aNewDoc are used to store the list of active documents in the current Acrobat
+// session, as well as the actual document being marked.
 var aActiveDocs;
 var aNewDoc;
+
 // Documents can have 4 marking states: UNMARKED, IN_PROGRESS, COUNTED, FINALIZED
 // These states define what functions are available to the user
 // This value is embedded as a field in the form, so that it is available on subsequent opening
@@ -426,13 +429,18 @@ var initDocument = app.trustedFunction(function () {
         markingToolsActive = true;
 
         // Initialise the markingType and markingState variables from the embedded fields
-        markingStateField = aNewDoc.getField("MarkingState");
+        var markingStateField = aNewDoc.getField("MarkingState");
         if (markingStateField != null) {
           markingState = markingStateField.value;
 
-          markingTypeField = aNewDoc.getField("MarkingType");
+          var markingTypeField = aNewDoc.getField("MarkingType");
           if (markingTypeField != null) {
             markingType = markingTypeField.value;
+          }
+
+          var resultsPageNumberField = aNewDoc.getField("ResultPageNumber");
+          if (resultsPageNumberField != null) {
+            resultsPageNumber = parseInt(resultsPageNumberField.value);
           }
         }
       }

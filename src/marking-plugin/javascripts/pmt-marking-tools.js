@@ -16,24 +16,20 @@ var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
 
   console.println("Tool selected: " + type);
 
-  // Check if we already have a results page.
-  // TODO - This should be moved elsewhere (Perhaps an init js file)
-  if (firstInitialization) {
-    try {
-      var edtSpecial = aNewDoc.getField("ResultPage");
-      if (edtSpecial != null) {
-        resultsPageNumber = edtSpecial.page;
-      }
-    } catch (Error) {}
+  // // Check if we already have a results page.
+  // // TODO - This should be moved elsewhere (Perhaps an init js file)
+  // if (firstInitialization) {
+  //   try {
+  //     var edtSpecial = aNewDoc.getField("ResultPage");
+  //     if (edtSpecial != null) {
+  //       resultsPageNumber = edtSpecial.page;
+  //     }
+  //   } catch (Error) {}
 
-    firstInitialization = false;
-  }
+  //   firstInitialization = false;
+  // }
 
-  // Delete the results page if it exists
-  if (resultsPageNumber != -1) {
-    aNewDoc.deletePages(resultsPageNumber);
-    resultsPageNumber = -1;
-  }
+  deleteResultsPage(aNewDoc)
 
   // TODO -  Logic here should be cleaned up.
   if (hasMarkingButtons == true) {
@@ -296,6 +292,15 @@ var removeMarkingButtons = app.trustedFunction(function (aNewDoc) {
   app.endPriv();
 });
 
+// Main controller function for applying marking annotations to the document.
+// This method is called by the currently active marking button when a user clicks
+// it.
+// Since the marking button fills the whole screen, and is invisible, it results in this
+// event firing when the user clicks anywhere on the screen
+//
+// For some types of mark, the system first pops up a dialog, others proceed without a dialog
+// The method then applies the relevant annotation to the document, at the current X,Y coordinates
+// of the mouse.
 var doMark = app.trustedFunction(function (aNewDoc, type) {
   app.beginPriv();
 
