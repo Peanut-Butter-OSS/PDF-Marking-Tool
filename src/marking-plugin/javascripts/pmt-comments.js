@@ -1,4 +1,5 @@
 /*
+PDF Marking Tool (PMT)
 
 This file contains all the logic related to comments in the marking tool
 

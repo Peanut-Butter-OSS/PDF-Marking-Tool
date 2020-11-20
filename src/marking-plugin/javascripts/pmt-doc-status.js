@@ -1,4 +1,5 @@
 /*
+PDF Marking Tool (PMT)
 
 This file contains all the functions that are used for managing the status of the document document
 
@@ -12,7 +13,7 @@ var finalizePDF = app.trustedFunction(function (aNewDoc, marks, total) {
     if (edtFinish.value == "") {
       var docFileName = aNewDoc.documentFileName;
       var fileName = docFileName.substring(0, docFileName.indexOf("."));
-      var percentage = Math.round((totalMarks / assigmentTotal) * 100);
+      var percentage = Math.round((totalMarks / assignmentTotal) * 100);
       var padTotal = "" + percentage;
       var padTotalMarks = "100";
   

@@ -1,12 +1,15 @@
 /*
+PDF Marking Tool (PMT)
 
-This script contains everything related to calculating results
+This script contains everything related to calculating results and producing the results page
 
 */
 
+// Main method that is called by the Count tool
 var countMarks = app.trustedFunction(function (aNewDoc) {
   app.beginPriv();
 
+  // Double check whether we have a results page byu reading the persisted form field
   if (firstInitialization) {
     try {
       var edtSpecial = aNewDoc.getField("ResultPage");
@@ -14,30 +17,32 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
         resultsPageNumber = edtSpecial.page;
       }
     } catch (Error) {}
-
     firstInitialization = false;
   }
 
+  // Delete the results page if it exists
   if (resultsPageNumber != -1) {
     aNewDoc.deletePages(resultsPageNumber);
-
     resultsPageNumber = -1;
   }
 
   deselectCurrentTool(aNewDoc);
 
+  // Here we iterate over all annotations in the PDF
+  // For each annotation we determine if it is one of our types by looking at
+  // the subject. Based on the type we maintain some counters and build arrays of each type
+  // TODO - This code block incorrectly looks at the subject field for the type. It should actually look at the name field
   var countMark = 0;
   var countTick = 0;
   var countCross = 0;
   var countHalfTick = 0;
   var countCommentMark = 0;
-
+  var countRubricMark = 0;
   var arrAnnotMark = new Array();
   var arrAnnotTick = new Array();
   var arrAnnotCross = new Array();
   var arrAnnotHalfTick = new Array();
   var arrAnnotCommentMark = new Array();
-
   var annots = aNewDoc.getAnnots();
   if (annots != null) {
     for (var i = 0; i < annots.length; i++) {
@@ -46,50 +51,65 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
       var annot_type = "";
       try {
         annot_type = annot_data.indexOf("COMMENTM");
-
         if (annot_type == 0) {
           arrAnnotCommentMark[countCommentMark] = annot_data;
-
           countCommentMark++;
+          console.println("Counting COMMENTM annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
         }
-      } catch (Error) {}
+      } catch (Error) {
+        console.println("Error while counting COMMENTM annotation: "+Error);
+      }
       try {
         annot_type = annot_data.indexOf("MARK");
-
         if (annot_type == 0) {
           arrAnnotMark[countMark] = annot_data;
-
           countMark++;
+          console.println("Counting MARK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
         }
-      } catch (Error) {}
+      } catch (Error) {
+        console.println("Error while counting MARK annotation: "+Error);
+      }
       try {
         annot_type = annot_data.indexOf("TICK");
-
         if (annot_type == 0) {
           arrAnnotTick[countTick] = annot_data;
-
           countTick++;
+          console.println("Counting TICK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
         }
-      } catch (Error) {}
+      } catch (Error) {
+        console.println("Error while counting TICK annotation: "+Error);
+      }
       try {
         annot_type = annot_data.indexOf("HALFT");
-
         if (annot_type == 0) {
           arrAnnotHalfTick[countHalfTick] = annot_data;
-
           countHalfTick++;
+          console.println("Counting HALFT annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
         }
-      } catch (Error) {}
+      } catch (Error) {
+        console.println("Error while counting HALFT annotation: "+Error);
+      }
       try {
         annot_type = annot_data.indexOf("CROSS");
-
         if (annot_type == 0) {
           arrAnnotCross[countCross] = annot_data;
-
           countCross++;
+          console.println("Counting CROSS annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
         }
-      } catch (Error) {}
+      } catch (Error) {
+        console.println("Error while counting CROSS annotation: "+Error);
+      }
     }
+
+    var annotationCountResults = "Annotation Count Results: \n ----------------------------";
+    annotationCountResults += "Half Ticks: "+countHalfTick+"\n";
+    annotationCountResults += "Ticks: "+countTick+"\n";
+    annotationCountResults += "Crosses: "+countCross+"\n";
+    annotationCountResults += "Structured Marks: "+countMark+"\n";
+    annotationCountResults += "Comment Marks: "+countCommentMark+"\n";
+    annotationCountResults += "Rubric Marks: "+countMark+"\n";
+    console.println(annotationCountResults);
+
 
     var arrMarkM = [];
     var arrMarkQM = [];
@@ -179,97 +199,98 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
 
     skipTotalDialog = false;
     var skipAll = false;
-    if (hasRubricAttached) {
-      var choice = app.alert("Does this Assignment have a Rubric?", 1, 2);
+    // if (hasRubricAttached) {
+    //   var choice = app.alert("Does this Assignment have a Rubric?", 1, 2);
 
-      if (choice == 4) {
-        hasRubricAttached = aNewDoc.importDataObject({
-          cName: "RUBRIC_FORM",
-          cDIPath: currentRubricOpened,
-        });
+    //   if (choice == 4) {
+    //     hasRubricAttached = aNewDoc.importDataObject({
+    //       cName: "RUBRIC_FORM",
+    //       cDIPath: currentRubricOpened,
+    //     });
 
-        var attachedRubic = aNewDoc.openDataObject("RUBRIC_FORM");
-        attachedRubricMark = new String(attachedRubic.title);
+    //     var attachedRubic = aNewDoc.openDataObject("RUBRIC_FORM");
+    //     attachedRubricMark = new String(attachedRubic.title);
 
-        if (attachedRubricMark.length == 3) {
-          attachedRubricMark = "000" + attachedRubricMark;
-        } else if (attachedRubricMark.length == 4) {
-          attachedRubricMark = "00" + attachedRubricMark;
-        } else if (attachedRubricMark.length == 5) {
-          attachedRubricMark = "0" + attachedRubricMark;
-        } else {
-          if (attachedRubricMark.length == 6) {
-            var val1 = parseInt(attachedRubricMark.substring(0, 3));
-            var val2 = parseInt(attachedRubricMark.substring(3, 6));
+    //     if (attachedRubricMark.length == 3) {
+    //       attachedRubricMark = "000" + attachedRubricMark;
+    //     } else if (attachedRubricMark.length == 4) {
+    //       attachedRubricMark = "00" + attachedRubricMark;
+    //     } else if (attachedRubricMark.length == 5) {
+    //       attachedRubricMark = "0" + attachedRubricMark;
+    //     } else {
+    //       if (attachedRubricMark.length == 6) {
+    //         var val1 = parseInt(attachedRubricMark.substring(0, 3));
+    //         var val2 = parseInt(attachedRubricMark.substring(3, 6));
 
-            if (val1 > val2) {
-              app.alert(
-                "This Rubric has not been finalized!\n" +
-                  "Please ensure that the Rubric has been finalized and saved!"
-              );
+    //         if (val1 > val2) {
+    //           app.alert(
+    //             "This Rubric has not been finalized!\n" +
+    //               "Please ensure that the Rubric has been finalized and saved!"
+    //           );
 
-              skipAll = true;
-            }
-          } else {
-            app.alert(
-              "This Rubric has not been finalized!\n" +
-                "Please ensure that the Rubric has been finalized and saved!"
-            );
+    //           skipAll = true;
+    //         }
+    //       } else {
+    //         app.alert(
+    //           "This Rubric has not been finalized!\n" +
+    //             "Please ensure that the Rubric has been finalized and saved!"
+    //         );
 
-            skipAll = true;
-          }
-        }
+    //         skipAll = true;
+    //       }
+    //     }
 
-        var regNumber = /\D/;
-        if (regNumber.test(attachedRubricMark)) {
-          app.alert(
-            "This Rubric is not finalized!\n" +
-              "Please ensure that the Rubric has been finalized and saved!"
-          );
+    //     var regNumber = /\D/;
+    //     if (regNumber.test(attachedRubricMark)) {
+    //       app.alert(
+    //         "This Rubric is not finalized!\n" +
+    //           "Please ensure that the Rubric has been finalized and saved!"
+    //       );
 
-          skipAll = true;
-        }
+    //       skipAll = true;
+    //     }
 
-        if (!skipAll) {
-          var docFileName = aNewDoc.documentFileName;
-          var fileName = docFileName.substring(0, docFileName.indexOf("."));
+    //     if (!skipAll) {
+    //       var docFileName = aNewDoc.documentFileName;
+    //       var fileName = docFileName.substring(0, docFileName.indexOf("."));
 
-          var newRubricPath =
-            "/C/Program Files/UNISA/Rubrics/" +
-            fileName +
-            "_MARK" +
-            attachedRubricMark +
-            "_RUBRIC.pdf";
-          attachedRubic.saveAs({
-            cPath: newRubricPath,
-          });
+    //       var newRubricPath =
+    //         "/C/Program Files/UNISA/Rubrics/" +
+    //         fileName +
+    //         "_MARK" +
+    //         attachedRubricMark +
+    //         "_RUBRIC.pdf";
+    //       attachedRubic.saveAs({
+    //         cPath: newRubricPath,
+    //       });
 
-          aNewDoc.removeDataObject("RUBRIC_FORM");
+    //       aNewDoc.removeDataObject("RUBRIC_FORM");
 
-          aNewDoc.importDataObject({
-            cName: "RUBRIC_FORM",
-            cDIPath: newRubricPath,
-          });
+    //       aNewDoc.importDataObject({
+    //         cName: "RUBRIC_FORM",
+    //         cDIPath: newRubricPath,
+    //       });
 
-          assigmentTotal = parseInt(attachedRubricMark.substring(3, 6));
-          totalMarks = parseFloat(attachedRubricMark.substring(0, 3));
+    //       assignmentTotal = parseInt(attachedRubricMark.substring(3, 6));
+    //       totalMarks = parseFloat(attachedRubricMark.substring(0, 3));
 
-          skipTotalDialog = true;
-        } else {
-          aNewDoc.removeDataObject("RUBRIC_FORM");
-        }
-      }
-    }
-
+    //       skipTotalDialog = true;
+    //     } else {
+    //       aNewDoc.removeDataObject("RUBRIC_FORM");
+    //     }
+    //   }
+    // }
+    
+    var skipBuild = false;
     if (!skipAll) {
       if (!skipTotalDialog) {
-        skipBiuld = getTotalDialog(aNewDoc);
+        skipBuild = getTotalDialog(aNewDoc);
       } else {
-        skipBiuld = false;
+        skipBuild = false;
       }
 
-      if (!skipBiuld) {
-        biuldResultsPage(
+      if (!skipBuild) {
+        buildResultsPage(
           aNewDoc,
           arrMarkM,
           arrMarkQM,
@@ -286,7 +307,15 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
   app.endPriv();
 });
 
-var biuldResultsPage = app.trustedFunction(function (
+// This function will create the results page
+// Arguments:
+//  - aNewDoc: The document being marked
+//  - arrMMark:
+//  - arrQMark:
+//  - arrTick:
+//  - arrHalfTick:
+//  - arrCross:
+var buildResultsPage = app.trustedFunction(function (
   aNewDoc,
   arrMMark,
   arrQMark,
@@ -337,7 +366,7 @@ var biuldResultsPage = app.trustedFunction(function (
       countQuestionMark + countMarkMarks + countTickMarks + countHalfMarks;
   }
 
-  if (totalMarks > assigmentTotal) {
+  if (totalMarks > assignmentTotal) {
     app.alert("You have entered a total that is less then the given marks!", 1);
   }
 
@@ -446,7 +475,7 @@ var biuldResultsPage = app.trustedFunction(function (
   }
 
   if (!skipTotalDialog) {
-    var percentage = Math.round((totalMarks / assigmentTotal) * 100);
+    var percentage = Math.round((totalMarks / assignmentTotal) * 100);
     var edtHeader = aNewDoc.addField("edtTotal", "text", resultsPageNumber, [
       lx,
       ly,
@@ -457,7 +486,7 @@ var biuldResultsPage = app.trustedFunction(function (
       "Total = " +
       totalMarks +
       " / " +
-      assigmentTotal +
+      assignmentTotal +
       "  (" +
       percentage +
       "%)";
@@ -473,7 +502,7 @@ var biuldResultsPage = app.trustedFunction(function (
       "Total = " +
       totalMarks +
       " / " +
-      assigmentTotal +
+      assignmentTotal +
       "  (" +
       totalMarks +
       "%)";
@@ -489,7 +518,7 @@ var getTotalDialog = app.trustedFunction(function (aNewDoc) {
   
     var skipTotalCount = true;
   
-    if (assigmentTotal != -1) {
+    if (assignmentTotal != -1) {
       skipTotalCount = false;
     }
   
@@ -498,6 +527,9 @@ var getTotalDialog = app.trustedFunction(function (aNewDoc) {
         var todayDate = dialog.store()["date"];
         todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
         dialog.load({ date: todayDate });
+
+        // Prepopulate total
+        dialog.load({ totl: assignmentTotal });
   
         var arrFileData = readCommentTextFile(aNewDoc, "TOT_ENGINE");
   
@@ -530,7 +562,7 @@ var getTotalDialog = app.trustedFunction(function (aNewDoc) {
   
           app.alert("Total cannot be 0 or less than 0!");
         } else {
-          assigmentTotal = total;
+          assignmentTotal = total;
   
           skipTotalCount = false;
         }

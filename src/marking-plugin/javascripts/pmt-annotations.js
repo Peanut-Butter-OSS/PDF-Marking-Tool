@@ -1,8 +1,7 @@
 /*
+PDF Marking Tool (PMT)
 
-This file contains the code relates to all annotation capability in the plugin,
-i.e. for applyiing the Acrobat Annotations
-
+This file contains all functions that work with Acrobat annotations
 */
 
 // Main controller function for applying marking annotations to the document.
@@ -14,78 +13,6 @@ i.e. for applyiing the Acrobat Annotations
 // For some types of mark, the system first pops up a dialog, others proceed without a dialog
 // The method then applies the relevant annotation to the document, at the current X,Y coordinates
 // of the mouse.
-var doMark = app.trustedFunction(function (aNewDoc, type) {
-  app.beginPriv();
-
-  console.println("Adding Mark: " + type);
-  var currentPage = aNewDoc.pageNum;
-
-  var dialog;
-
-  if (type == "COMMENTM") {
-    doAimAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY);
-
-    dialog = getCommentMarkDialog(
-      aNewDoc,
-      aNewDoc.mouseX,
-      aNewDoc.mouseY,
-      type
-    );
-
-    app.execDialog(dialog);
-
-    // TODO - Not sure what this is doing
-    if (skipRemoveButtons == false) {
-      deselectCurrentTool(aNewDoc);
-    } else {
-      skipRemoveButtons = false;
-    }
-  } else if (type == "MARK") {
-    doAimAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY);
-
-    dialog = getMarkDialog(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, type);
-
-    app.execDialog(dialog);
-
-    // TODO - Not sure what this is doing
-    if (skipRemoveButtons == false) {
-      deselectCurrentTool(aNewDoc);
-    } else {
-      skipRemoveButtons = false;
-    }
-  } else if (type == "RUBRICM") {
-    doAimAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY);
-
-    dialog = getRubricMarkDialog(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, type);
-
-    app.execDialog(dialog);
-
-    // TODO - Not sure what this is doing
-    if (skipRemoveButtons == false) {
-      deselectCurrentTool(aNewDoc);
-    } else {
-      skipRemoveButtons = false;
-    }
-  } else if (type == "TICK") {
-    doAnnot(
-      aNewDoc,
-      aNewDoc.mouseX,
-      aNewDoc.mouseY,
-      null,
-      null,
-      currentMarkForTick,
-      type
-    );
-  } else if (type == "CROSS") {
-    doAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, null, null, 0, type);
-  } else if (type == "CHECK") {
-    doAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, null, null, 0, type);
-  } else if (type == "HALFT") {
-    doAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, null, null, 0.5, type);
-  }
-
-  app.endPriv();
-});
 
 // The Aim Annotation is a temporary annotation added to the document before a dialog is popped up
 var doAimAnnot = app.trustedFunction(function (aNewDoc, x, y) {

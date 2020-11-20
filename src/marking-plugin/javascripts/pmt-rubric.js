@@ -1,4 +1,5 @@
 /*
+PDF Marking Tool (PMT)
 
 This file contains reusable JavaScript functions related to Rubric functionality
 
@@ -83,6 +84,7 @@ var selectRubric = app.trustedFunction(function () {
           rubricPageNumber = buildRubricPage();
           this.pageNum = rubricPageNumber;
           hasRubricAttached = true;
+          assignmentTotal = jsonRubric.totalMarks;
 
           alertMsg =
             "The rubric " +
@@ -147,13 +149,18 @@ var validateRubric = app.trustedFunction(function (rubric) {
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }
+  if (!rubric.courseCode) {
+    var errorMsg = " - No courseCode was specified. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  }
   if (!rubric.assignmentId) {
     var errorMsg = " - No assignmentId was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }
-  if (!rubric.courseCode) {
-    var errorMsg = " - No courseCode was specified. \n";
+  if (!rubric.totalMarks) {
+    var errorMsg = " - No totalMarks was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }

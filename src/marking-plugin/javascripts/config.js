@@ -76,22 +76,24 @@ var selectedRubricFileName;
 var selectedRubricName;
 var selectedRubricVersion;
 
-// TODO - Suspect these are no longer needed
+// TODO - Old rubric variables. Suspect these are no longer needed
 var attachedRubricMark = "";
 var hasRubricAttached = false;
 var rubricDoc;
 var currentRubricOpened = "";
 
+
 var isPortrait = true;
 var addDeselectIcon;
-
 var isOrientationChanged = false;
-
 var commentFromFile = "";
 var labelForMark = "";
 
 var totalMarks = 0;
-var assigmentTotal = -1;
+
+// The total value of the assignment
+var assignmentTotal = -1;
+
 var skipRemoveButtons = false;
 var skipTotalDialog = false;
 

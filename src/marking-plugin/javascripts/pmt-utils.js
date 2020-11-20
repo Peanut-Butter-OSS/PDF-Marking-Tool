@@ -1,5 +1,8 @@
 /*
- UTIL METHODS
+PDF Marking Tool (PMT)
+
+This file contains generic utility methods used by other files in the PMT
+
 */
 
 var addBlankPage = app.trustedFunction(function (aNewDoc) {

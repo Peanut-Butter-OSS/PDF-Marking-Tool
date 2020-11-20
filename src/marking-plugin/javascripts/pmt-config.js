@@ -1,6 +1,8 @@
 /*
 
-This file contains reusable JavaScript functions related to the configuration of the marking tool
+PDF Marking Tool (PMT)
+
+This file contains functions related to the configuration of the marking tool
 
 */
 
