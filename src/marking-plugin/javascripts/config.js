@@ -438,9 +438,9 @@ var initDocument = app.trustedFunction(function () {
             markingType = markingTypeField.value;
           }
 
-          var resultsPageNumberField = aNewDoc.getField("ResultPageNumber");
-          if (resultsPageNumberField != null) {
-            resultsPageNumber = parseInt(resultsPageNumberField.value);
+          var resultsPageField = aNewDoc.getField("ResultPageNumber");
+          if (resultsPageField != null) {
+            resultsPageNumber = parseInt(resultsPageField.value);
           }
         }
       }

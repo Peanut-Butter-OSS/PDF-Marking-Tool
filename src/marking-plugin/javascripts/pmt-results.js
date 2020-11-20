@@ -21,84 +21,18 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
   //   firstInitialization = false;
   // }
 
-  deleteResultsPage(aNewDoc)
   deselectCurrentTool(aNewDoc);
+  deleteResultsPage(aNewDoc);
+  var allPmtAnnotations = collectAllPmtAnnots(aNewDoc);
 
-  // Here we iterate over all annotations in the PDF
-  // For each annotation we determine if it is one of our types by looking at
-  // the subject. Based on the type we maintain some counters and build arrays of each type
-  // TODO - This code block incorrectly looks at the subject field for the type. It should actually look at the name field
-  var countMark = 0;
-  var countTick = 0;
-  var countCross = 0;
-  var countHalfTick = 0;
-  var countCommentMark = 0;
-  var countRubricMark = 0;
-  var arrAnnotMark = new Array();
-  var arrAnnotTick = new Array();
-  var arrAnnotCross = new Array();
-  var arrAnnotHalfTick = new Array();
-  var arrAnnotCommentMark = new Array();
-  var arrAnnotRubricMark = new Array();
-  var annots = aNewDoc.getAnnots();
-  if (annots != null) {
-    for (var i = 0; i < annots.length; i++) {
-      var annot_data = annots[i].subject;
-      var annot_type = getPmtAnnotType(annots[i]);
-      try {
-        switch (annot_type) {
-          case "COMMENTM":
-            arrAnnotCommentMark[countCommentMark] = annot_data;
-            countCommentMark++;
-            console.println("Counting COMMENTM annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-            break;
-          case "RUBRICM":
-            arrAnnotRubricMark[countRubricMark] = annot_data;
-            countRubricMark++;
-            console.println("Counting MARK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-            break;
-          case "MARK":
-            arrAnnotMark[countMark] = annot_data;
-            countMark++;
-            console.println("Counting MARK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-            break;
-          case "TICK":
-            arrAnnotTick[countTick] = annot_data;
-            countTick++;
-            console.println("Counting TICK annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-            break;
-          case "HALFT":
-            arrAnnotHalfTick[countHalfTick] = annot_data;
-            countHalfTick++;
-            console.println("Counting HALFT annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-            break;
-          case "CROSS":
-            arrAnnotCross[countCross] = annot_data;
-            countCross++;
-            console.println("Counting CROSS annotation: Name="+annots[i].name+", Subject="+annots[i].subject);
-            break;
-        }
-      } catch (Error) {
-        console.println("Error while counting PMT annotations: "+Error);
-      }
-    }
-
-    var annotationCountResults = "Annotation Count Results: \n ----------------------------\n";
-    annotationCountResults += "Half Ticks: "+countHalfTick+"\n";
-    annotationCountResults += "Ticks: "+countTick+"\n";
-    annotationCountResults += "Crosses: "+countCross+"\n";
-    annotationCountResults += "Structured Marks: "+countMark+"\n";
-    annotationCountResults += "Comment Marks: "+countCommentMark+"\n";
-    annotationCountResults += "Rubric Marks: "+countMark+"\n";
-    console.println(annotationCountResults);
-
+  if (allPmtAnnotations.totalPmtAnnotCount > 0) {
     var arrMarkM = [];
     var arrMarkQM = [];
     var quesMarkCount = 0;
     var markMarkCount = 0;
     var tempQuestion = "";
-    for (var i = 0; i < arrAnnotMark.length; i++) {
-      var mark_data = arrAnnotMark[i];
+    for (var i = 0; i < allPmtAnnotations.arrAnnotMark.length; i++) {
+      var mark_data = allPmtAnnotations.arrAnnotMark[i];
 
       var question = mark_data.substring(
         mark_data.indexOf(":") + 1,
@@ -142,9 +76,10 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
     }
     arrMarkQM = arrTempMarkQM;
 
+    // Add the marks assigned to all ticks into a single array
     var arrTickQM = [];
-    for (var i = 0; i < arrAnnotTick.length; i++) {
-      var mark_data = arrAnnotTick[i];
+    for (var i = 0; i < allPmtAnnotations.arrAnnotTick.length; i++) {
+      var mark_data = allPmtAnnotations.arrAnnotTick[i];
 
       var question_mark = mark_data.substring(
         mark_data.indexOf("|") + 1,
@@ -154,9 +89,10 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
       arrTickQM[i] = question_mark;
     }
 
+    // Add the marks assigned to all half ticks into a single array
     var arrHalfTickQM = [];
-    for (var i = 0; i < arrAnnotHalfTick.length; i++) {
-      var mark_data = arrAnnotHalfTick[i];
+    for (var i = 0; i < allPmtAnnotations.arrAnnotHalfTick.length; i++) {
+      var mark_data = allPmtAnnotations.arrAnnotHalfTick[i];
 
       var question_mark = mark_data.substring(
         mark_data.indexOf("|") + 1,
@@ -166,9 +102,11 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
       arrHalfTickQM[i] = question_mark;
     }
 
+    // Add all the marks assigned to all crosses into a single array
+    // TODO - Not sure this is appropriate, since crosses do not have a value
     var arrCrossQM = [];
-    for (var i = 0; i < arrAnnotCross.length; i++) {
-      var mark_data = arrAnnotCross[i];
+    for (var i = 0; i < allPmtAnnotations.arrAnnotCross.length; i++) {
+      var mark_data = allPmtAnnotations.arrAnnotCross[i];
 
       var question_mark = mark_data.substring(
         mark_data.indexOf("|") + 1,
@@ -178,8 +116,8 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
       arrCrossQM[i] = question_mark;
     }
 
-    skipTotalDialog = false;
-    var skipAll = false;
+    //skipTotalDialog = false;
+    //var skipAll = false;
     // if (hasRubricAttached) {
     //   var choice = app.alert("Does this Assignment have a Rubric?", 1, 2);
 
@@ -261,28 +199,42 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
     //     }
     //   }
     // }
-    
-    var skipBuild = false;
-    if (!skipAll) {
-      if (!skipTotalDialog) {
-        skipBuild = getTotalDialog(aNewDoc);
-      } else {
-        skipBuild = false;
-      }
 
-      if (!skipBuild) {
-        buildResultsPage(
-          aNewDoc,
-          arrMarkM,
-          arrMarkQM,
-          arrTickQM,
-          arrHalfTickQM,
-          arrCrossQM
-        );
-      }
+    var totalDialog = getTotalDialog(aNewDoc);
+    var dialogResult = app.execDialog(totalDialog);
+    console.println(
+      "Result from the total dialog: " + dialogResult
+    );
+    if (dialogResult === "ok") {
+      buildResultsPage(
+        aNewDoc,
+        arrMarkM,
+        arrMarkQM,
+        arrTickQM,
+        arrHalfTickQM,
+        arrCrossQM
+      );
     }
-  } else {
-    app.alert("There are no marks to calculate!");
+    // I've decided to simplify the logic of this final section because the way we handle rubrics is now different
+    // var skipBuild = false;
+    // if (!skipAll) {
+    //   if (!skipTotalDialog) {
+    //     skipBuild = getTotalDialog(aNewDoc);
+    //   } else {
+    //     skipBuild = false;
+    //   }
+
+    //   if (!skipBuild) {
+    //     buildResultsPage(
+    //       aNewDoc,
+    //       arrMarkM,
+    //       arrMarkQM,
+    //       arrTickQM,
+    //       arrHalfTickQM,
+    //       arrCrossQM
+    //     );
+    //   }
+    // }
   }
 
   app.endPriv();
@@ -306,25 +258,16 @@ var buildResultsPage = app.trustedFunction(function (
 ) {
   app.beginPriv();
 
-  if (!skipTotalDialog) {
-    totalMarks = 0;
-  }
+  //if (!skipTotalDialog) {
+  totalMarks = 0;
+  //}
 
-  // Create the black page and store it's page number for reference
+  // Create the blank page and store it's page number for reference
   resultsPageNumber = addBlankPage(aNewDoc);
-  var resultsPageNumberField = aNewDoc.addField("ResultPage", "text", 0, [0,0,0,0,]);
-  resultsPageNumberField.hidden = true;
-  resultsPageNumberField.value=resultsPageNumber
-
-  var aRect = [0, 612, 792, 0];
-
-  var y = 5;
-  var h = 80;
-
-  var lx = 5;
-  var ly = aRect[2] - y;
-  var rx = aRect[1] - 20;
-  var ry = aRect[2] - h;
+  var emptyRect = [0, 0, 0, 0];
+  var resultsPageField = aNewDoc.addField("ResultPage", "text", 0, emptyRect);
+  resultsPageField.hidden = true;
+  resultsPageField.value = resultsPageNumber;
 
   var countQuestionMark = 0;
   for (var i = 0; i < arrQMark.length; i++) {
@@ -355,36 +298,20 @@ var buildResultsPage = app.trustedFunction(function (
     app.alert("You have entered a total that is less then the given marks!", 1);
   }
 
-  // TODO - This is a very illogical way to store the results page number, I  makes no sense, will be removing
-  // var edtSpecial = aNewDoc.addField("ResultPage", "text", resultsPageNumber, [
-  //   0,
-  //   0,
-  //   0,
-  //   0,
-  // ]);
-  // edtSpecial.hidden = true;
+  addFinishStatusField(aNewDoc);
+  addFinishButton(aNewDoc);
 
-  var edtFinish = aNewDoc.addField("edtFinish", "text", resultsPageNumber, [
-    0,
-    0,
-    0,
-    0,
-  ]);
-  edtFinish.hidden = true;
+  var aRect = [0, 612, 792, 0];
 
-  var btnFinish = aNewDoc.addField("btnFinish", "button", resultsPageNumber, [
-    5,
-    5,
-    70,
-    30,
-  ]);
-  btnFinish.buttonSetCaption("Finalize");
-  btnFinish.setAction("MouseUp", "finalizePDF(aNewDoc)");
-  btnFinish.borderStyle = border.b;
-  btnFinish.display = display.noPrint;
-  btnFinish.highlight = "push";
-  btnFinish.lineWidth = 2;
+  var y = 5;
+  var h = 80;
 
+  var lx = 5;
+  var ly = aRect[2] - y;
+  var rx = aRect[1] - 20;
+  var ry = aRect[2] - h;
+
+  // Add results page header
   var edtHeader = aNewDoc.addField(
     "edtResultHeader",
     "text",
@@ -510,112 +437,249 @@ var deleteResultsPage = app.trustedFunction(function (aNewDoc) {
   app.endPriv();
 });
 
-var getTotalDialog = app.trustedFunction(function (aNewDoc) {
-    app.beginPriv();
-  
-    var skipTotalCount = true;
-  
-    if (assignmentTotal != -1) {
-      skipTotalCount = false;
-    }
-  
-    var dialog1 = {
-      initialize: function (dialog) {
-        var todayDate = dialog.store()["date"];
-        todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
-        dialog.load({ date: todayDate });
+var addFinishStatusField = app.trustedFunction(function (aNewDoc) {
+  app.beginPriv();
 
-        // Prepopulate total
-        dialog.load({ totl: assignmentTotal });
-  
-        var arrFileData = readCommentTextFile(aNewDoc, "TOT_ENGINE");
-  
-        var totalFromFile = 0;
-        if (arrFileData[1] == "</empty>") {
-          totalFromFile = "";
-        } else {
-          totalFromFile = parseInt(arrFileData[1]);
+  var emptyRect = [0, 0, 0, 0];
+  // Add field for storing finish state data
+  var edtFinish = aNewDoc.addField(
+    "edtFinish",
+    "text",
+    resultsPageNumber,
+    emptyRect
+  );
+  edtFinish.hidden = true;
+
+  app.endPriv();
+});
+
+// Adds a Finish button on the Results page
+var addFinishButton = app.trustedFunction(function (aNewDoc) {
+  app.beginPriv();
+
+  var btnFinish = aNewDoc.addField("btnFinish", "button", resultsPageNumber, [
+    5,
+    5,
+    70,
+    30,
+  ]);
+  btnFinish.buttonSetCaption("Finalize");
+  btnFinish.setAction("MouseUp", "finalizePDF(aNewDoc)");
+  btnFinish.borderStyle = border.b;
+  btnFinish.display = display.noPrint;
+  btnFinish.highlight = "push";
+  btnFinish.lineWidth = 2;
+
+  app.endPriv();
+});
+
+// The dialog that pops up when a user selects the Count tool
+var getTotalDialog = app.trustedFunction(function (aNewDoc) {
+  app.beginPriv();
+
+  var totalDialog = {
+    initialize: function (dialog) {
+      // Prepopulate total
+      console.println("Assignment total before being captured on the dialog: "+assignmentTotal);
+      if (assignmentTotal == -1) {
+        dialog.load({ totl: ""});
+      } else {
+        dialog.load({ totl: "" +assignmentTotal });
+      }
+    },
+    validate: function (dialog) {
+      var results = dialog.store();
+      var total = results["totl"];
+
+      var regNumber = /\D/;
+      if (regNumber.test(total)) {
+        app.alert("Only numbers are allowed!");
+        return false;
+      } else if (total == null) {
+        return true;
+      } else if (total > 999) {
+        app.alert("Total cannot be greater than 999!");
+        return false;
+      } else if (total <= 0) {
+        app.alert("Total cannot be 0 or less than 0!");
+        return false
+      } else {
+        assignmentTotal = total;
+        return true;
+      }
+    },
+    commit: function (dialog) {
+      var results = dialog.store();
+      var total = results["totl"];
+      assignmentTotal = total;
+      //console.println("Successfully configured assignment total: " + assignmentTotal);
+    },
+    description: {
+      name: "Result Data",
+      align_children: "align_left",
+      width: 100,
+      height: 100,
+      first_tab: "totl",
+      elements: [
+        {
+          type: "cluster",
+          name: "Result Setup",
+          align_children: "align_left",
+          elements: [
+            {
+              type: "view",
+              align_children: "align_row",
+              elements: [
+                {
+                  type: "static_text",
+                  name: "Total:       ",
+                },
+                {
+                  item_id: "totl",
+                  type: "edit_text",
+                  alignment: "align_fill",
+                  width: 80,
+                  height: 20,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          alignment: "align_left",
+          type: "ok_cancel",
+          ok_name: "Ok",
+          cancel_name: "Cancel",
+        },
+      ],
+    },
+  };
+
+  app.endPriv();
+  return totalDialog;
+});
+
+// Collect all marking tool annotations in the document and assemble them together in
+// a structured object, with separate arrays for each type.
+var collectAllPmtAnnots = app.trustedFunction(function (aNewDoc) {
+  app.beginPriv();
+
+  var allPmtAnnots;
+  var countMark = 0;
+  var countTick = 0;
+  var countCross = 0;
+  var countHalfTick = 0;
+  var countCommentMark = 0;
+  var countRubricMark = 0;
+  var arrAnnotMark = new Array();
+  var arrAnnotTick = new Array();
+  var arrAnnotCross = new Array();
+  var arrAnnotHalfTick = new Array();
+  var arrAnnotCommentMark = new Array();
+  var arrAnnotRubricMark = new Array();
+  var annots = aNewDoc.getAnnots();
+  if (annots != null) {
+    for (var i = 0; i < annots.length; i++) {
+      var annot_data = annots[i].subject;
+      var annot_type = getPmtAnnotType(annots[i]);
+      try {
+        switch (annot_type) {
+          case "COMMENTM":
+            arrAnnotCommentMark[countCommentMark] = annot_data;
+            countCommentMark++;
+            console.println(
+              "Counting COMMENTM annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "RUBRICM":
+            arrAnnotRubricMark[countRubricMark] = annot_data;
+            countRubricMark++;
+            console.println(
+              "Counting RUBRICM annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "MARK":
+            arrAnnotMark[countMark] = annot_data;
+            countMark++;
+            console.println(
+              "Counting MARK annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "TICK":
+            arrAnnotTick[countTick] = annot_data;
+            countTick++;
+            console.println(
+              "Counting TICK annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "HALFT":
+            arrAnnotHalfTick[countHalfTick] = annot_data;
+            countHalfTick++;
+            console.println(
+              "Counting HALFT annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "CROSS":
+            arrAnnotCross[countCross] = annot_data;
+            countCross++;
+            console.println(
+              "Counting CROSS annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
         }
-        dialog.load({ totl: "" + totalFromFile });
-      },
-      commit: function (dialog) {
-        var results = dialog.store();
-  
-        var total = results["totl"];
-  
-        var regNumber = /\D/;
-        if (regNumber.test(total)) {
-          skipTotalCount = true;
-  
-          app.alert("Only numbers are allowed!");
-        } else if (total == null) {
-          skipTotalCount = true;
-        } else if (total > 999) {
-          skipTotalCount = true;
-  
-          app.alert("Total cannot be greater than 999!");
-        } else if (total <= 0) {
-          skipTotalCount = true;
-  
-          app.alert("Total cannot be 0 or less than 0!");
-        } else {
-          assignmentTotal = total;
-  
-          skipTotalCount = false;
-        }
-      },
-      description: {
-        name: "Result Data",
-        align_children: "align_left",
-        width: 100,
-        height: 100,
-        first_tab: "totl",
-        elements: [
-          {
-            type: "cluster",
-            name: "Result Setup",
-            align_children: "align_left",
-            elements: [
-              {
-                type: "view",
-                align_children: "align_row",
-                elements: [
-                  {
-                    type: "static_text",
-                    name: "Total:       ",
-                  },
-                  {
-                    item_id: "totl",
-                    type: "edit_text",
-                    alignment: "align_fill",
-                    width: 80,
-                    height: 20,
-                  },
-                ],
-              },
-              {
-                type: "static_text",
-                name: "Date: ",
-  
-                char_width: 25,
-                item_id: "date",
-              },
-            ],
-          },
-          {
-            alignment: "align_left",
-            type: "ok_cancel",
-            ok_name: "Ok",
-            cancel_name: "Cancel",
-          },
-        ],
-      },
-    };
-  
-    app.execDialog(dialog1);
-    app.endPriv();
-  
-    return skipTotalCount;
-  });
-  
-  
+      } catch (Error) {
+        console.println("Error while counting PMT annotations: " + Error);
+      }
+    }
+
+    var annotationCountResults =
+      "Annotation Count Results: \n ----------------------------\n";
+    annotationCountResults += "Half Ticks: " + countHalfTick + "\n";
+    annotationCountResults += "Ticks: " + countTick + "\n";
+    annotationCountResults += "Crosses: " + countCross + "\n";
+    annotationCountResults += "Structured Marks: " + countMark + "\n";
+    annotationCountResults += "Comment Marks: " + countCommentMark + "\n";
+    annotationCountResults += "Rubric Marks: " + countMark + "\n";
+    console.println(annotationCountResults);
+  } else {
+    app.alert("There are no marks to calculate!");
+  }
+
+  var totalPmtAnnotCount =
+    countMark +
+    countTick +
+    countCross +
+    countHalfTick +
+    countCommentMark +
+    countRubricMark;
+
+  allPmtAnnots = {
+    totalPmtAnnotCount: totalPmtAnnotCount,
+    arrAnnotMark: arrAnnotMark,
+    arrAnnotTick: arrAnnotTick,
+    arrAnnotCross: arrAnnotCross,
+    arrAnnotHalfTick: arrAnnotHalfTick,
+    arrAnnotCommentMark: arrAnnotCommentMark,
+    arrAnnotRubricMark: arrAnnotRubricMark,
+  };
+  app.endPriv();
+  return allPmtAnnots;
+});
