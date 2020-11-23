@@ -17,14 +17,14 @@ var addCommentPage = app.trustedFunction(function (aNewDoc) {
     var ry = aRect[2] - h;
   
     var newPageNumber = addBlankPage(aNewDoc);
-    var edtHeader = aNewDoc.addField("edtCommentHeader", "text", newPageNumber, [
+    var commentsPageHeader = aNewDoc.addField("edtCommentHeader", "text", newPageNumber, [
       lx,
       ly,
       rx,
       ry,
     ]);
-    edtHeader.value = "          COMMENTS";
-    edtHeader.readonly = true;
+    commentsPageHeader.value = "          COMMENTS";
+    commentsPageHeader.readonly = true;
   
     return newPageNumber;
   });

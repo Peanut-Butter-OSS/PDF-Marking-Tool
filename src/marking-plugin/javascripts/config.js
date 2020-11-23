@@ -90,7 +90,7 @@ var isPortrait = true;
 var addDeselectIcon;
 var isOrientationChanged = false;
 var commentFromFile = "";
-var labelForMark = "";
+//var labelForMark = "";
 
 var totalMarks = 0;
 

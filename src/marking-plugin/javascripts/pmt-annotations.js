@@ -27,6 +27,82 @@ For structured annotations, the format is: "MARK:[criterion] | " + [mark], where
 
 */
 
+// Parse an annotation to convert it to a structured JSON object
+// That can be used for processing. The original annotation will
+// be part of the returned object
+var enrichAnnotWithMetadata = app.trustedFunction(function (annot) {
+  app.beginPriv();
+
+  var type = "UNKNOWN";
+  var value = 0;
+  var criterion = "UNDEFINED";
+  var subject = annot.subject;
+  var name = annot.name;
+  var typeFound = false;
+
+
+  if (name.indexOf("COMMENTM") == 0 && !typeFound) {
+    type = "COMMENTM";
+    typeFound = true;
+    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+    criterion = subject.substring(
+      subject.indexOf(":") + 1,
+      subject.indexOf("|")
+    );
+    if (criterion.trim().length === 0) {
+      criterion = "UNDEFINED"
+    }
+  } else if (name.indexOf("MARK") == 0 && !typeFound) {
+    type = "MARK";
+    typeFound = true;
+    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+    criterion = subject.substring(
+      subject.indexOf(":") + 1,
+      subject.indexOf("|")
+    );
+    if (criterion.trim().length === 0) {
+      criterion = "UNDEFINED"
+    }
+  } else if (name.indexOf("RUBRICM") == 0 && !typeFound) {
+    type = "RUBRICM";
+    typeFound = true;
+    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+    criterion = subject.substring(
+      subject.indexOf(":") + 1,
+      subject.indexOf("|")
+    );
+    if (criterion.trim().length === 0) {
+      criterion = "UNDEFINED"
+    }
+  } else if (name.indexOf("TICK") == 0 && !typeFound) {
+    type = "TICK";
+    typeFound = true;
+    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+  } else if (name.indexOf("HALFT") == 0 && !typeFound) {
+    type = "HALFT";
+    typeFound = true;
+    value = data.substring(data.indexOf("|") + 1, data.length);
+  } else if (name.indexOf("CROSS") == 0 && !typeFound) {
+    type = "CROSS";
+    typeFound = true;
+    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+  } else if (annotName.indexOf("CHECK") == 0 && !typeFound) {
+    type = "CHECK";
+    typeFound = true;
+    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+  }
+
+  var enrichedAnnot = {
+    type: type,
+    value: value,
+    criterion: criterion,
+    annot: annot
+  };
+
+  app.endPriv();
+  return enrichedAnnot;
+});
+
 // The Aim Annotation is a temporary annotation added to the document before a dialog is popped up
 var doAimAnnot = app.trustedFunction(function (aNewDoc, x, y) {
   app.beginPriv();
@@ -42,7 +118,7 @@ var doAimAnnot = app.trustedFunction(function (aNewDoc, x, y) {
 
   drawPoints = rotateObjectPoints(drawPoints, aNewDoc, x, y);
 
-  aNewDoc.addAnnot({
+  var aimAnnot = aNewDoc.addAnnot({
     type: "Ink",
     page: aNewDoc.pageNum,
     name: "AIM",
@@ -53,6 +129,7 @@ var doAimAnnot = app.trustedFunction(function (aNewDoc, x, y) {
   });
 
   app.endPriv();
+  return aimAnnot;
 });
 
 // This is the main method for applying annotations to the document
@@ -64,10 +141,29 @@ var doAimAnnot = app.trustedFunction(function (aNewDoc, x, y) {
 // - comment: A comment to be applied with the annotation (For unstructured marks, this value is passed as null)
 // - mark: The mark value associated with the annotation
 // - type: the annotation type
-var doAnnot = app.trustedFunction(function (aNewDoc, x, y, criterion, comment, mark, type) {
+var doAnnot = app.trustedFunction(function (
+  aNewDoc,
+  x,
+  y,
+  criterion,
+  comment,
+  mark,
+  type
+) {
   app.beginPriv();
 
-  console.println("Adding annotation: Coords=("+x+","+y+"), Criterion="+criterion+", Mark="+mark+", Type="+type);
+  console.println(
+    "Adding annotation: Coords=(" +
+      x +
+      "," +
+      y +
+      "), Criterion=" +
+      criterion +
+      ", Mark=" +
+      mark +
+      ", Type=" +
+      type
+  );
   var annotationName = "";
   var currentPage = aNewDoc.pageNum;
 
@@ -103,7 +199,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, criterion, comment, m
   } else if (type == "CROSS") {
     crossPoints = createCross(aNewDoc, x, y);
     drawPoints = crossPoints;
-    mark = 0
+    mark = 0;
   } else if (type == "CHECK") {
     checkPoints = createCheck(aNewDoc, x, y);
     drawPoints = [checkPoints];
@@ -128,7 +224,7 @@ var doAnnot = app.trustedFunction(function (aNewDoc, x, y, criterion, comment, m
     if (hasTextContentForAnnot) {
       var fullComment;
       if (type === "RUBRICM") {
-        fullComment = "Rubric: "+criterion + "\n" + comment;
+        fullComment = "Rubric: " + criterion + "\n" + comment;
       } else {
         fullComment = comment;
       }
@@ -280,7 +376,7 @@ var drawArc = app.trustedFunction(function (
   return points;
 });
 
-// A utility method to draw a circle with a specific radiusc at a specific X/Y 
+// A utility method to draw a circle with a specific radiusc at a specific X/Y
 // coordinate of the document. It returns an array of points that comprise the circle.
 var drawCircle = app.trustedFunction(function (x, y, radius) {
   var angle = 0.1;
@@ -808,12 +904,15 @@ var coordinateAnnotInSpace = app.trustedFunction(function (
   return coord;
 });
 
-var goToAnnotation = app.trustedFunction(function (annotationPage, annotationName) {
+var goToAnnotation = app.trustedFunction(function (
+  annotationPage,
+  annotationName
+) {
   app.beginPriv();
 
   this.syncAnnotScan();
   var annotation = this.getAnnot(annotationPage, annotationName);
-  this.pageNum=annotationPage;
+  this.pageNum = annotationPage;
 
   app.endPriv();
 });
@@ -830,50 +929,22 @@ var listAnnotations = app.trustedFunction(function () {
 
   for (var i = 0; i < annots.length; i++) {
     var tmpAnnotation = annots[i];
-    statusString += " - Page="+tmpAnnotation.page+", Name="+tmpAnnotation.name+", Type="+tmpAnnotation.type+", Subject="+tmpAnnotation.subject+"\n";
+    statusString +=
+      " - Page=" +
+      tmpAnnotation.page +
+      ", Name=" +
+      tmpAnnotation.name +
+      ", Type=" +
+      tmpAnnotation.type +
+      ", Subject=" +
+      tmpAnnotation.subject +
+      "\n";
   }
- 
+
   console.println(statusString);
 
   app.endPriv();
 });
-
-// Determine the PMT marking tool type that created the annotation
-var getPmtAnnotType = app.trustedFunction(function (annot) {
-  app.beginPriv();
-
-  var annotName = annot.name;
-  var typeFound = false;
-  var type = "";
-
-  if ((annotName.indexOf("COMMENTM")==0)&&(!typeFound)) {
-    type = "COMMENTM";
-    typeFound = true;
-  } else if ((annotName.indexOf("MARK")==0)&&(!typeFound)) {
-    type = "MARK";
-    typeFound = true;
-  } else if ((annotName.indexOf("RUBRICM")==0)&&(!typeFound)) {
-    type = "RUBRICM";
-    typeFound = true;
-  } else if ((annotName.indexOf("TICK")==0)&&(!typeFound)) {
-    type = "TICK";
-    typeFound = true;
-  } else if ((annotName.indexOf("HALFT")==0)&&(!typeFound)) {
-    type = "HALFT";
-    typeFound = true;
-  } else if ((annotName.indexOf("CROSS")==0)&&(!typeFound)) {
-    type = "CROSS";
-    typeFound = true;
-  } else if ((annotName.indexOf("CHECK")==0)&&(!typeFound)) {
-    type = "CHECK";
-    typeFound = true;
-  } else {
-    type = "UNKNOWN";
-  }
-
-  app.endPriv();
-  return type;
-}); 
 
 var removeRubricBasedAnnotations = app.trustedFunction(function () {
   app.beginPriv();
@@ -887,11 +958,152 @@ var removeRubricBasedAnnotations = app.trustedFunction(function () {
       var annotationName = annots[i].name;
       markerIndex = annotationName.indexOf("RUBRICM");
       if (markerIndex == 0) {
-        console.println("Removing annotation: "+annotationName);
+        console.println("Removing annotation: " + annotationName);
         annots[i].destroy();
       }
     }
   }
 
   app.endPriv();
+});
+
+// Collect all marking tool annotations in the document and assemble them together in
+// a structured object, with separate arrays for each type.
+// Each annotation is first enriched into a proper JSON object, so that we can
+// easily access the type, value and criterion associated with each annotation
+var collectAllEnrichedAnnotations = app.trustedFunction(function (aNewDoc) {
+  app.beginPriv();
+
+  var allPmtAnnots;
+  var countMark = 0;
+  var countTick = 0;
+  var countCross = 0;
+  var countCheck = 0;
+  var countHalfTick = 0;
+  var countCommentMark = 0;
+  var countRubricMark = 0;
+  var arrAnnotMark = new Array();
+  var arrAnnotTick = new Array();
+  var arrAnnotCross = new Array();
+  var arrAnnotCheck = new Array();
+  var arrAnnotHalfTick = new Array();
+  var arrAnnotCommentMark = new Array();
+  var arrAnnotRubricMark = new Array();
+  var annots = aNewDoc.getAnnots();
+  if (annots != null) {
+    for (var i = 0; i < annots.length; i++) {
+      var enrichedAnnotation = enrichAnnotWithMetadata(annots[i]);
+      var annotType = enrichedAnnotation.type;
+      try {
+        switch (annotType) {
+          case "COMMENTM":
+            arrAnnotCommentMark[countCommentMark] = enrichedAnnotation;
+            countCommentMark++;
+            console.println(
+              "Counting COMMENTM annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "RUBRICM":
+            arrAnnotRubricMark[countRubricMark] = enrichedAnnotation;
+            countRubricMark++;
+            console.println(
+              "Counting RUBRICM annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "MARK":
+            arrAnnotMark[countMark] = enrichedAnnotation;
+            countMark++;
+            console.println(
+              "Counting MARK annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "TICK":
+            arrAnnotTick[countTick] = enrichedAnnotation;
+            countTick++;
+            console.println(
+              "Counting TICK annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "HALFT":
+            arrAnnotHalfTick[countHalfTick] = enrichedAnnotation;
+            countHalfTick++;
+            console.println(
+              "Counting HALFT annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+          case "CROSS":
+            arrAnnotCross[countCross] = enrichedAnnotation;
+            countCross++;
+            console.println(
+              "Counting CROSS annotation: Name=" +
+                annots[i].name +
+                ", Subject=" +
+                annots[i].subject
+            );
+            break;
+            case "CHECK":
+              arrAnnotCheck[countCheck] = enrichedAnnotation;
+              countCheck++;
+              console.println(
+                "Counting CHECK annotation: Name=" +
+                  annots[i].name +
+                  ", Subject=" +
+                  annots[i].subject
+              );
+              break;
+        }
+      } catch (Error) {
+        console.println("Error while counting PMT annotations: " + Error);
+      }
+    }
+
+    var annotationCountResults =
+      "Annotation Count Results: \n ----------------------------\n";
+    annotationCountResults += "Half Ticks: " + countHalfTick + "\n";
+    annotationCountResults += "Ticks: " + countTick + "\n";
+    annotationCountResults += "Crosses: " + countCross + "\n";
+    annotationCountResults += "Structured Marks: " + countMark + "\n";
+    annotationCountResults += "Comment Marks: " + countCommentMark + "\n";
+    annotationCountResults += "Rubric Marks: " + countMark + "\n";
+    console.println(annotationCountResults);
+  } else {
+    app.alert("There are no marks to calculate!");
+  }
+
+  var totalPmtAnnotCount =
+    countMark +
+    countTick +
+    countCross +
+    countCheck +
+    countHalfTick +
+    countCommentMark +
+    countRubricMark;
+
+  allPmtAnnots = {
+    totalPmtAnnotCount: totalPmtAnnotCount,
+    arrAnnotMark: arrAnnotMark,
+    arrAnnotTick: arrAnnotTick,
+    arrAnnotCross: arrAnnotCross,
+    arrAnnotCheck: arrAnnotCheck,
+    arrAnnotHalfTick: arrAnnotHalfTick,
+    arrAnnotCommentMark: arrAnnotCommentMark,
+    arrAnnotRubricMark: arrAnnotRubricMark,
+  };
+  app.endPriv();
+  return allPmtAnnots;
 });

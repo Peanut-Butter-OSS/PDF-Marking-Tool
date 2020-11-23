@@ -310,49 +310,28 @@ var doMark = app.trustedFunction(function (aNewDoc, type) {
   var dialog;
 
   if (type == "COMMENTM") {
-    doAimAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY);
-
-    dialog = getCommentMarkDialog(
+    var aimAnnot = doAimAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY);
+    var commentMarkDialog = getCommentMarkDialog(
       aNewDoc,
       aNewDoc.mouseX,
       aNewDoc.mouseY,
       type
     );
-
-    app.execDialog(dialog);
-
-    // TODO - Not sure what this is doing
-    if (skipRemoveButtons == false) {
-      deselectCurrentTool(aNewDoc);
-    } else {
-      skipRemoveButtons = false;
-    }
+    var dialogResult = app.execDialog(commentMarkDialog);
+    // console.println("Result from the comment mark dialog: "+dialogResult);
+    aimAnnot.destroy();
   } else if (type == "MARK") {
-    doAimAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY);
-
-    dialog = getMarkDialog(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, type);
-
-    app.execDialog(dialog);
-
-    // TODO - Not sure what this is doing
-    if (skipRemoveButtons == false) {
-      deselectCurrentTool(aNewDoc);
-    } else {
-      skipRemoveButtons = false;
-    }
+    var aimAnnot = doAimAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY);
+    var markDialog = getMarkDialog(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, type);
+    var dialogResult = app.execDialog(markDialog);
+    // console.println("Result from the mark dialog: "+dialogResult);
+    aimAnnot.destroy();
   } else if (type == "RUBRICM") {
-    doAimAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY);
-
-    dialog = getRubricMarkDialog(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, type);
-
-    app.execDialog(dialog);
-
-    // TODO - Not sure what this is doing
-    if (skipRemoveButtons == false) {
-      deselectCurrentTool(aNewDoc);
-    } else {
-      skipRemoveButtons = false;
-    }
+    var aimAnnot = doAimAnnot(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY);
+    var rubricDialog = getRubricMarkDialog(aNewDoc, aNewDoc.mouseX, aNewDoc.mouseY, type);
+    var dialogResult = app.execDialog(rubricDialog);
+    // console.println("Result from the rubric dialog: "+dialogResult);
+    aimAnnot.destroy();
   } else if (type == "TICK") {
     doAnnot(
       aNewDoc,
@@ -382,9 +361,6 @@ var getTickMarkConfigDialog = app.trustedFunction(function (
 
   var tickmarkConfigDialog = {
     initialize: function (dialog) {
-      var todayDate = dialog.store()["date"];
-      todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
-      dialog.load({ date: todayDate });
       dialog.load({ mark: currentValue });
     },
     validate: function (dialog) {
@@ -420,7 +396,7 @@ var getTickMarkConfigDialog = app.trustedFunction(function (
       );
     },
     description: {
-      name: "Mark Data",
+      name: "Tick Value",
       align_children: "align_left",
       width: 100,
       height: 100,
@@ -433,11 +409,11 @@ var getTickMarkConfigDialog = app.trustedFunction(function (
           elements: [
             {
               type: "view",
-              align_children: "align_row",
+              align_children: "align_left",
               elements: [
                 {
                   type: "static_text",
-                  name: "Mark for Tick:",
+                  name: "Tick Value:",
                 },
                 {
                   item_id: "mark",
@@ -447,13 +423,6 @@ var getTickMarkConfigDialog = app.trustedFunction(function (
                   height: 20,
                 },
               ],
-            },
-            {
-              type: "static_text",
-              name: "Date: ",
-
-              char_width: 25,
-              item_id: "date",
             },
           ],
         },
@@ -473,110 +442,58 @@ var getTickMarkConfigDialog = app.trustedFunction(function (
 var getCommentMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
   app.beginPriv();
 
-  var qc = "";
-
   var commentMarkDialog = {
     initialize: function (dialog) {
-      var todayDate = dialog.store()["date"];
-      todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
-      dialog.load({ date: todayDate });
+      // TODO - Initialise cached comments
+    },
+    validate: function (dialog) {
+      var results = dialog.store();
+      var mark = results["mark"];
 
-      var arrText = readCommentTextFile(aNewDoc, "COMM_ENGINE");
+      var dot = mark.substring(mark.indexOf("."), mark.indexOf(".") + 1);
+      var indexOfDot;
+      var lastNumber;
 
-      var qn = "" + arrText[1];
-      var qm = "" + arrText[2];
-
-      if (qn == "</empty>") {
-        qn = "";
-      }
-      if (qm == "</empty>") {
-        qm = "";
-      }
-
-      var txt = "";
-      for (var i = 3; i < arrText.length - 1; i++) {
-        txt = "" + arrText[i];
-        if (txt == "</p>") {
-          qc = qc + "\n";
+      if (dot == ".") {
+        indexOfDot = mark.indexOf(".");
+        if (indexOfDot == 0) {
+          mark = "0.5";
         } else {
-          qc = qc + txt + "\n";
+          lastNumber = mark.substring(mark.indexOf(".") + 1, mark.length);
+          if (lastNumber != "5") {
+            app.alert("Only decimals of .5 are allowed!");
+            return false;
+          }
         }
       }
 
-      if (arrText[3] == "</empty>") {
-        qc = "";
+      var regExNumber = /\D/;
+      if (regExNumber.test(mark) && 
+        mark.indexOf(".") == -1 &&
+        mark.indexOf("-") == -1) {
+        app.alert("Only positive numbers are allowed!");
+        return false;
+      } else if (mark == "") {
+        app.alert("Please enter a mark!");
+        return false;
+      } else if (mark > 100) {
+        app.alert("Mark for tick cannot be greater than 100!");
+        return false;
+      } else if (mark < 0) {
+        app.alert("Mark for tick cannot be less than 0!");
+        return false;
+      } else {
+        return true;
       }
-
-      dialog.load({ mark: qm });
-      dialog.load({ ques: qn });
-      dialog.load({ comm: qc });
-    },
-    destroy: function (dialog) {
-      var aim_annot = aNewDoc.getAnnot({
-        nPage: aNewDoc.pageNum,
-        cName: "AIM",
-      });
-      aim_annot.destroy();
-
-      commentFromFile = "";
     },
     commit: function (dialog) {
       var results = dialog.store();
 
       var mark = results["mark"];
-      var ques = results["ques"];
+      var crit = results["crit"];
       var comm = results["comm"];
 
-      var lastNumber;
-      var indexOfDot;
-      var skipLastValidation = false;
-      var dot = mark.substring(mark.indexOf("."), mark.indexOf(".") + 1);
-
-      if (dot == ".") {
-        indexOfDot = mark.indexOf(".");
-
-        if (indexOfDot == 0) {
-          mark = "0.5";
-        } else {
-          lastNumber = mark.substring(mark.indexOf(".") + 1, mark.length);
-
-          if (lastNumber != "5") {
-            app.alert("Only decimals of .5 are allowed!");
-
-            skipRemoveButtons = true;
-            skipLastValidation = true;
-          }
-        }
-      }
-
-      if (!skipLastValidation) {
-        var regNumber = /\D/;
-        if (
-          regNumber.test(mark) &&
-          mark.indexOf(".") == -1 &&
-          mark.indexOf("-") == -1
-        ) {
-          app.alert("Only numbers are allowed!");
-
-          skipRemoveButtons = true;
-        } else if (mark == "") {
-          app.alert("Please enter a mark!");
-
-          skipRemoveButtons = true;
-        } else if (mark > 100) {
-          app.alert("You cannot enter a mark more than 100!");
-
-          skipRemoveButtons = true;
-        } else if (mark < -100) {
-          app.alert("You cannot enter a mark less than -100!");
-
-          skipRemoveButtons = true;
-        } else {
-          commentFromFile = comm;
-
-          doAnnot(aNewDoc, x, y, ques, comm, mark, type);
-        }
-      }
+      doAnnot(aNewDoc, x, y, crit, comm, mark, type);
     },
     description: {
       name: "Mark Data",
@@ -592,35 +509,35 @@ var getCommentMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
           elements: [
             {
               type: "view",
-              align_children: "align_row",
+              align_children: "align_left",
               elements: [
                 {
                   type: "static_text",
-                  name: "Mark:       ",
+                  name: "Mark:",
                 },
                 {
                   item_id: "mark",
                   type: "edit_text",
-                  alignment: "align_fill",
-                  width: 80,
+                  alignment: "align_left",
+                  width: 200,
                   height: 20,
-                  next_tab: "ques",
+                  next_tab: "crit",
                 },
               ],
             },
             {
               type: "view",
-              align_children: "align_row",
+              align_children: "align_left",
               elements: [
                 {
                   type: "static_text",
-                  name: "Element:  ",
+                  name: "Element / Criterion:",
                 },
                 {
-                  item_id: "ques",
+                  item_id: "crit",
                   type: "edit_text",
-                  alignment: "align_fill",
-                  width: 80,
+                  alignment: "align_left",
+                  width: 200,
                   height: 20,
                   next_tab: "comm",
                 },
@@ -628,7 +545,7 @@ var getCommentMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
             },
             {
               type: "view",
-              align_children: "align_row",
+              align_children: "align_left",
               elements: [
                 {
                   type: "static_text",
@@ -638,18 +555,11 @@ var getCommentMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
                   item_id: "comm",
                   type: "edit_text",
                   multiline: true,
-                  alignment: "align_fill",
+                  alignment: "align_left",
                   width: 200,
                   height: 150,
                 },
               ],
-            },
-            {
-              type: "static_text",
-              name: "Date: ",
-
-              char_width: 25,
-              item_id: "date",
             },
           ],
         },
@@ -673,77 +583,50 @@ var getMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
 
   var markDialog = {
     initialize: function (dialog) {
-      var todayDate = dialog.store()["date"];
-      todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
-      dialog.load({ date: todayDate });
-
-      if (labelForMark != "") {
-        dialog.load({ ques: labelForMark });
-      }
+      // if (labelForMark != "") {
+      //   dialog.load({ crit: labelForMark });
+      // }
     },
-    destroy: function (dialog) {
-      var aim_annot = aNewDoc.getAnnot({
-        nPage: aNewDoc.pageNum,
-        cName: "AIM",
-      });
-      aim_annot.destroy();
-    },
-    commit: function (dialog) {
+    validate: function (dialog) {
       var results = dialog.store();
-
       var mark = results["mark"];
-      var ques = results["ques"];
 
-      var lastNumber;
-      var indexOfDot;
-      var skipLastValidation = false;
       var dot = mark.substring(mark.indexOf("."), mark.indexOf(".") + 1);
+      var indexOfDot;
+      var lastNumber;
 
       if (dot == ".") {
         indexOfDot = mark.indexOf(".");
-
         if (indexOfDot == 0) {
           mark = "0.5";
         } else {
           lastNumber = mark.substring(mark.indexOf(".") + 1, mark.length);
-
           if (lastNumber != "5") {
             app.alert("Only decimals of .5 are allowed!");
-
-            skipRemoveButtons = true;
-            skipLastValidation = true;
+            return false;
           }
         }
       }
 
-      if (!skipLastValidation) {
-        var regNumber = /\D/;
-        if (
-          regNumber.test(mark) &&
-          mark.indexOf(".") == -1 &&
-          mark.indexOf("-") == -1
-        ) {
-          app.alert("Only numbers are allowed!");
-
-          skipRemoveButtons = true;
-        } else if (mark == "") {
-          app.alert("Please enter a mark!");
-
-          skipRemoveButtons = true;
-        } else if (mark > 100) {
-          app.alert("You cannot enter a mark more than 100!");
-
-          skipRemoveButtons = true;
-        } else if (mark < -100) {
-          app.alert("You cannot enter a mark less than -100!");
-
-          skipRemoveButtons = true;
-        } else {
-          labelForMark = ques;
-
-          doAnnot(aNewDoc, x, y, ques, null, mark, type);
-        }
+      var regExNumber = /\D/;
+      if (regExNumber.test(mark)) {
+        app.alert("Only positive numbers are allowed!");
+        return false;
+      } else if (mark > 100) {
+        app.alert("Mark for tick cannot be greater than 100!");
+        return false;
+      } else if (mark < 0) {
+        app.alert("Mark for tick cannot be less than 0!");
+        return false;
+      } else {
+        return true;
       }
+    },
+    commit: function (dialog) {
+      var results = dialog.store();
+      var mark = results["mark"];
+      var crit = results["crit"];
+      doAnnot(aNewDoc, x, y, crit, null, mark, type);
     },
     description: {
       name: "Mark Data",
@@ -759,45 +642,38 @@ var getMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
           elements: [
             {
               type: "view",
-              align_children: "align_row",
+              align_children: "align_left",
               elements: [
                 {
                   type: "static_text",
-                  name: "Mark:    ",
+                  name: "Mark:",
                 },
                 {
                   item_id: "mark",
                   type: "edit_text",
-                  alignment: "align_fill",
-                  width: 80,
+                  alignment: "align_left",
+                  width: 200,
                   height: 20,
-                  next_tab: "ques",
+                  next_tab: "crit",
                 },
               ],
             },
             {
               type: "view",
-              align_children: "align_row",
+              align_children: "align_left",
               elements: [
                 {
                   type: "static_text",
-                  name: "Element:",
+                  name: "Element / Criterion:",
                 },
                 {
-                  item_id: "ques",
+                  item_id: "crit",
                   type: "edit_text",
-                  alignment: "align_fill",
-                  width: 80,
+                  alignment: "align_left",
+                  width: 200,
                   height: 20,
                 },
               ],
-            },
-            {
-              type: "static_text",
-              name: "Date: ",
-
-              char_width: 25,
-              item_id: "date",
             },
           ],
         },
@@ -842,7 +718,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
           criterionPopupData[selectedRubricContent.criteria[i-1].criterionName] = i*-1 ;
         }
       }
-      dialog.load({ sect: criterionPopupData });
+      dialog.load({ crit: criterionPopupData });
 
       // Prepare initial lookup data for the level dropdown - based on the default 
       // selection for the criteria dropdown above.
@@ -855,18 +731,10 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
           var levelName = selectedRubricContent.criteria[selectedCriterionIndex].levels[n-1].levelName;
           levelsPopupData[levelName] = n*-1 ;
         }
-        dialog.load({ rate: levelsPopupData });
+        dialog.load({ levl: levelsPopupData });
       } else {
-        dialog.enable({ rate : false})
+        dialog.enable({ levl : false})
       }
-    },
-    destroy: function (dialog) {
-      var aim_annot = aNewDoc.getAnnot({
-        nPage: aNewDoc.pageNum,
-        cName: "AIM",
-      });
-      aim_annot.destroy();
-      commentFromFile = "";
     },
     validate: function (dialog) {
       var results = dialog.store();
@@ -903,12 +771,12 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
         return true;
       }
     },
-    sect: function (dialog) {
-      var elements = dialog.store()["sect"];
+    crit: function (dialog) {
+      var criteria = dialog.store()["crit"];
       var selectedCriterionIndex = 0;
-      for (var i in elements) {
-        if (elements[i] > 0) {
-          selectedCriterionIndex = elements[i]-1;
+      for (var i in criteria) {
+        if (criteria[i] > 0) {
+          selectedCriterionIndex = criteria[i]-1;
         }
       }
 
@@ -919,22 +787,22 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
         var levelName = selectedRubricContent.criteria[selectedCriterionIndex].levels[n-1].levelName;
         levelsPopupData[levelName] = n*-1 ;
       }
-      dialog.load({ rate: levelsPopupData });
+      dialog.load({ levl: levelsPopupData });
     },
-    rate: function (dialog) {
-      var sectElements = dialog.store()["sect"];
+    levl: function (dialog) {
+      var criteria = dialog.store()["crit"];
       var selectedCriterionIndex = 0;
-      for (var i in sectElements) {
-        if (sectElements[i] > 0) {
-          selectedCriterionIndex = sectElements[i]-1;
+      for (var i in criteria) {
+        if (criteria[i] > 0) {
+          selectedCriterionIndex = criteria[i]-1;
         }
       }
 
-      var rateElements = dialog.store()["rate"];
+      var levels = dialog.store()["levl"];
       var selectedLevelIndex = 0;
-      for (var m in rateElements) {
-        if (rateElements[m] > 0) {
-          selectedLevelIndex = rateElements[m]-1;
+      for (var m in levels) {
+        if (levels[m] > 0) {
+          selectedLevelIndex = levels[m]-1;
         }
       }
 
@@ -952,22 +820,22 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       var results = dialog.store();
 
       // Extract criterionId from the selection made in popup
-      var sectElements = results["sect"];
+      var criteria = results["crit"];
       var selectedCriterionIndex = 0;
-      for (var i in sectElements) {
-        if (sectElements[i] > 0) {
-          selectedCriterionIndex = sectElements[i]-1;
+      for (var i in criteria) {
+        if (criteria[i] > 0) {
+          selectedCriterionIndex = criteria[i]-1;
         }
       }
       var criterionId = selectedRubricContent.criteria[selectedCriterionIndex].criterionId;
       var criterionName = selectedRubricContent.criteria[selectedCriterionIndex].criterionName;
 
       // Extract level from the selection made in popup
-      var rateElements = results["rate"];
+      var levels = results["levl"];
       var selectedLevelIndex = 0;
-      for (var m in rateElements) {
-        if (rateElements[m] > 0) {
-          selectedLevelIndex = rateElements[m]-1;
+      for (var m in levels) {
+        if (levels[m] > 0) {
+          selectedLevelIndex = levels[m]-1;
         }
       }
       var level = selectedRubricContent.criteria[selectedCriterionIndex].levels[selectedLevelIndex].levelName;
@@ -1003,19 +871,19 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
               name: "Select Criterion:",
             },
             {
-              item_id: "sect",
+              item_id: "crit",
               type: "popup",
               alignment: "align_fill",
               width: 200,
               height: 20,
-              next_tab: "rate",
+              next_tab: "levl",
             },
             {
               type: "static_text",
               name: "Select Level:",
             },
             {
-              item_id: "rate",
+              item_id: "levl",
               type: "popup",
               alignment: "align_fill",
               width: 200,
