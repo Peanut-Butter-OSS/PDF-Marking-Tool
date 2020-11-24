@@ -40,7 +40,6 @@ var enrichAnnotWithMetadata = app.trustedFunction(function (annot) {
   var name = annot.name;
   var typeFound = false;
 
-
   if (name.indexOf("COMMENTM") == 0 && !typeFound) {
     type = "COMMENTM";
     typeFound = true;
@@ -48,53 +47,53 @@ var enrichAnnotWithMetadata = app.trustedFunction(function (annot) {
     criterion = subject.substring(
       subject.indexOf(":") + 1,
       subject.indexOf("|")
-    );
-    if (criterion.trim().length === 0) {
+    ).trim();
+    if (criterion.length === 0) {
       criterion = "UNDEFINED"
     }
   } else if (name.indexOf("MARK") == 0 && !typeFound) {
     type = "MARK";
     typeFound = true;
-    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+    value = subject.substring(subject.indexOf("|") + 1, subject.length).trim();
     criterion = subject.substring(
       subject.indexOf(":") + 1,
       subject.indexOf("|")
-    );
-    if (criterion.trim().length === 0) {
+    ).trim();
+    if (criterion.length === 0) {
       criterion = "UNDEFINED"
     }
   } else if (name.indexOf("RUBRICM") == 0 && !typeFound) {
     type = "RUBRICM";
     typeFound = true;
-    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+    value = subject.substring(subject.indexOf("|") + 1, subject.length).trim();
     criterion = subject.substring(
       subject.indexOf(":") + 1,
       subject.indexOf("|")
-    );
-    if (criterion.trim().length === 0) {
+    ).trim();
+    if (criterion.length === 0) {
       criterion = "UNDEFINED"
     }
   } else if (name.indexOf("TICK") == 0 && !typeFound) {
     type = "TICK";
     typeFound = true;
-    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+    value = subject.substring(subject.indexOf("|") + 1, subject.length).trim();
   } else if (name.indexOf("HALFT") == 0 && !typeFound) {
     type = "HALFT";
     typeFound = true;
-    value = data.substring(data.indexOf("|") + 1, data.length);
+    value = subject.substring(subject.indexOf("|") + 1, subject.length).trim();
   } else if (name.indexOf("CROSS") == 0 && !typeFound) {
     type = "CROSS";
     typeFound = true;
-    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+    value = subject.substring(subject.indexOf("|") + 1, subject.length).trim();
   } else if (annotName.indexOf("CHECK") == 0 && !typeFound) {
     type = "CHECK";
     typeFound = true;
-    value = subject.substring(subject.indexOf("|") + 1, subject.length);
+    value = subject.substring(subject.indexOf("|") + 1, subject.length).trim();
   }
 
   var enrichedAnnot = {
     type: type,
-    value: value,
+    value: parseFloat(value),
     criterion: criterion,
     annot: annot
   };
@@ -975,18 +974,18 @@ var collectAllEnrichedAnnotations = app.trustedFunction(function (aNewDoc) {
   app.beginPriv();
 
   var allPmtAnnots;
-  var countMark = 0;
+  var countHalfTick = 0;
   var countTick = 0;
   var countCross = 0;
   var countCheck = 0;
-  var countHalfTick = 0;
+  var countMark = 0;
   var countCommentMark = 0;
   var countRubricMark = 0;
-  var arrAnnotMark = new Array();
+  var arrAnnotHalfTick = new Array();
   var arrAnnotTick = new Array();
   var arrAnnotCross = new Array();
   var arrAnnotCheck = new Array();
-  var arrAnnotHalfTick = new Array();
+  var arrAnnotMark = new Array();
   var arrAnnotCommentMark = new Array();
   var arrAnnotRubricMark = new Array();
   var annots = aNewDoc.getAnnots();
@@ -1086,21 +1085,21 @@ var collectAllEnrichedAnnotations = app.trustedFunction(function (aNewDoc) {
   }
 
   var totalPmtAnnotCount =
-    countMark +
+    countHalfTick +  
     countTick +
     countCross +
     countCheck +
-    countHalfTick +
+    countMark +
     countCommentMark +
     countRubricMark;
 
   allPmtAnnots = {
     totalPmtAnnotCount: totalPmtAnnotCount,
-    arrAnnotMark: arrAnnotMark,
+    arrAnnotHalfTick: arrAnnotHalfTick,
     arrAnnotTick: arrAnnotTick,
     arrAnnotCross: arrAnnotCross,
     arrAnnotCheck: arrAnnotCheck,
-    arrAnnotHalfTick: arrAnnotHalfTick,
+    arrAnnotMark: arrAnnotMark,
     arrAnnotCommentMark: arrAnnotCommentMark,
     arrAnnotRubricMark: arrAnnotRubricMark,
   };

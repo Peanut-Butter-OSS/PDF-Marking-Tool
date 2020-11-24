@@ -23,15 +23,37 @@ var addBlankPage = app.trustedFunction(function (aNewDoc) {
   return newPageNum;
 });
 
-var trim = app.trustedFunction(function (str) {
+// Vanilla implementation of trim method, because the JS version bundled with
+// Acrobat does include trim
+String.prototype.trim = function() {
+  return this.replace(/^\s+|\s+$/g, "");
+};
+
+var trimUpper = app.trustedFunction(function (str) {
+  console.println("Value before trim: |"+str+"|");
   str = str.replace(/\r?/gm, " ");
   str = str.replace(/\s{2,}/g, "|");
   str = str.replace(/\s/g, "");
   str = str.replace(/\|/g, " ");
 
   str = str.replace(/^\s/, "");
-
+  console.println("Value after trim: |"+str+"|");
   return str.toUpperCase();
+});
+
+// This is a vanilla implementation of the array.includes() method which is built
+// into more recent versions of javascript
+var arrayContainsString = app.trustedFunction(function (arr, str) {
+  var includes = false;
+
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === str) {
+      includes = true;
+      break;
+    }
+  }
+
+  return includes;
 });
 
 var listFields = app.trustedFunction(function () {

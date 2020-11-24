@@ -59,7 +59,10 @@ TODO
 29. Open a document that has already been finalised
 30. Open a document at an HTTP path
 31. Icons accidentally deleted from resources folder
-32. 
+
+
+### Regression
+Manually add non-PMT annotations. Verify all still works
 
 ## Windows Installer
 

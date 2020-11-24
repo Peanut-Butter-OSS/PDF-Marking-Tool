@@ -155,7 +155,7 @@ var addCommentPage = app.trustedFunction(function (aNewDoc) {
           createNewPage = false;
         }
   
-        var content = trim(theAnnots[i].contents).toUpperCase();
+        var content = trimUpper(theAnnots[i].contents).toUpperCase();
         var amountOfLinesUsed =
           parseInt(parseInt(content.length) / maxCharInComment) + 1;
         var amountOfSpaceUsed = amountOfLinesUsed * commentBlockMinHeight;
