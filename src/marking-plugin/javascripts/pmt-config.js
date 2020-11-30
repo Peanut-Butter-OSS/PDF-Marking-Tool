@@ -28,6 +28,9 @@ var showAboutInfo = app.trustedFunction(function () {
       "\n" +
       "Tools currently enabled?: " +
       markingToolsActive +
+      "\n\n" + 
+      "Installation Folder: " +
+      baseFilePath +
       "\n",
     3
   );

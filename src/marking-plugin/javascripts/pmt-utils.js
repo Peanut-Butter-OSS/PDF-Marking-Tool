@@ -10,9 +10,11 @@ var addBlankPage = app.trustedFunction(function (aNewDoc) {
 
   var newPageNum = -1;
 
+  var blankSheetPath = baseFilePath + "BlankSheet.pdf";
+
   aNewDoc.insertPages({
     nPage: aNewDoc.numPages - 1,
-    cPath: "/C/Program Files/UNISA/BlankSheet.pdf",
+    cPath: blankSheetPath,
     nStart: 0,
   });
 

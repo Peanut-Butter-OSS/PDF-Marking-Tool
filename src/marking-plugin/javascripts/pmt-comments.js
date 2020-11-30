@@ -369,11 +369,11 @@ var addCommentPage = app.trustedFunction(function (aNewDoc) {
   
     var filepath = "";
     if (type == "COMM_ENGINE") {
-      filepath = "/C/Program Files/UNISA/comm_engine.txt";
+      filepath = baseFilePath + "comm_engine.txt";
     } else if (type == "TOT_ENGINE") {
-      filepath = "/C/Program Files/UNISA/tot_engine.txt";
+      filepath = baseFilePath + "tot_engine.txt";
     } else if (type == "RUBRIC_ENGINE") {
-      filepath = "/C/Program Files/UNISA/rubric_engine.txt";
+      filepath = baseFilePath + "rubric_engine.txt";
     }
   
     try {

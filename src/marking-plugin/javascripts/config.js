@@ -19,6 +19,11 @@ var initError = false;
 var initErrorMsg = "Initialization Errors: \n";
 var errorMsg = "";
 
+// This is the main installation folder for the PDF marking tool.
+// All other paths (for icons etc) are created off this one
+var cJSPath = app.getPath("app","javascript");
+var baseFilePath = cJSPath + "/PdfMarkingTool/";
+
 // aActiveDocs and aNewDoc are used to store the list of active documents in the current Acrobat
 // session, as well as the actual document being marked.
 var aActiveDocs;
@@ -204,7 +209,7 @@ var addMarkingTools = app.trustedFunction(function () {
   app.beginPriv();
   aActiveDocs = app.activeDocs;
   aNewDoc = aActiveDocs[0];
-  var iconPath = "/C/Program Files/UNISA/";
+  var iconPath = baseFilePath;
 
   if (aNewDoc != null) {
     if (halfTickToolLoadStatus === "NOT LOADED") {
