@@ -122,7 +122,7 @@ var readXmlData = app.trustedFunction(
     //var cJSPathFormatted = app.getPath("user","javascript").replace(/\/?$/,"/");
     console.println("Javascript Folder Path: "+cJSPath)
     //console.println("Formatted Path: "+cJSPathFormatted)
-    cConfigFilePath = cJSPath + "/MarkingToolData/" + cFileName;
+    cConfigFilePath = cJSPath + "/PdfMarkingTool/" + cFileName;
     console.println("File Path: "+cConfigFilePath)
     var nRtn = 0;
     var stmData = null;
