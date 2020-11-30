@@ -107,6 +107,67 @@ var buildResultsPage = app.trustedFunction(function (
   resultsHeader.fillColor = color.white;
   currentTopY = bottomY - 1;
 
+  // Marker Name
+  topY = currentTopY;
+  bottomY = currentTopY - lineHeight;
+  leftX = 50;
+  rightX = 150;
+  var labelMarkerName = aNewDoc.addField(
+    "labelMarkerName",
+    "text",
+    resultsPageNumber,
+    [leftX, topY, rightX, bottomY]
+  );
+  labelMarkerName.value = "Marker";
+  labelMarkerName.readonly = true;
+  labelMarkerName.alignment = "left";
+  labelMarkerName.fillColor = color.white;
+
+  leftX = rightX + 1;
+  rightX = xMax;
+  var valueMarkerName = aNewDoc.addField(
+    "valueMarkerName",
+    "text",
+    resultsPageNumber,
+    [leftX, topY, rightX, bottomY]
+  );
+  valueMarkerName.value = global.markerName;
+  valueMarkerName.readonly = true;
+  valueMarkerName.alignment = "left";
+  valueMarkerName.fillColor = color.white;
+  currentTopY = bottomY - 1;
+
+  // Date
+  topY = currentTopY;
+  bottomY = currentTopY - lineHeight;
+  leftX = 50;
+  rightX = 150;
+  var labelMarkDate = aNewDoc.addField(
+    "labelMarkDate",
+    "text",
+    resultsPageNumber,
+    [leftX, topY, rightX, bottomY]
+  );
+  labelMarkDate.value = "Date";
+  labelMarkDate.readonly = true;
+  labelMarkDate.alignment = "left";
+  labelMarkDate.fillColor = color.white;
+
+  leftX = rightX + 1;
+  rightX = xMax;
+  var todayDate = "" + util.printd("mmmm dd, yyyy", new Date());
+  var valueMarkDate = aNewDoc.addField(
+    "valueMarkDate",
+    "text",
+    resultsPageNumber,
+    [leftX, topY, rightX, bottomY]
+  );
+  valueMarkDate.value = todayDate;
+  valueMarkDate.readonly = true;
+  valueMarkDate.alignment = "left";
+  valueMarkDate.fillColor = color.white;
+  currentTopY = bottomY - 1;
+
   // Header row for marks table
   leftX = 50;
   topY = currentTopY - 20;

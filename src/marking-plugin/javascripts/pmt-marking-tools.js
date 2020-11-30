@@ -859,7 +859,7 @@ var getRubricMarkDialog = app.trustedFunction(function (aNewDoc, x, y, type) {
       align_children: "align_left",
       width: 100,
       height: 100,
-      first_tab: "mark",
+      first_tab: "crit",
       elements: [
         {
           type: "cluster",
