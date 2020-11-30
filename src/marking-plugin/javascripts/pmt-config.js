@@ -38,98 +38,78 @@ var showAboutInfo = app.trustedFunction(function () {
 var getConfigDialog = app.trustedFunction(function () {
   app.beginPriv();
 
-  var dialog = {
-    initialize: function (dialog) {
-      // Create a static text containing the current date.
-      var todayDate = dialog.store()["date"];
-      todayDate = "Date: " + util.printd("mmmm dd, yyyy", new Date());
+  var configDialog = {
+    initialize: function (configDialog) {
 
       // Load from Global configs
-      var configReadyToMarkFolder = global.readyToMarkFolder;
-      var configMarkingCompleteFolder = global.markingCompleteFolder;
       var configMarkerName = global.markerName;
-      var lastConfigChangeDate = global.lastConfigChangeDate;
-
-      dialog.load({
-        date: todayDate,
-        rtmf: configReadyToMarkFolder,
+      var configMarkingCompleteFolder = global.markingCompleteFolder;
+      
+      configDialog.load({
         mcfl: configMarkingCompleteFolder,
-        mknm: configMarkerName,
-        lccd: lastConfigChangeDate,
+        name: configMarkerName,
       });
     },
-    commit: function (dialog) {
+    commit: function (configDialog) {
       // called when OK pressed
-      var results = dialog.store();
+      var results = configDialog.store();
       // Now do something with the data collected, for example,
-      global.readyToMarkFolder = results["rtmf"];
-      global.setPersistent("readyToMarkFolder", true);
       global.markingCompleteFolder = results["mcfl"];
       global.setPersistent("markingCompleteFolder", true);
-      global.markerName = results["mknm"];
+      global.markerName = results["name"];
       global.setPersistent("markerName", true);
-      global.lastConfigChangeDate = results["lccd"];
-      global.setPersistent("lastConfigChangeDate", true);
     },
     description: {
       name: "Marking Tool Configuration", // Dialog box title
       align_children: "align_left",
       width: 350,
       height: 400,
+      first_tab: "crit",
       elements: [
         {
-          type: "ok_cancel",
-          ok_name: "Ok",
-          cancel_name: "Cancel",
-        },
-        {
           type: "cluster",
-          name: "System Folders",
+          name: "Marking Tool Configuration",
           align_children: "align_left",
           elements: [
             {
-              type: "view",
-              align_children: "align_row",
-              elements: [
-                {
-                  type: "static_text",
-                  name: "Ready to mark folder:    ",
-                },
-                {
-                  item_id: "rtmf",
-                  type: "edit_text",
-                  alignment: "align_fill",
-                  width: 300,
-                  height: 20,
-                },
-              ],
+              type: "static_text",
+              name: "Marker Name:",
             },
             {
-              type: "view",
-              align_children: "align_row",
-              elements: [
-                {
-                  type: "static_text",
-                  name: "Marking Complete Folder: ",
-                },
-                {
-                  item_id: "mcfl",
-                  type: "edit_text",
-                  alignment: "align_fill",
-                  width: 300,
-                  height: 20,
-                },
-              ],
+              item_id: "name",
+              type: "edit_text",
+              alignment: "align_fill",
+              width: 200,
+              height: 20,
+              next_tab: "mcfl",
+            },
+            {
+              type: "static_text",
+              name: "Marking Complete Folder:",
+            },
+            {
+              item_id: "mcfl",
+              type: "edit_text",
+              alignment: "align_fill",
+              width: 200,
+              height: 20,
+              next_tab: "mcfl",
             },
           ],
         },
+        {
+          alignment: "align_left",
+          type: "ok_cancel",
+          ok_name: "Ok",
+          cancel_name: "Cancel",
+        }
       ],
     },
   };
 
   app.endPriv();
 
-  return dialog;
+  return configDialog;
 });
 
 var configureMarkingTool = app.trustedFunction(function () {
