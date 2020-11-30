@@ -1,0 +1,39 @@
+{
+    "rubricName" : "COS101 Exam - Base Rubric",
+    "rubricVersion" : 1,
+    "courseCode" : "COS101",
+    "assignmentId" : "Exam1",
+    "criteria" : [
+        {
+            "criterionName" : "Question 1",
+            "totalMarks" : 10,
+            "levels" : [
+                {
+                    "levelName" : "Excellent",
+                    "levelMarks" : 10, 
+                    "levelDefaultComment" : "Very well described"
+                }, 
+                {
+                    "levelName" : "Good",
+                    "levelMarks" : 8, 
+                    "levelDefaultComment" : "Very well described, perhaps some details could be elaborated further"
+                },
+                {
+                    "levelName" : "Acceptable",
+                    "levelMarks" : 6, 
+                    "levelDefaultComment" : "Covers the basics, but many aspects should be elaborated further"
+                },
+                {
+                    "levelName" : "Poor",
+                    "levelMarks" : 3, 
+                    "levelDefaultComment" : "Incorrect description"
+                },
+                {
+                    "levelName" : "Missing",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Section had no response"
+                }
+            ]
+        } 
+    ]
+}

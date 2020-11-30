@@ -24,18 +24,45 @@ TODO
 TODO
 
 ### IMP-10 Replacement rubric functionality
-TODO
+1. Select valid rubric
+2. Try to select rubric while no active document is open (Expect failure alert)
+3. Try to select rubric while multiple documents are open (Expect failure alert)
+4. Try to select a rubric if the current active document already has a rubric (Expect failure alert)
+5. Try to select a rubric if the current active document has already been finalised (Expect failure alert)
+6. Try to select invalid rubric - No rubricId
+7. Try to select invalid rubric - No rubricName
+8. Try to select invalid rubric - No rubricVersion
+9. Try to select invalid rubric - No courseCode
+10. Try to select invalid rubric - No assignmentId
+11. Try to select invalid rubric - No totalMarks
+12. Try to select invalid rubric - No criteria specified
+13. Try to select invalid rubric - Duplicate criteria specified (same criteriaId)
+14. Try to select invalid rubric - Duplicate criteria specified (same criteriaName)
+15. Try to select invalid rubric - One criteria has no levels
+16. Try to select invalid rubric - One criteria has duplicate levels
+17. Try to select invalid rubric - One or more levels without levelName
+18. Try to select invalid rubric - One or more levels without levelMarks
+19. Try to select invalid rubric - One or more levels without levelDefaultComment
+20. Add rubric marks
+21. Try to add a duplicate rubric mark (for a criterion that is already marked)
+22. Remove a rubric before any annotations were added
+23. Remove a reubric after annotations were added 
 
 
-6. Open PDF in read mode, Acrobat current closed
-7. Open PDF in read mode, Acrobat already open
-8. Open PDF in edit mode
-9. Open a document with a Rubric
-10. Open a document without a rubric
-11. Open a document that has already been finalised
-12. Open a document at an HTTP path
-13. Icons accidentally deleted from resources folder
-14. 
+
+
+24. Open PDF in read mode, Acrobat current closed
+25. Open PDF in read mode, Acrobat already open
+26. Open PDF in edit mode
+27. Open a document with a Rubric
+28. Open a document without a rubric
+29. Open a document that has already been finalised
+30. Open a document at an HTTP path
+31. Icons accidentally deleted from resources folder
+
+
+### Regression
+Manually add non-PMT annotations. Verify all still works
 
 ## Windows Installer
 
