@@ -29,12 +29,12 @@ var baseFilePath = cJSPath + "/PdfMarkingTool/";
 var aActiveDocs;
 var aNewDoc;
 
-// Documents can have 4 marking states: UNMARKED, IN_PROGRESS, COUNTED, FINALIZED
+// Documents can have 4 marking states: UNMARKED, IN_PROGRESS, COUNTED, FINALISED
 // These states define what functions are available to the user
 // This value is embedded as a field in the form, so that it is available on subsequent opening
 var markingState = "UNKNOWN";
 
-// Marking can be done as either UNSTRUCTURED, or RUBRIC
+// Marking can be done as either FREE, RUBRIC, or MIXED
 // This value is embedded as a field in the form, so that it is available on subsequent opening
 var markingType = "UNKNOWN";
 
@@ -574,6 +574,29 @@ var updateMarkingState = app.trustedFunction(function (newState) {
   }
   markingStateField.value = newState;
   markingState = newState;
+
+  app.endPriv();
+});
+
+// Depending on the current marking type, the new type will be set
+// TODO
+var updateMarkingType = app.trustedFunction(function (newType) {
+  app.beginPriv();
+
+  markingTypeField = aNewDoc.getField("MarkingType");
+  if (markingTypeField == null) {
+    var em = 16;
+    var aRect = [0,0,0,0]
+    markingTypeField = aNewDoc.addField(
+      "MarkingType",
+      "text",
+      0,
+      aRect
+    );
+    markingTypeField.hidden = true;
+  }
+  markingTypeField.value = newType;
+  markingType = newType;
 
   app.endPriv();
 });

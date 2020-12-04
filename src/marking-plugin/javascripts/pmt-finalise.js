@@ -34,7 +34,7 @@ var deriveMarkedFileName = app.trustedFunction(function (aNewDoc, originalFileNa
 var finalizePDF = app.trustedFunction(function (aNewDoc) {
     app.beginPriv();
   
-    if (markingState=="FINALIZED") {
+    if (markingState=="FINALISED") {
       app.alert("This document has already been finalized!");
     } else {
       var docFileName = aNewDoc.documentFileName;
@@ -52,16 +52,6 @@ var finalizePDF = app.trustedFunction(function (aNewDoc) {
       );
 
       if (choice == 4) {
-        //Save doc with the new name
-        aNewDoc.saveAs({
-          cPath: finalisedFileName
-        });
-
-      //   aNewDoc.saveAs({
-      //     cPath: originalFileName + "_MARK" + "_TEST_" + ".pdf" 
-      //  });
-
-        // TODO - Remove rubric attachment
 
         updateMarkingState("FINALISED");
 
@@ -69,24 +59,33 @@ var finalizePDF = app.trustedFunction(function (aNewDoc) {
         var btnFinish = aNewDoc.getField("btnFinish");
         btnFinish.display = display.hidden;
 
+        //Save doc with the new name
+        aNewDoc.saveAs({
+          cPath: finalisedFileName
+        });
+
+        // TODO - Remove rubric attachment
+
         // Flatten the document. This removes all fields and annotations
         // TODO - But since metadata is now removed we will need to add XMP metadata
         // To ensure doc is not remarked
         //this.flattenPages();
 
-        // TODO Check out
-        // // Add comments page
-        // var annots = aNewDoc.getAnnots();
-        // var hasCommentsToBiuld = false;
-        // for (var i in annots) {
-        //   if (annots[i].contents != "") {
-        //     hasCommentsToBiuld = true;
-        //   }
-        // }
+        // Add comments page
+        var annots = aNewDoc.getAnnots();
+        var hasCommentsToBuild = false;
+        for (var i in annots) {
+          if (annots[i].contents != "") {
+            hasCommentsToBuild = true;
+          }
+        }
   
-        // if (hasCommentsToBiuld) {
-        //   biuldCommentsPages(aNewDoc);
-        // }
+        if (hasCommentsToBuild) {
+          console.println("One or more annotations included comments");
+          buildCommentsPages(aNewDoc);
+        } else {
+          console.println("There are no comments to build");
+        }
       }
     }
     
