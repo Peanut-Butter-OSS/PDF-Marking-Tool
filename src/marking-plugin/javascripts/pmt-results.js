@@ -46,6 +46,7 @@ var countMarks = app.trustedFunction(function (aNewDoc) {
       );
 
       this.pageNum = resultsPageNumber;
+      updateMarkingState("COUNTED");
     }
   }
 

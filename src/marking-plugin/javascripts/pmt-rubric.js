@@ -14,102 +14,106 @@ var selectRubric = app.trustedFunction(function () {
   aNewDoc = aActiveDocs[0];
 
   if (aNewDoc != null) {
-    // Only allow rubric attachment if we have an active doc
-    if (!hasRubricAttached) {
-      // Document can only have one rubric at a time
-      var alertMsg =
-        "In the next screen, please select the required rubric file from your file system. \n\n";
-      alertMsg +=
-        "Once the rubric file is selected, it will be attached to the document. \n";
 
-      var continueImport = app.alert(alertMsg, 3, 1);
-      if (continueImport == 1) {
-        this.importDataObject("Rubric");
-        var rubric = this.getDataObject("Rubric");
-        console.println("Rubric File Name: " + rubric.path);
-        var oFile = this.getDataObjectContents("Rubric");
-        var strRubric = util.stringFromStream(oFile, "utf-8");
-        //console.println("Rubric content:");
-        //console.println(strRubric);
-        var jsonRubric = eval("(" + strRubric + ")");
-        validationResult = validateRubric(jsonRubric);
-
-        if (validationResult.isValid) {
-          // Only proceed to attach the rubric if it passed validation
-          selectedRubricContent = jsonRubric;
-
-          // Save rubric details into document level fields. These will be read when
-          // the document is opened in subsequent occasions
-          var rubricFileNameField = aNewDoc.getField("RubricFileName");
-          if (rubricFileNameField == null) {
-            rubricFileNameField = aNewDoc.addField(
-              "RubricFileName",
-              "text",
-              0,
-              [0, 0, 0, 0]
-            );
-            rubricFileNameField.hidden = true;
-          }
-          rubricFileNameField.value = rubric.path;
-          selectedRubricFileName = rubricFileNameField.value;
-
-          var rubricNameField = aNewDoc.getField("RubricName");
-          if (rubricNameField == null) {
-            rubricNameField = aNewDoc.addField("RubricName", "text", 0, [
-              0,
-              0,
-              0,
-              0,
-            ]);
-            rubricNameField.hidden = true;
-          }
-          rubricNameField.value = jsonRubric.rubricName;
-          selectedRubricName = rubricNameField.value;
-
-          var rubricVersionField = aNewDoc.getField("RubricVersion");
-          if (rubricVersionField == null) {
-            rubricVersionField = aNewDoc.addField("RubricVersion", "text", 0, [
-              0,
-              0,
-              0,
-              0,
-            ]);
-            rubricVersionField.hidden = true;
-          }
-          rubricVersionField.value = jsonRubric.rubricVersion;
-          selectedRubricVersion = rubricVersionField.value;
-
-          // Applying Rubric to document
-          makeDocumentMarkable("RUBRIC");
-          rubricPageNumber = buildRubricPage();
-          this.pageNum = rubricPageNumber;
-          hasRubricAttached = true;
-          assignmentTotal = jsonRubric.totalMarks;
-
-          alertMsg =
-            "The rubric " +
-            rubric.path +
-            " was successfully attached to the current document \n";
-        } else {
-          alertMsg =
-            "The selected file (" +
-            rubric.path +
-            ") is not a valid rubric. The following validation errors were reported: \n\n";
-          alertMsg += validationResult.validationErrors;
-        }
-        app.alert(alertMsg, 3, 0);
-      }
+    if (markingState == "FINALISED") {
+      app.alert("Cannot select a rubric. The document has already been finalised");
     } else {
-      app.alert(
-        "There is already a rubric attached to the document. To replace it, you must first remove the existing rubric"
-      );
+      // Only allow rubric attachment if we have an active doc
+      if (!hasRubricAttached) {
+        // Document can only have one rubric at a time
+        var alertMsg =
+          "In the next screen, please select the required rubric file from your file system. \n\n";
+        alertMsg +=
+          "Once the rubric file is selected, it will be attached to the document. \n";
+
+        var continueImport = app.alert(alertMsg, 3, 1);
+        if (continueImport == 1) {
+          this.importDataObject("Rubric");
+          var rubric = this.getDataObject("Rubric");
+          console.println("Rubric File Name: " + rubric.path);
+          var oFile = this.getDataObjectContents("Rubric");
+          var strRubric = util.stringFromStream(oFile, "utf-8");
+          //console.println("Rubric content:");
+          //console.println(strRubric);
+          var jsonRubric = eval("(" + strRubric + ")");
+          validationResult = validateRubric(jsonRubric);
+
+          if (validationResult.isValid) {
+            // Only proceed to attach the rubric if it passed validation
+            selectedRubricContent = jsonRubric;
+
+            // Save rubric details into document level fields. These will be read when
+            // the document is opened in subsequent occasions
+            var rubricFileNameField = aNewDoc.getField("RubricFileName");
+            if (rubricFileNameField == null) {
+              rubricFileNameField = aNewDoc.addField(
+                "RubricFileName",
+                "text",
+                0,
+                [0, 0, 0, 0]
+              );
+              rubricFileNameField.hidden = true;
+            }
+            rubricFileNameField.value = rubric.path;
+            selectedRubricFileName = rubricFileNameField.value;
+
+            var rubricNameField = aNewDoc.getField("RubricName");
+            if (rubricNameField == null) {
+              rubricNameField = aNewDoc.addField("RubricName", "text", 0, [
+                0,
+                0,
+                0,
+                0,
+              ]);
+              rubricNameField.hidden = true;
+            }
+            rubricNameField.value = jsonRubric.rubricName;
+            selectedRubricName = rubricNameField.value;
+
+            var rubricVersionField = aNewDoc.getField("RubricVersion");
+            if (rubricVersionField == null) {
+              rubricVersionField = aNewDoc.addField("RubricVersion", "text", 0, [
+                0,
+                0,
+                0,
+                0,
+              ]);
+              rubricVersionField.hidden = true;
+            }
+            rubricVersionField.value = jsonRubric.rubricVersion;
+            selectedRubricVersion = rubricVersionField.value;
+
+            // Applying Rubric to document
+            makeDocumentMarkable("RUBRIC");
+            rubricPageNumber = buildRubricPage();
+            this.pageNum = rubricPageNumber;
+            hasRubricAttached = true;
+            assignmentTotal = jsonRubric.totalMarks;
+
+            alertMsg =
+              "The rubric " +
+              rubric.path +
+              " was successfully attached to the current document \n";
+          } else {
+            alertMsg =
+              "The selected file (" +
+              rubric.path +
+              ") is not a valid rubric. The following validation errors were reported: \n\n";
+            alertMsg += validationResult.validationErrors;
+          }
+          app.alert(alertMsg, 3, 0);
+        }
+      } else {
+        app.alert(
+          "There is already a rubric attached to the document. To replace it, you must first remove the existing rubric"
+        );
+      }
     }
   } else {
     app.alert(
       "To select a rubric, you must first have single active document open"
     );
   }
-
   app.endPriv();
 });
 

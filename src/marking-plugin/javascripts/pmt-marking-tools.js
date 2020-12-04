@@ -14,139 +14,144 @@ var configuredTickMark = false;
 var selectToolFromToolbar = app.trustedFunction(function (aNewDoc, type) {
   app.beginPriv();
 
-  console.println("Tool selected: " + type);
+  console.println("Selecting Tool: " + type);
 
-  // // Check if we already have a results page.
-  // // TODO - This should be moved elsewhere (Perhaps an init js file)
-  // if (firstInitialization) {
-  //   try {
-  //     var edtSpecial = aNewDoc.getField("ResultPage");
-  //     if (edtSpecial != null) {
-  //       resultsPageNumber = edtSpecial.page;
-  //     }
-  //   } catch (Error) {}
-
-  //   firstInitialization = false;
-  // }
-
-  deleteResultsPage(aNewDoc)
-
-  // TODO -  Logic here should be cleaned up.
-  if (hasMarkingButtons == true) {
-    deselectCurrentTool(aNewDoc);
-  }
-
-  switch (type) {
-    case "HALFT": {
-      isHalfMarkSelected = true;
-      isTickSelected = false;
-      isCheckSelected = false;
-      isCrossSelected = false;
-      isMarkSelected = false;
-      isCommentMarkSelected = false;
-      isRubricMarkSelected = false;
-      isDeselectAvailable = true;
-      break;
+  if (markingState == "FINALISED") {
+    app.alert("Cannot select marking tools. The document has already been finalised");
+  } else {
+    updateMarkingState("IN_PROGRESS");
+    deleteResultsPage(aNewDoc)
+  
+    // TODO -  Logic here should be cleaned up.
+    if (hasMarkingButtons == true) {
+      deselectCurrentTool(aNewDoc);
     }
-    case "TICK": {
-      isHalfMarkSelected = false;
-      isCheckSelected = false;
-      isCrossSelected = false;
-      isMarkSelected = false;
-      isCommentMarkSelected = false;
-      isRubricMarkSelected = false;
+  
+    var tmpMarkingType = "";
 
-      if (firstMarkForTick) {
-        var tickmarkConfigDialog = getTickMarkConfigDialog(
-          aNewDoc,
-          currentMarkForTick
-        );
-        var dialogResult = app.execDialog(tickmarkConfigDialog);
-        console.println(
-          "Result from the tickmark config dialog: " + dialogResult
-        );
-        if (dialogResult === "ok") {
-          console.println(
-            "Tick successfully configured: Value=" + currentMarkForTick
+    switch (type) {
+      case "HALFT": {
+        isHalfMarkSelected = true;
+        isTickSelected = false;
+        isCheckSelected = false;
+        isCrossSelected = false;
+        isMarkSelected = false;
+        isCommentMarkSelected = false;
+        isRubricMarkSelected = false;
+        isDeselectAvailable = true;
+        tmpMarkingType = "FREE";
+        break;
+      }
+      case "TICK": {
+        isHalfMarkSelected = false;
+        isCheckSelected = false;
+        isCrossSelected = false;
+        isMarkSelected = false;
+        isCommentMarkSelected = false;
+        isRubricMarkSelected = false;
+  
+        if (firstMarkForTick) {
+          var tickmarkConfigDialog = getTickMarkConfigDialog(
+            aNewDoc,
+            currentMarkForTick
           );
+          var dialogResult = app.execDialog(tickmarkConfigDialog);
+          console.println(
+            "Result from the tickmark config dialog: " + dialogResult
+          );
+          if (dialogResult === "ok") {
+            console.println(
+              "Tick successfully configured: Value=" + currentMarkForTick
+            );
+            isTickSelected = true;
+            isDeselectAvailable = true;
+            firstMarkForTick = false;
+          } else if (dialogResult === "cancel") {
+            console.println("Cancelled configuration of tickmark");
+            deselectCurrentTool(aNewDoc);
+          }
+        } else {
           isTickSelected = true;
           isDeselectAvailable = true;
-          firstMarkForTick = false;
-        } else if (dialogResult === "cancel") {
-          console.println("Cancelled configuration of tickmark");
-          deselectCurrentTool(aNewDoc);
         }
-      } else {
-        isTickSelected = true;
+        tmpMarkingType = "FREE";
+        break;
+      }
+      case "CHECK": {
+        isHalfMarkSelected = false;
+        isTickSelected = false;
+        isCheckSelected = true;
+        isCrossSelected = false;
+        isMarkSelected = false;
+        isCommentMarkSelected = false;
+        isRubricMarkSelected = false;
         isDeselectAvailable = true;
+        tmpMarkingType = "FREE";
+        break;
       }
-      break;
-    }
-    case "CHECK": {
-      isHalfMarkSelected = false;
-      isTickSelected = false;
-      isCheckSelected = true;
-      isCrossSelected = false;
-      isMarkSelected = false;
-      isCommentMarkSelected = false;
-      isRubricMarkSelected = false;
-      isDeselectAvailable = true;
-      break;
-    }
-    case "CROSS": {
-      isHalfMarkSelected = false;
-      isTickSelected = false;
-      isCheckSelected = false;
-      isCrossSelected = true;
-      isMarkSelected = false;
-      isCommentMarkSelected = false;
-      isRubricMarkSelected = false;
-      isDeselectAvailable = true;
-      break;
-    }
-    case "MARK": {
-      isHalfMarkSelected = false;
-      isTickSelected = false;
-      isCheckSelected = false;
-      isCrossSelected = false;
-      isMarkSelected = true;
-      isCommentMarkSelected = false;
-      isRubricMarkSelected = false;
-      isDeselectAvailable = true;
-      break;
-    }
-    case "COMMENTM": {
-      isHalfMarkSelected = false;
-      isTickSelected = false;
-      isCheckSelected = false;
-      isCrossSelected = false;
-      isMarkSelected = false;
-      isCommentMarkSelected = true;
-      isRubricMarkSelected = false;
-      isDeselectAvailable = true;
-      break;
-    }
-    case "RUBRICM": {
-      if (markingType!="RUBRIC") {
-        app.alert("Cannot select the Rubric Mark tool until a rubric has been applied to the document. Please add a rubric using the Edit > PDF Marking Tool > Rubric menu");
-        return;
+      case "CROSS": {
+        isHalfMarkSelected = false;
+        isTickSelected = false;
+        isCheckSelected = false;
+        isCrossSelected = true;
+        isMarkSelected = false;
+        isCommentMarkSelected = false;
+        isRubricMarkSelected = false;
+        isDeselectAvailable = true;
+        break;
       }
-      isHalfMarkSelected = false;
-      isTickSelected = false;
-      isCheckSelected = false;
-      isCrossSelected = false;
-      isMarkSelected = false;
-      isCommentMarkSelected = false;
-      isRubricMarkSelected = true;
-      isDeselectAvailable = true;
-      break;
+      case "MARK": {
+        isHalfMarkSelected = false;
+        isTickSelected = false;
+        isCheckSelected = false;
+        isCrossSelected = false;
+        isMarkSelected = true;
+        isCommentMarkSelected = false;
+        isRubricMarkSelected = false;
+        isDeselectAvailable = true;
+        tmpMarkingType = "FREE";
+        break;
+      }
+      case "COMMENTM": {
+        isHalfMarkSelected = false;
+        isTickSelected = false;
+        isCheckSelected = false;
+        isCrossSelected = false;
+        isMarkSelected = false;
+        isCommentMarkSelected = true;
+        isRubricMarkSelected = false;
+        isDeselectAvailable = true;
+        break;
+      }
+      case "RUBRICM": {
+        if (markingType!="RUBRIC") {
+          app.alert("Cannot select the Rubric Mark tool until a rubric has been applied to the document. Please add a rubric using the Edit > PDF Marking Tool > Rubric menu");
+          return;
+        }
+        isHalfMarkSelected = false;
+        isTickSelected = false;
+        isCheckSelected = false;
+        isCrossSelected = false;
+        isMarkSelected = false;
+        isCommentMarkSelected = false;
+        isRubricMarkSelected = true;
+        isDeselectAvailable = true;
+        tmpMarkingType = "RUBRIC";
+        break;
+      }
     }
-  }
+  
+    // If we don't currently have marking buttons, add them
+    if (hasMarkingButtons == false) {
+      addMarkingButtons(aNewDoc, type);
+      hasMarkingButtons = true;
+    }
 
-  // If we don't currently have marking buttons, add them
-  if (hasMarkingButtons == false) {
-    addMarkingButtons(aNewDoc, type);
-    hasMarkingButtons = true;
+    // // Update marking type
+    // if ((markingType === "FREE")&&(tmpMarkingType==="RUBRIC")) {
+
+    // }
+
   }
 
   app.endPriv();

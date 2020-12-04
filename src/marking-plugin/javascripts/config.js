@@ -29,12 +29,12 @@ var baseFilePath = cJSPath + "/PdfMarkingTool/";
 var aActiveDocs;
 var aNewDoc;
 
-// Documents can have 4 marking states: UNMARKED, IN_PROGRESS, COUNTED, FINALIZED
+// Documents can have 4 marking states: UNMARKED, IN_PROGRESS, COUNTED, FINALISED
 // These states define what functions are available to the user
 // This value is embedded as a field in the form, so that it is available on subsequent opening
 var markingState = "UNKNOWN";
 
-// Marking can be done as either UNSTRUCTURED, or RUBRIC
+// Marking can be done as either FREE, RUBRIC, or MIXED
 // This value is embedded as a field in the form, so that it is available on subsequent opening
 var markingType = "UNKNOWN";
 
@@ -460,28 +460,15 @@ var initDocument = app.trustedFunction(function () {
     }
 
     // If we have already finished the document, then we set markingToolsActive to false
-    try {
-      var edtFinish = aNewDoc.getField("edtFinish");
-      if (edtFinish != null && edtFinish.value == "FINAL_DONE") {
-        markingToolsActive = false;
-        markingState = "FINALISED";
-        console.println(
-          "The document has already been finalised. Marking tools will not be enabled"
-        );
-        initError = true;
-        initErrorMsg =
-          initErrorMsg +
-          " - The document has already been finalised. Marking tools will not be enabled. \n";
-      }
-    } catch (Error) {
+    if (markingState == "FINALISED") {
+      markingToolsActive = false;
       console.println(
-        "Error while verifying if the document has already been finished. " +
-          Error
+        "The document has already been finalised. Marking tools will not be enabled"
       );
       initError = true;
       initErrorMsg =
         initErrorMsg +
-        " - Error while verifying if the document has already been finished. \n";
+        " - The document has already been finalised. Marking tools will not be enabled. \n";
     }
 
     // Determine if a rubric is being used. If so, load the rubric into memory
@@ -548,24 +535,7 @@ var makeDocumentMarkable = app.trustedFunction(function (inputMarkingType) {
         markingTypeField.value = inputMarkingType;
         markingType = inputMarkingType;
 
-        markingStateField = aNewDoc.getField("MarkingState");
-        if (markingStateField == null) {
-          var em = 16;
-          var aRect = this.getPageBox({ nPage: 0 });
-          aRect[0] += 2 * em; // from upper left hand corner of page.
-          aRect[2] = aRect[0] + 2 * em; // Make it .5 inch wide
-          aRect[1] -= 2 * em;
-          aRect[3] = aRect[1] - 24; // and 24 points high
-          markingStateField = aNewDoc.addField(
-            "MarkingState",
-            "text",
-            0,
-            aRect
-          );
-          markingStateField.hidden = true;
-        }
-        markingStateField.value = "UNMARKED";
-        markingState = "UNMARKED";
+        updateMarkingState("UNMARKED");
       } catch (Error) {
         var errorMsg = "Error while making document markable " + Error;
         console.println(errorMsg);
@@ -584,6 +554,50 @@ var makeDocumentMarkable = app.trustedFunction(function (inputMarkingType) {
     console.println(errorMsg);
     app.alert(errorMsg);
   }
+  app.endPriv();
+});
+
+var updateMarkingState = app.trustedFunction(function (newState) {
+  app.beginPriv();
+
+  markingStateField = aNewDoc.getField("MarkingState");
+  if (markingStateField == null) {
+    var em = 16;
+    var aRect = [0,0,0,0]
+    markingStateField = aNewDoc.addField(
+      "MarkingState",
+      "text",
+      0,
+      aRect
+    );
+    markingStateField.hidden = true;
+  }
+  markingStateField.value = newState;
+  markingState = newState;
+
+  app.endPriv();
+});
+
+// Depending on the current marking type, the new type will be set
+// TODO
+var updateMarkingType = app.trustedFunction(function (newType) {
+  app.beginPriv();
+
+  markingTypeField = aNewDoc.getField("MarkingType");
+  if (markingTypeField == null) {
+    var em = 16;
+    var aRect = [0,0,0,0]
+    markingTypeField = aNewDoc.addField(
+      "MarkingType",
+      "text",
+      0,
+      aRect
+    );
+    markingTypeField.hidden = true;
+  }
+  markingTypeField.value = newType;
+  markingType = newType;
+
   app.endPriv();
 });
 

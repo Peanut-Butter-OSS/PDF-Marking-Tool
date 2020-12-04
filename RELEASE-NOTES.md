@@ -1,5 +1,12 @@
 # RELEASE NOTES
 
+## v2.0
+Date Released: 2020-??-??
+Developer: Greg Fullard
+
+### Changes
+
+
 ## v1.8
 
 Date Released: 2020-10-27
