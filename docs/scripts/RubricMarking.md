@@ -1,0 +1,1 @@
+# Rubric setup video script
