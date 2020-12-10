@@ -86,18 +86,18 @@ var getConfigDialog = app.trustedFunction(function () {
               height: 20,
               next_tab: "mcfl",
             },
-            {
-              type: "static_text",
-              name: "Marking Complete Folder:",
-            },
-            {
-              item_id: "mcfl",
-              type: "edit_text",
-              alignment: "align_fill",
-              width: 200,
-              height: 20,
-              next_tab: "mcfl",
-            },
+            // {
+            //   type: "static_text",
+            //   name: "Marking Complete Folder:",
+            // },
+            // {
+            //   item_id: "mcfl",
+            //   type: "edit_text",
+            //   alignment: "align_fill",
+            //   width: 200,
+            //   height: 20,
+            //   next_tab: "mcfl",
+            // },
           ],
         },
         {

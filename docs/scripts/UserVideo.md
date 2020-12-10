@@ -1,5 +1,6 @@
 # Video Script - User
 
+## Snippet 1
 Hello World
 
 This is video 2 is a series of three videos that provide an introduction to installing and using the PDF marking tool. 
@@ -7,14 +8,17 @@ This is video 2 is a series of three videos that provide an introduction to inst
  - Video 2 (This video) covers basic usage of the tool, and
  - Video 3 explores the new Rubric marking functionality in the tool
 
-Please take note: These videos apply only to v 2 and above of the markiung tool, since a large number of changes were introduced during the upgrade from v1.x to v2.x
+Please take note: These videos apply only to v 2 and above of the marking tool, since a large number of changes were introduced during the upgrade from v1.x to v2.x
 
+## Snippet 2
 The PDF marking tool was originally developed in 2009 as an open source product with funding from the University of South Africa. Since then there have been minor upgrades to stay aligned with changes in Operating Systems and the Adobe Acrobat platform. 
 
 In 2020, with the assistance of Adobe and Learning Curve, we were able to secure funding for some much-needed functional enhancements to the product.
 
+## Snippet 3
 For the purposes of this video we are assuming that you have completed the installation process and are now ready to begin working with the tool.
 
+## Snippet 4
 We'll cover the following topics:
  - How to check if the tool was installed
  - How to view or update the tool configuration
@@ -27,7 +31,8 @@ We'll cover the following topics:
  - How to generate the results page
  - How to finalise a marked document
 
-## How to check if the tool was installed
+## Snippet 5
+### How to check if the tool was installed
 Once you open Adobe Acrobat, and assuming the marking tool was successfully installed you should see a new menu item
 under the edit menu.
 
@@ -40,14 +45,16 @@ Under the marking tool menu, you will find an item titled "About". If you select
  - The version number
  - The installation folder
 
-Also note that the GitHub URL is provided for the marking tool. This is where we manage the development of new feature requests, so if you have ideas or suggesions, please feel free to get in touch.
+Also note that the GitHub URL is provided for the marking tool. This is where we manage the development of new feature requests, so if you have ideas or suggestions, please feel free to get in touch.
 
-## How to view or update the tool configuration
-Also under the marking tool menu, you will find another item titled "Config".  If you select this item, the system pops up a dialog that allows you to adjust the configuration options for the marking tool.
+## Snippet 6
+### How to view or update the tool configuration
+Also under the marking tool menu, you will find another item titled "Config". If you select this item, the system pops up a dialog that allows you to adjust the configuration options for the marking tool.
 
 At the moment, the only configurable item is the name of the current marker, but in the future, additional options may be added here.
 
-## How to open a PDF document for marking
+## Snippet 7
+### How to open a PDF document for marking
 When using the PDF marking tool, it is essential that you only work with one active PDF document at a time. The best way to achieve this is to follow these steps:
 
 1. Ensure Adobe Acrobat DC is closed
@@ -96,7 +103,7 @@ The second approach is called rubric-based marking, where you use a pre-built ru
 Since rubric-based marking involves a few setup steps, we have dedicated a separate video for rubric-based marking
 
 ## How to add unstructured marks
-Unstructured marks refer to the tick and half-tick tools in the toolbar. They are called unstrcutured marks, because they add a mark to the document, but they do not specify which question the mark applies to.
+Unstructured marks refer to the tick and half-tick tools in the toolbar. They are called unstructured marks, because they add a mark to the document, but they do not specify which question the mark applies to.
 
 A half-tick mark always counts exactly 0.5 marks, but a tick-mark can be configured to count a specific number of marks.
 
@@ -114,7 +121,7 @@ Notice that after I click on the point to mark, the system pops up a dialog that
 It should be noted however, that you could leave the Criterion field empty. To demonstrate, I will add a mark to question 3 without specifying the criterion.
 
 ## How to add structured marks with comments
-Sonmetimes you want to add a unique comment alongside a mark. If this is required, simply use the "Comment Mark" tool
+Sometimes you want to add a unique comment alongside a mark. If this is required, simply use the "Comment Mark" tool
 
 For example, here I will be adding a mark with a comment to Question 4. The system also pops up a dialog, but not the dialog includes an extra field in which I can type a comment.
 
@@ -138,7 +145,7 @@ When this button is clicked, the system pops up a dialog asking the user to spec
 
 Once the total has been specified, the system automatically adds a new page to the document. The new page contains the marking results summary, breaking down the marks according to the criteria they were applied to.
 
-In our example we used 2 structured marks and all other marks were unstrucutred. The system counts all the marks up and calculates the percentage.
+In our example we used 2 structured marks and all other marks were unstructured. The system counts all the marks up and calculates the percentage.
 
 Although not a typical use case, it is also possible to add additional marks at this stage and recalculate the results. I'll demonstrate this by adding an additional tick to question 1.
 
@@ -150,6 +157,12 @@ Let me demonstrate this by finalising the document.
 Notice that the system provides a warning. If I acknowledge this warning, the system now creates a new document which contains the score in the file name.
 
 Also notice that I can no longer apply marks to the document
+
+Additionally, notice that a further page was added to the document listing all off the comments, in order. In our example, only one text comment was added.
+
+If I now close the document and open it again, you will notice two things:
+1. The Add-on toolbar is no longer available, and
+2. The status dialog highlights that the marking status is FINALISED
 
 ## Conclusion
 That brings us to the end of the basic marking functionality.
