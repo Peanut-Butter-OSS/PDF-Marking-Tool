@@ -274,7 +274,7 @@ Although not a typical use case, it is also possible to add additional marks at 
 #### Snippet 22 - START
 
 ## How to finalise a marked document
-If the marked is satisfied with the calculated marks, the final step is to FINALISE the document. Notice in the bottom left corner of the results page, there is a new button titled "Finalise". When this button is clicked, the document will be moved into a FINAL state, after which marks can no longer be added or changed.
+If the marker is satisfied with the calculated marks, the final step is to FINALISE the document. Notice in the bottom left corner of the results page, there is a new button titled "Finalise". When this button is clicked, the document will be moved into a FINAL state, after which marks can no longer be added or changed.
 
 Let me demonstrate this by finalising the document.
 
@@ -288,7 +288,7 @@ Also notice that I can no longer apply marks to the document
 ####
 #### Snippet 23 - START
 
-Additionally, notice that a further page was added to the document listing all off the comments, in order. In our example, only one text comment was added.
+Additionally, notice that a further page was added to the document listing all off the comments. In our example, only one comment was added.
 
 If I now close the document and open it again, you will notice two things:
 1. The Add-on toolbar is no longer available, and
@@ -306,6 +306,8 @@ That brings us to the end of the basic marking functionality.
 As mentioned earlier, the PDF marking Tool also support a rubric-based approach to marking. 
 
 Rubric-based marking will be explained in the third video of the series.
+
+See you there
 
 #### Snippet 24 - END
 
