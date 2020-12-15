@@ -9,7 +9,7 @@ This is video 3 is a series of three videos that provide an introduction to inst
  - Video 2 covers basic usage of the tool, and
  - Video 3 (This video) explores the new Rubric marking functionality in the tool
 
-Please take note: These videos apply only to v 2 and above of the marking tool, since a large number of changes were introduced during the upgrade from v1.x to v2.x
+Please take note: These videos apply only to v 2 and above of the marking tool, since a large number of changes were introduced during the upgrade from v1 to v2
 
 #### Snippet 1 - END
 ####
@@ -56,7 +56,7 @@ Rubric-based marking is designed to overcome this potential risk. A rubric is ty
 A rubric is always created for exactly one assignment or exam and defines the following:
 
 * A set of criteria to be marked
-* For each criterium, a set of levels that could be applied, and
+* For each criterion, a set of levels that could be applied, and
 * For each level, an associated mark value and comment.
 
 Let's look at an example:
@@ -81,7 +81,7 @@ For question 1 to 4, we will define the following levels:
 
 Each level will then have an associated "Default Comment" and an associated mark value
 
-Question 5 will be different, since there is much more variability in an essay question. The table below depicts the 2 criteria that will be applied for question 5, along with the levels that are possible for each.
+Question 5 will be different, since there is much more variability in an essay question. There will be 2 criteria applied for question 5, along with the levels that are possible for each. One criterion focuses on the grammar used and the second criterion focuses on the argument structure
 
 Once again, each level is associated with a default comment and mark.
 
@@ -110,7 +110,7 @@ At this point you are ready to proceed with rubric-based marking
 ## How to add rubric marks
 Rubric-driven marks are added using the "Rubric Mark" tool. Let me demonstrate by adding a mark to question 1:
 
-Notice that after I click on the point to mark, the system pops up a dialog. In the dialog there are 2 dropdown fields. The first field is titled "Criterion". This is where I will pick the criterion being marked. By default this dropdown show the first unmarked criterion in the assignment.
+Notice that after I click on the point to mark, the system pops up a dialog. In the dialog there are 2 dropdown fields. The first field is titled "Criterion". This is where I will pick the criterion being marked. By default this dropdown shows the first unmarked criterion in the assignment.
 
 After the criterion has been selected, the second dropdown field (titled "Level") allows me to select the result level for the particular question. In our example, the only options are "Correct" and "Incorrect"
 
@@ -118,7 +118,7 @@ Once I've selected "Correct" as the level, notice that the Marks and Comments fi
 
 For demonstration purposes I will now quickly mark questions 2-4. Notice that the system automatically selects the next unmarked criterion, making it faster to mark and making double-marks less likely.
 
-Before we move on to Question 4, I'd like to make a quick detour and show you what has been happening in the rubric page while we were adding marks.
+Before we move on to Question 5, I'd like to make a quick detour and show you what has been happening in the rubric page while we were adding marks.
 
 Notice that the rubric table is has been filled in, showing which questions have already been marked.
 
@@ -126,18 +126,18 @@ Also notice that the questions that have already been marked, now have a new but
 Take note though, that I'm only taken to the page on which it appears - Depending on my current screen resolution and the page size, I may need to scroll down to see the mark.
 
 ## How to use custom comments and marks in a rubric
-You may recall that Question 4 is an essay style question where we are marking based on 2 separate criteria: The argument structure as well as the grammar used.
+You may recall that Question 5 is an essay style question where we are marking based on 2 separate criteria: The argument structure as well as the grammar used.
 
-To mark question 4, we could easily just follow the process we've been following all along, but simply adding one mark for each of the criteria. However, I'd like to use the opportunity to show how defaults comments and marks can be overridden
+To mark question 5, we could easily just follow the process we've been following all along, but simply adding one mark for each of the criteria. However, I'd like to use the opportunity to show how defaults comments and marks can be overridden
 
-While adding the mark for argument structure, I see that there are 5 pre-configured levels. Based on the names for each of the levels, I feel that the correct level is "Good explanation", but I would want to add a custom comment and also adjust the marks proposed for the feel that the default  
+While adding the mark for argument structure, I see that there are 5 pre-configured levels. Based on the names for each of the levels, I feel that the correct level is "Successful and convincing", but I would want to add a custom comment and also adjust the marks proposed from a 7 to an 8  
 
-Notice that after I selected level "Good Explanation" I am still able to adjust the mark value and the default comment.
+Notice that after I selected level "Successful and convincing" I am still able to adjust the mark value and the default comment.
 
 ## How the results page is generated in rubric based marking
 After all questions in a document have been marked, the next step is to count up all the marks. This is as simple as clicking the "Count Marks" button.
 
-When this button is clicked, the system pops up a dialog asking the user to specify the total value of the assignment or exam. For our example, I'll specify that the total value is 100 marks.
+When this button is clicked, the system pops up a dialog asking the user to specify the total value of the assignment or exam. For our example, I'll specify that the total value is 20 marks.
 
 Once the total has been specified, the system automatically adds a new page to the document. The new page contains the marking results summary, breaking down the marks according to the criteria they were applied to.
 

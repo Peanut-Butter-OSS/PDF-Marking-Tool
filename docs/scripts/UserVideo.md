@@ -9,7 +9,7 @@ This is video 2 is a series of three videos that provide an introduction to inst
  - Video 2 (This video) covers basic usage of the tool, and
  - Video 3 explores the new Rubric marking functionality in the tool
 
-Please take note: These videos apply only to v 2 and above of the marking tool, since a large number of changes were introduced during the upgrade from v1.x to v2.x
+Please take note: These videos apply only to v 2 and above of the marking tool, since a large number of changes were introduced during the upgrade from v1 to v2
 
 #### Snippet 1 - END
 ####
