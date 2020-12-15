@@ -1,4 +1,4 @@
-# Video Script - User
+# Video Script - Usage Basics
 
 #### Snippet 1 - START
 
