@@ -137,7 +137,7 @@ Notice that after I selected level "Successful and convincing" I am still able t
 ## How the results page is generated in rubric based marking
 After all questions in a document have been marked, the next step is to count up all the marks. This is as simple as clicking the "Count Marks" button.
 
-When this button is clicked, the system pops up a dialog asking the user to specify the total value of the assignment or exam. For our example, I'll specify that the total value is 20 marks.
+When this button is clicked, the system pops up a dialog asking the user to specify the total value of the assignment or exam. Because this is a rubric based assignment, the value is already populated with the total value from our Rubric.
 
 Once the total has been specified, the system automatically adds a new page to the document. The new page contains the marking results summary, breaking down the marks according to the criteria they were applied to.
 
@@ -152,16 +152,25 @@ As mentioned earlier in this video, rubrics are files created using the JSON str
 
 JSON files are simply text files that you can edit with any text editor, even something like Windows Notepad. Personally, I prefer to use a free tool called Visual Studio Code. Visual Studio Code is a powerful text editor published by Microsoft. You can download and install it from their website at code . visualstudio . com
 
-Let me open a simplified version of the rubric file we used earlier in this demonstration.
+Let me open the rubric file we used earlier in this demonstration.
 
 If you have never seen a JSON file, the file might seem intimidating at first, but it is actually very simple to understand. the important thing to understand is that a JSON file is designed to be easy to read for humans AND computers. As a result, it has some strict formatting rules, but besides that it simply uses normal english.
 
 To explain the rubric file strcuture, I will assemble the JSON file from start to finish, explaining each portion as we go.
 
-Step 1: Curly Braces
+Step 1: Create a new JSON file
+I have already created a folder on my desktop titled "Rubric Demonstration". Our rubric file will be created here.
+
+My first step is to open visual studio code. Notice that it shows a default welcome page. I'll close that for now, since we won't be using it.
+
+Next I will open my folder in Visual Studio Code. So I will go to File > Open Folder, and select the folder that I created
+
+Next I'll create the new file. There are, of course, many ways to create a new file. For me the easiest and fastest way is to click the "New File" button inside the VS Code project.
+
+Step 2: Curly Braces
 A JSON file always starts for an opening curly bracket and ends with a closing curly bracket. This allows the reader to know where the file starts and ends. In technical lingo, we call everything within the curly brackets an OBJECT. In our particular case, the main object in the file is a RUBRIC
 
-Step 2: Adding some properties to the Object
+Step 3: Adding some properties to the Object
 In order to specify the details of the rubric we need to list each of its properties. One property is added at a time, listing the name of the property and then the value of that property. The names and values are enclosed in quotations and separated by a colon.
 
 In this example notice that we have number of properties, including:
@@ -182,16 +191,18 @@ Other property values are numbers, like the rubric Id and the version. These are
 
 Also notice that each line ends with a comma, EXCEPT the very last line
 
-Additionally, you may notice that the property names are shown in blue, character strings in orange and numbers in white. This is actually a feature of Visual Studio Code, which makes JSON files much easier to work with.
+Additionally, you may notice that the property names are shown in blue, character strings in orange and numbers in green. This is actually a feature of Visual Studio Code, which makes JSON files much easier to work with.
 
-Step 3: Adding criteria
+Step 4: Adding criteria
 To add the marking criteria to our rubric, we simply add a new property with the name CRITERIA.
 
 However, the value of this property will not be a simple string or number. Instead it will be a LIST of other objects. To show a list we use square brackets. So let's add an opening and closing square bracket to denote the list.
 
 Inside our list, we could've just added a list of simple strings or numbers, but that will not suffice for our purposes, our list needs to contain nested objects. As you remember from earlier, objects are enclosed in curly brackets.
 
-Let's start by just adding one criterion to the list. Notice that I first add the square brackets and then I add the properties that describe a criterion. In this case:
+First I add a line break inside our list, to make things easier to see
+
+Let's start by just adding one criterion to the list. Notice that I first add the curly brackets and then I add the properties that describe a criterion. In this case:
 * A criterion Id, which is just a unique number within this rubric
 * A criterion name, which is intended for human consumption
 * The total possible marks for this particular criterion. The first criterion will count out of 2
@@ -202,7 +213,7 @@ Before we proceed, let's circle back for a short while to recap the structure of
 
 So based on this we need to add some more information to our criterion.
 
-Step 4: Adding levels
+Step 5: Adding levels
 
 I will add a new property called "levels", and once again this will be a list of objects. In our example, I'll add 2 sets of curly brackets inside the list, because we will have 2 potential levels for our criterion. It can either be correct, or incorrect.
 
@@ -217,10 +228,10 @@ If you look at the example, notice that we have commas between the two criterion
 
 As an example, if I remove one of these commas, Visual Studio Code immediately adds a red underline to the next row, to highlight that something is wrong. This is another reason why using Visual Studio Code is valuable.
 
-Step 5: Importing your rubric
+Step 6: Importing your rubric
 Now that we've created a rubric, we should test it by importing it into marking tool. 
 
-I'll demonstrate by following the sme steps shown earlier, but this time I'll import our brand new rubric.
+I'll demonstrate by following the same steps shown earlier, but this time I'll import our brand new rubric.
 
 Notice that after import, the new rubric marking page was added and it includes all the options that we specified in the JSON file.
 
@@ -228,12 +239,19 @@ But what if there is an error in your Rubric JSON file?
 
 Well, when you import a rubric, marking tool will validate the file to ensure it is correctly structured and that it includes all the required properties. If the file is invalid, it will not allow the import.
 
-Let's demonstrate this by making a minor change to the rubric file that will cause it to fail upload. Let me remove the levelName property for one of the levels in criteria 1.
+Let's demonstrate this by making a minor change to the rubric file that will cause it to fail upload. Let me remove the rubricId, which is a mandatory field.
+
+Now I'll remove the old rubric and attempt to import our new (but broken) rubric
 
 Notice, when I now try to import the rubric, the system gives me a clear indication wheat the error is.
 
-Step 6: Distributing the rubric
-Once you are satisfied with the rubric JSON file, you can distribute it to the relevatn markers via any suitable channel, such as email, storing it on your LMS or central file server.
+Step 7: Distributing the rubric
+Once you are satisfied with the rubric JSON file, you can distribute it to the relevant markers via any suitable channel, such as email, storing it on your LMS or central file server.
+
+## Reusing an existing rubric template
+As mentioned earlier, it is unlikely that you will often create rubric files front scratch in the way that we did in this video. What is more likely is that you will simply reuse an existing rubric file and edit it according to your needs.
+
+For this purpose, the marking tool includes the Demo Rubric inside the installation folder.
 
 ## Conclusion
 That brings us to the end of the rubric functionality, and also the last video in this series.
