@@ -17,7 +17,7 @@
 
 # MARKING_TOOL_VERSION
 # Version of the tool and the corresponding installer. Only used in the file name of the installer and uninstaller 
-!define MARKING_TOOL_VERSION "v1.8"
+!define MARKING_TOOL_VERSION "v2.0"
 
 # ADOBE_ACROBAT_JAVASCRIPTS_PATH
 # Sub-folder inside the Acrobat installation folder where the Javascript files should be stored
@@ -25,7 +25,7 @@
 
 # JAVASCRIPTS_UNINSTALL_REG_KEY
 # Windows registry key that should be used for the uninstaller
-!define JAVASCRIPTS_UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\UNISA"
+!define JAVASCRIPTS_UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\PdfMarkingTool"
 
 # LICENSE_FILE
 # File that contains the licence content
@@ -42,18 +42,6 @@ FunctionEnd
 Function .onInit
   # Verifies that the required multi-user execution level has been granted
   !insertmacro MULTIUSER_INIT
-
-  # Derive the installation folder based on whether
-  # the machine is running 32 or 64 bits
-  ${If} ${RunningX64}
-    #MessageBox MB_OK "Running in 64 bit mode"
-    SetRegView 64
-    StrCpy $INSTDIR "$PROGRAMFILES64\UNISA"
-  ${Else}
-    #MessageBox MB_OK "Running in 32 bit mode"
-    SetRegView 32
-    StrCpy $INSTDIR "$PROGRAMFILES\UNISA"
-  ${EndIf}
 
   Var /GLOBAL ACROBAT_INSTALLED
   Var /GLOBAL ACROBAT_VERSION
@@ -73,21 +61,12 @@ Function .onInit
   ;   Abort   
   ; ${EndIf}  
 
-  # Derive the installation folder based on whether
-  # the machine is running 32 or 64 bits
-  ${If} ${RunningX64}
-    #MessageBox MB_OK "Running in 64 bit mode"
-    SetRegView 64
-    StrCpy $INSTDIR "$PROGRAMFILES64\UNISA"
-  ${Else}
-    #MessageBox MB_OK "Running in 32 bit mode"
-    SetRegView 32
-    StrCpy $INSTDIR "$PROGRAMFILES\UNISA"
-  ${EndIf}
-
   # Configure expected installation folder for Acrobat
   Var /GLOBAL ACROBAT_FOLDER
   call deriveAcrobatJsPath
+
+  # Configure expected installation folder for resources
+  StrCpy $INSTDIR "$ACROBAT_FOLDER\PdfMarkingTool"
 
 FunctionEnd
  
@@ -192,7 +171,7 @@ Function makeRegistryEntries
   # Write Registry entries to update JS Preferences in Acrobat
   WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableJS" 0x00000001
   WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableMenuItems" 0x00000001
-  WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableGlobalSecurity" 0x00000001
+  WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableGlobalSecurity" 0x00000000
 
   # Write Registry entry for the uninstaller
   WriteRegStr HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "JavascriptPath" $ACROBAT_FOLDER
@@ -235,7 +214,7 @@ FunctionEnd
   # derived during initialisation as the default ()
   # Store the folder in $ACROBAT_FOLDER
   !define MUI_DIRECTORYPAGE_VARIABLE $ACROBAT_FOLDER
-  !define MUI_DIRECTORYPAGE_TEXT_TOP 'The marking tool is installed in 2 locations. $\r$\n  1. Tool assets are installed in a fixed location at $INSTDIR. $\r$\n  2. The plugin code is installed within your Adobe Acrobat folder. $\r$\n$\r$\nDepending on your machine setup, Adobe Acrobat may be installed in a non-standard location. If so, please ensure you select the correct Javascripts folder which exists within your Acrobat installation folder.'
+  !define MUI_DIRECTORYPAGE_TEXT_TOP 'The marking tool is installed within your Adobe Acrobat folder, under the Javascripts subfolder. $\r$\n$\r$\nDepending on your machine setup, Adobe Acrobat may be installed in a non-standard location. If so, please ensure you select the correct Javascripts folder which exists within your Acrobat installation folder.'
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
   !insertmacro MUI_PAGE_FINISH
@@ -295,8 +274,15 @@ Section "Acrobat JavaScripts" Section2
   # install acrobat javascript files
   SetOutPath $ACROBAT_FOLDER
   
-  File ..\..\src\WIN\config.js
-  File ..\..\src\WIN\unisa_funct.js
+  File ..\..\marking-plugin\javascripts\config.js
+  File ..\..\marking-plugin\javascripts\pmt-annotations.js
+  File ..\..\marking-plugin\javascripts\pmt-comments.js
+  File ..\..\marking-plugin\javascripts\pmt-config.js
+  File ..\..\marking-plugin\javascripts\pmt-finalise.js
+  File ..\..\marking-plugin\javascripts\pmt-marking-tools.js
+  File ..\..\marking-plugin\javascripts\pmt-results.js
+  File ..\..\marking-plugin\javascripts\pmt-rubric.js
+  File ..\..\marking-plugin\javascripts\pmt-utils.js
 
   # Make relevant registry entries that will apply Acrobat setting changes
   call makeRegistryEntries
@@ -307,20 +293,16 @@ Section "Marking Tool Resources" Section3
 
   SetOutPath $INSTDIR
   
-  File ..\..\res\BlankSheet.pdf
-  
-  File ..\..\res\check.png
-  File ..\..\res\commentmark.png
-  File ..\..\res\count.png
-  File ..\..\res\crossmark.png
-  File ..\..\res\deselect.png
-  File ..\..\res\halftickmark.png
-  File ..\..\res\mark.png
-  File ..\..\res\tickmark.png
-  
-  File ..\..\res\rubric_engine.txt
-  File ..\..\res\comm_engine.txt
-  File ..\..\res\tot_engine.txt
+  File ..\..\marking-plugin\resources\BlankSheet.pdf
+  File ..\..\marking-plugin\resources\check.png
+  File ..\..\marking-plugin\resources\commentmark.png
+  File ..\..\marking-plugin\resources\count.png
+  File ..\..\marking-plugin\resources\crossmark.png
+  File ..\..\marking-plugin\resources\deselect.png
+  File ..\..\marking-plugin\resources\halftickmark.png
+  File ..\..\marking-plugin\resources\mark.png
+  File ..\..\marking-plugin\resources\rubricmark.png
+  File ..\..\marking-plugin\resources\tickmark.png
 
 SectionEnd
 
@@ -339,7 +321,6 @@ Section "Uninstall"
   # now delete installed files
   Delete $INSTDIR
   Delete $INSTDIR\BlankSheet.pdf
-  
   Delete $INSTDIR\check.png
   Delete $INSTDIR\commentmark.png
   Delete $INSTDIR\count.png
@@ -347,17 +328,21 @@ Section "Uninstall"
   Delete $INSTDIR\deselect.png
   Delete $INSTDIR\halftickmark.png
   Delete $INSTDIR\mark.png
+  Delete $INSTDIR\rubricmark.png
   Delete $INSTDIR\tickmark.png
-  
-  Delete $INSTDIR\rubric_engine.txt
-  Delete $INSTDIR\comm_engine.txt
-  Delete $INSTDIR\tot_engine.txt
   
   RMDir $INSTDIR
   
   ReadRegDWORD $0 HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "JavascriptPath"
   Delete $0\config.js
-  Delete $0\unisa_funct.js
+  Delete $0\pmt-annotations.js
+  Delete $0\pmt-comments.js
+  Delete $0\pmt-config.js
+  Delete $0\pmt-finalise.js
+  Delete $0\pmt-marking-tools.js
+  Delete $0\pmt-results.js
+  Delete $0\pmt-rubric.js
+  Delete $0\pmt-utils.js
   
   DeleteRegKey HKCU "${JAVASCRIPTS_UNINSTALL_REG_KEY}"
  
