@@ -171,7 +171,7 @@ Function makeRegistryEntries
   # Write Registry entries to update JS Preferences in Acrobat
   WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableJS" 0x00000001
   WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableMenuItems" 0x00000001
-  WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableGlobalSecurity" 0x00000001
+  WriteRegDWORD HKCU "$ACROBAT_FULL_KEY\JSPrefs" "bEnableGlobalSecurity" 0x00000000
 
   # Write Registry entry for the uninstaller
   WriteRegStr HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "JavascriptPath" $ACROBAT_FOLDER
