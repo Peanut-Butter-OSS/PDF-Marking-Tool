@@ -1,0 +1,84 @@
+{
+    "rubricId" : 1,
+    "rubricName" : "CS50 Lab 1 - Base Rubric",
+    "rubricVersion" : 1,
+    "courseCode" : "CS50",
+    "assignmentId" : "Lab 1",
+    "totalMarks" : 100,
+    "criteria" : [
+        {
+            "criterionId" : "q1",
+            "criterionName" : "Question 1",
+            "totalMarks" : 15
+        },
+        {
+            "criterionId" : "q2",
+            "criterionName" : "Question 2",
+            "totalMarks" : 40,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 40, 
+                    "levelDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        },
+        {
+            "criterionId" : "q3",
+            "criterionName" : "Question 3",
+            "totalMarks" : 15,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        },
+        {
+            "criterionId" : "q4",
+            "criterionName" : "Question 4",
+            "totalMarks" : 15,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        }, 
+        {
+            "criterionId" : "q5",
+            "criterionName" : "Question 5",
+            "totalMarks" : 15,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        }  
+
+    ]
+}

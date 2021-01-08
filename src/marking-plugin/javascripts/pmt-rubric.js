@@ -125,48 +125,186 @@ var validateRubric = app.trustedFunction(function (rubric) {
     validationErrors: "",
   };
 
-  // TODO
-  // - At least one criteria specified
-  // - For each criteria:
-  //    - criteriaName is specified
-  //    - totalMarks is specified
-  //    - At least one level specified
-  //    - No duplication of criteriaId or criteriaName
-  //    - For each level:
-  //        - levelName is specified
-  //        - levelMarks is specified
-  //        - levelDefaultComment is specified
-  //        - no duplication of levelName
+  var criteriaIdList = [];
+  var criteriaNameList = [];
 
-  if (!rubric.rubricId) {
+  if (!("rubricId" in rubric)) {
     var errorMsg = " - No rubricId was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
+  } else if (isNaN(rubric.rubricId)) {
+    var errorMsg = " - The value for rubricId is not a number. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  } else if (rubric.rubricId  < 0) {
+    var errorMsg = " - The value for rubricId is less than 0. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
   }
-  if (!rubric.rubricName) {
+  if (!("rubricName" in rubric)) {
     var errorMsg = " - No rubricName was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }
-  if (!rubric.rubricVersion) {
+  if (!("rubricVersion" in rubric)) {
     var errorMsg = " - No rubricVersion was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
+  } else if (isNaN(rubric.rubricVersion)) {
+    var errorMsg = " - The value for rubricVersion is not a number. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  } else if (rubric.rubricVersion < 0) {
+    var errorMsg = " - The value for rubricVersion is less than 0. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
   }
-  if (!rubric.courseCode) {
+  if (!("courseCode" in rubric)) {
     var errorMsg = " - No courseCode was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }
-  if (!rubric.assignmentId) {
+  if (!("assignmentId" in rubric)) {
     var errorMsg = " - No assignmentId was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
   }
-  if (!rubric.totalMarks) {
+  if (!("totalMarks" in rubric)) {
     var errorMsg = " - No totalMarks was specified. \n";
     validationResult.isValid = false;
     validationResult.validationErrors += errorMsg;
+  } else if (isNaN(rubric.totalMarks)) {
+    var errorMsg = " - The value for totalMarks is not a number. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  } else if (rubric.totalMarks < 0) {
+    var errorMsg = " - The value for totalMarks is less than 0. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  }
+  if (!("criteria" in rubric)) {
+    var errorMsg = " - No marking criteria list found. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  } else if (rubric.criteria.length == 0) {
+    var errorMsg = " - The list of marking criteria is empty. \n";
+    validationResult.isValid = false;
+    validationResult.validationErrors += errorMsg;
+  } else {
+    var i;
+    for (i = 0; i < rubric.criteria.length; i++) {
+      var number = i + 1;
+      if (!("criterionId" in rubric.criteria[i])) {
+        var errorMsg = " - No criterionId was specified for criterion number "+number+"\n";
+        validationResult.isValid = false;
+        validationResult.validationErrors += errorMsg;
+      } else {
+        // console.println("Current size of criteriaIdList="+criteriaIdList.length);
+        // console.println("Checking if "+rubric.criteria[i].criterionId+" is already in the criterionIdList");
+        var c;
+        var found = false;
+        for (c = 0; c < criteriaIdList.length; c++) {
+          // console.println("Comparing against "+criteriaIdList[c])
+          if (criteriaIdList[c] === rubric.criteria[i].criterionId) {
+            found = true;
+            var errorMsg = " - Duplicate criterionId ("+rubric.criteria[i].criterionId+") was specified for criterion number "+number+"\n";
+            validationResult.isValid = false;
+            validationResult.validationErrors += errorMsg;  
+            break;          
+          }
+        }
+        if (!found) {
+          // console.println("Adding "+rubric.criteria[i].criterionId+" to the criteriaIdList");
+          criteriaIdList[criteriaIdList.length] = rubric.criteria[i].criterionId;
+        }
+      }
+      if (!("criterionName" in rubric.criteria[i])) {
+        var errorMsg = " - No criterionName was specified for criterion number "+number+"\n";
+        validationResult.isValid = false;
+        validationResult.validationErrors += errorMsg;
+      } else {
+        var d
+        var nameFound = false;
+        for (d = 0; d < criteriaNameList.length; d++) {
+          if (criteriaNameList[d] === rubric.criteria[i].criterionName) {
+            nameFound = true;
+            var errorMsg = " - Duplicate criterionName ("+rubric.criteria[i].criterionName+") was specified for criterion number "+number+"\n";
+            validationResult.isValid = false;
+            validationResult.validationErrors += errorMsg;  
+            break;          
+          }
+        }
+        if (!nameFound) {
+          criteriaNameList[criteriaNameList.length] = rubric.criteria[i].criterionName;
+        }
+      }
+      if (!("totalMarks" in rubric.criteria[i])) {
+        var errorMsg = " - No totalMarks was specified for criterion number "+number+"\n";
+        validationResult.isValid = false;
+        validationResult.validationErrors += errorMsg;
+      } else if (isNaN(rubric.criteria[i].totalMarks)) {
+        var errorMsg = " - The value for totalMarks for criterion number "+number+" is not a number. \n";
+        validationResult.isValid = false;
+        validationResult.validationErrors += errorMsg;
+      } else if (rubric.criteria[i].totalMarks < 0 ) {
+        var errorMsg = " - The value for totalMarks for criterion number "+number+" is less than 0. \n";
+        validationResult.isValid = false;
+        validationResult.validationErrors += errorMsg;
+      }
+      if (!("levels" in rubric.criteria[i])) {
+        var errorMsg = " - No levels list found for criterion number "+number+". \n";
+        validationResult.isValid = false;
+        validationResult.validationErrors += errorMsg;
+      } else if (rubric.criteria[i].levels.length == 0) {
+        var errorMsg = " - The list of levels for criterion number "+number+" is empty. \n";
+        validationResult.isValid = false;
+        validationResult.validationErrors += errorMsg;
+      } else {
+        var levelNameList = [];
+        var n;
+        for (n = 0; n < rubric.criteria[i].levels.length; n++) {
+          var levelNumber = n + 1;
+          if (!("levelName" in rubric.criteria[i].levels[n])) {
+            var errorMsg = " - No levelName was specified for level number "+levelNumber+" of criterion number "+number+"\n";
+            validationResult.isValid = false;
+            validationResult.validationErrors += errorMsg;
+          } else {
+            var e
+            var levelNameFound = false;
+            for (e = 0; e < levelNameList.length; e++) {
+              if (levelNameList[e] === rubric.criteria[i].levels[n].levelName) {
+                levelNameFound = true;
+                var errorMsg = " - Duplicate levelName ("+rubric.criteria[i].levels[n].levelName+") was specified for level number "+levelNumber+" of criterion number "+number+"\n"
+                validationResult.isValid = false;
+                validationResult.validationErrors += errorMsg;  
+                break;          
+              }
+            }
+            if (!levelNameFound) {
+              levelNameList[levelNameList.length] = rubric.criteria[i].levels[n].levelName;
+            }            
+          }
+          if (!("levelMarks" in rubric.criteria[i].levels[n])) {
+            var errorMsg = " - No levelMarks was specified for level number "+levelNumber+" of criterion number "+number+"\n";
+            validationResult.isValid = false;
+            validationResult.validationErrors += errorMsg;
+          } else if (isNaN(rubric.criteria[i].levels[n].levelMarks)){
+            var errorMsg = " - The value for levelMarks specified for level number "+levelNumber+" of criterion number "+number+" is not a number\n";
+            validationResult.isValid = false;
+            validationResult.validationErrors += errorMsg;
+          } else if (rubric.criteria[i].levels[n].levelMarks < 0){
+            var errorMsg = " - The value for levelMarks specified for level number "+levelNumber+" of criterion number "+number+" is less than 0\n";
+            validationResult.isValid = false;
+            validationResult.validationErrors += errorMsg;
+          }
+          if (!("levelDefaultComment" in rubric.criteria[i].levels[n])) {
+            var errorMsg = " - No levelDefaultComment was specified for level number "+levelNumber+" of criterion number "+number+"\n";
+            validationResult.isValid = false;
+            validationResult.validationErrors += errorMsg;
+          }
+        }
+      }      
+    }
   }
 
   app.endPriv();
