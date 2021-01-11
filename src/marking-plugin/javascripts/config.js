@@ -15,8 +15,8 @@ console.println("Initializing PDF Marking Tool.");
 
 //var markingToolVersion = "2.0 - UNRELEASED";
 //var markingToolReleaseDate = "YYYY-MM-DD";
-var markingToolVersion = "2.0.0";
-var markingToolReleaseDate = "2020-11-30";
+var markingToolVersion = "2.0.1";
+var markingToolReleaseDate = "2021-01-11";
 var initError = false;
 var initErrorMsg = "Initialization Errors: \n";
 var errorMsg = "";
