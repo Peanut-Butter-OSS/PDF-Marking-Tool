@@ -85,7 +85,7 @@ var enrichAnnotWithMetadata = app.trustedFunction(function (annot) {
     type = "CROSS";
     typeFound = true;
     value = subject.substring(subject.indexOf("|") + 1, subject.length).trim();
-  } else if (annotName.indexOf("CHECK") == 0 && !typeFound) {
+  } else if (name.indexOf("CHECK") == 0 && !typeFound) {
     type = "CHECK";
     typeFound = true;
     value = subject.substring(subject.indexOf("|") + 1, subject.length).trim();
