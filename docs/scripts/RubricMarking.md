@@ -4,7 +4,7 @@
 
 Hello World
 
-This is video 3 is a series of three videos that provide an introduction to installing and using the PDF marking tool. 
+This is video 3 in a series of three videos that provide an introduction to installing and using the PDF marking tool. 
  - Video 1 covers installation of the tool
  - Video 2 covers basic usage of the tool, and
  - Video 3 (This video) explores the new Rubric marking functionality in the tool
