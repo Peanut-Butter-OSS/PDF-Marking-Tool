@@ -1,6 +1,13 @@
 # RELEASE NOTES
 
-## v2.0
+## v2.0.1
+Date Released: 2021-01-11
+Developer: Greg Fullard
+
+#### Issue #22 Marking Tool About menu overrides the default Acrobat about
+When calling the Acrobat About menu item, it shows the marking tool about information. Seems like the marking tool About menu uses the same name as the built-in Acrobat About menu. Renamed out menu item and corresponding function.
+
+## v2.0.0
 Date Released: 2020-11-30
 Developer: Greg Fullard
 
