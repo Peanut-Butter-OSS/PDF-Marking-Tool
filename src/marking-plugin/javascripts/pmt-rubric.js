@@ -28,80 +28,82 @@ var selectRubric = app.trustedFunction(function () {
 
         var continueImport = app.alert(alertMsg, 3, 1);
         if (continueImport == 1) {
-          this.importDataObject("Rubric");
-          var rubric = this.getDataObject("Rubric");
-          console.println("Rubric File Name: " + rubric.path);
-          var oFile = this.getDataObjectContents("Rubric");
-          var strRubric = util.stringFromStream(oFile, "utf-8");
-          //console.println("Rubric content:");
-          //console.println(strRubric);
-          var jsonRubric = eval("(" + strRubric + ")");
-          validationResult = validateRubric(jsonRubric);
-
-          if (validationResult.isValid) {
-            // Only proceed to attach the rubric if it passed validation
-            selectedRubricContent = jsonRubric;
-
-            // Save rubric details into document level fields. These will be read when
-            // the document is opened in subsequent occasions
-            var rubricFileNameField = aNewDoc.getField("RubricFileName");
-            if (rubricFileNameField == null) {
-              rubricFileNameField = aNewDoc.addField(
-                "RubricFileName",
-                "text",
-                0,
-                [0, 0, 0, 0]
-              );
-              rubricFileNameField.hidden = true;
+          var importSuccess = this.importDataObject("Rubric");
+          if (importSuccess) {
+            var rubric = this.getDataObject("Rubric");
+            console.println("Rubric File Name: " + rubric.path);
+            var oFile = this.getDataObjectContents("Rubric");
+            var strRubric = util.stringFromStream(oFile, "utf-8");
+            //console.println("Rubric content:");
+            //console.println(strRubric);
+            var jsonRubric = eval("(" + strRubric + ")");
+            validationResult = validateRubric(jsonRubric);
+  
+            if (validationResult.isValid) {
+              // Only proceed to attach the rubric if it passed validation
+              selectedRubricContent = jsonRubric;
+  
+              // Save rubric details into document level fields. These will be read when
+              // the document is opened in subsequent occasions
+              var rubricFileNameField = aNewDoc.getField("RubricFileName");
+              if (rubricFileNameField == null) {
+                rubricFileNameField = aNewDoc.addField(
+                  "RubricFileName",
+                  "text",
+                  0,
+                  [0, 0, 0, 0]
+                );
+                rubricFileNameField.hidden = true;
+              }
+              rubricFileNameField.value = rubric.path;
+              selectedRubricFileName = rubricFileNameField.value;
+  
+              var rubricNameField = aNewDoc.getField("RubricName");
+              if (rubricNameField == null) {
+                rubricNameField = aNewDoc.addField("RubricName", "text", 0, [
+                  0,
+                  0,
+                  0,
+                  0,
+                ]);
+                rubricNameField.hidden = true;
+              }
+              rubricNameField.value = jsonRubric.rubricName;
+              selectedRubricName = rubricNameField.value;
+  
+              var rubricVersionField = aNewDoc.getField("RubricVersion");
+              if (rubricVersionField == null) {
+                rubricVersionField = aNewDoc.addField("RubricVersion", "text", 0, [
+                  0,
+                  0,
+                  0,
+                  0,
+                ]);
+                rubricVersionField.hidden = true;
+              }
+              rubricVersionField.value = jsonRubric.rubricVersion;
+              selectedRubricVersion = rubricVersionField.value;
+  
+              // Applying Rubric to document
+              makeDocumentMarkable("RUBRIC");
+              rubricPageNumber = buildRubricPage();
+              this.pageNum = rubricPageNumber;
+              hasRubricAttached = true;
+              assignmentTotal = jsonRubric.totalMarks;
+  
+              alertMsg =
+                "The rubric " +
+                rubric.path +
+                " was successfully attached to the current document \n";
+            } else {
+              alertMsg =
+                "The selected file (" +
+                rubric.path +
+                ") is not a valid rubric. The following validation errors were reported: \n\n";
+              alertMsg += validationResult.validationErrors;
             }
-            rubricFileNameField.value = rubric.path;
-            selectedRubricFileName = rubricFileNameField.value;
-
-            var rubricNameField = aNewDoc.getField("RubricName");
-            if (rubricNameField == null) {
-              rubricNameField = aNewDoc.addField("RubricName", "text", 0, [
-                0,
-                0,
-                0,
-                0,
-              ]);
-              rubricNameField.hidden = true;
-            }
-            rubricNameField.value = jsonRubric.rubricName;
-            selectedRubricName = rubricNameField.value;
-
-            var rubricVersionField = aNewDoc.getField("RubricVersion");
-            if (rubricVersionField == null) {
-              rubricVersionField = aNewDoc.addField("RubricVersion", "text", 0, [
-                0,
-                0,
-                0,
-                0,
-              ]);
-              rubricVersionField.hidden = true;
-            }
-            rubricVersionField.value = jsonRubric.rubricVersion;
-            selectedRubricVersion = rubricVersionField.value;
-
-            // Applying Rubric to document
-            makeDocumentMarkable("RUBRIC");
-            rubricPageNumber = buildRubricPage();
-            this.pageNum = rubricPageNumber;
-            hasRubricAttached = true;
-            assignmentTotal = jsonRubric.totalMarks;
-
-            alertMsg =
-              "The rubric " +
-              rubric.path +
-              " was successfully attached to the current document \n";
-          } else {
-            alertMsg =
-              "The selected file (" +
-              rubric.path +
-              ") is not a valid rubric. The following validation errors were reported: \n\n";
-            alertMsg += validationResult.validationErrors;
+            app.alert(alertMsg, 3, 0);
           }
-          app.alert(alertMsg, 3, 0);
         }
       } else {
         app.alert(
