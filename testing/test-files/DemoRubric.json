@@ -1,0 +1,128 @@
+{
+    "rubricId" : 1,
+    "rubricName" : "Demonstration Rubric",
+    "rubricVersion" : 1,
+    "courseCode" : "ENG101",
+    "assignmentId" : "Assignment 1",
+    "totalMarks" : 20,
+    "criteria" : [
+        {
+            "criterionId" : "q1",
+            "criterionName" : "Question 1",
+            "totalMarks" : 2,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 2, 
+                    "levelDefaultComment" : "Correct"
+                },
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Incorrect, the correct answer is William Butler Yeats"
+                }
+            ]
+        },
+        {
+            "criterionId" : "q2",
+            "criterionName" : "Question 2",
+            "totalMarks" : 2,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 2, 
+                    "levelDefaultComment" : "Correct"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Incorrect, the correct answer is Alliteration"
+                }
+            ]
+        },    
+        {
+            "criterionId" : "q3",
+            "criterionName" : "Question 3",
+            "totalMarks" : 2,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 2, 
+                    "levelDefaultComment" : "Correct"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Incorrect, the correct answer is Personification"
+                }
+            ]
+        },  
+        {
+            "criterionId" : "q4",
+            "criterionName" : "Question 4",
+            "totalMarks" : 2,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 2, 
+                    "levelDefaultComment" : "Correct"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Incorrect, the correct answer is Couplet"
+                }
+            ]
+        },      
+        {
+            "criterionId" : "q5-G",
+            "criterionName" : "Question 5 - Grammar",
+            "totalMarks" : 2,
+            "levels" : [
+                {
+                    "levelName" : "Needs Improvement",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "The grammar used in this answer will need to be improved"
+                }, 
+                {
+                    "levelName" : "Good",
+                    "levelMarks" : 2, 
+                    "levelDefaultComment" : "Accurate grammar makes the argument much easier to follow. Good job."
+                }
+            ]
+        }, 
+        {
+            "criterionId" : "q5-A",
+            "criterionName" : "Question 5 - Argument Structure",
+            "totalMarks" : 10,
+            "levels" : [
+                {
+                    "levelName" : "Not answered",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "No answer provided"
+                }, 
+                {
+                    "levelName" : "Incoherent Argument",
+                    "levelMarks" : 2, 
+                    "levelDefaultComment" : "The argument is difficult to follow and does not seem to convey any coherent message"
+                },
+                {
+                    "levelName" : "Unconvincing",
+                    "levelMarks" : 4, 
+                    "levelDefaultComment" : "Argument is described clearly, but does not succeed in convincing the reader"
+                },
+                {
+                    "levelName" : "Successful and convincing",
+                    "levelMarks" : 7, 
+                    "levelDefaultComment" : "Argument is clear and convincing. Well done"
+                },  
+                {
+                    "levelName" : "Engaging and convincing",
+                    "levelMarks" : 10, 
+                    "levelDefaultComment" : "Fantastic structure and combination of relevant facts to both convince and engage the reader. Well done!"
+                }              
+            ]
+        }  
+
+    ]
+}

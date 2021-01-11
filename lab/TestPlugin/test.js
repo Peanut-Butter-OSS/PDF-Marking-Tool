@@ -122,7 +122,7 @@ var readXmlData = app.trustedFunction(
     //var cJSPathFormatted = app.getPath("user","javascript").replace(/\/?$/,"/");
     console.println("Javascript Folder Path: "+cJSPath)
     //console.println("Formatted Path: "+cJSPathFormatted)
-    cConfigFilePath = cJSPath + "/MarkingToolData/" + cFileName;
+    cConfigFilePath = cJSPath + "/PdfMarkingTool/" + cFileName;
     console.println("File Path: "+cConfigFilePath)
     var nRtn = 0;
     var stmData = null;
@@ -172,6 +172,7 @@ var writeXmlData = app.trustedFunction(
 
     // =====================
     // Try 1
+    // According to the API manual, yhr path parameter is no longer supported for exportDataObject
     // =====================
 
     // // var xmlString = "<test>Hello</test>";

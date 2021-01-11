@@ -1,0 +1,111 @@
+{
+    "rubricId" : 1,
+    "rubricName" : "CS50 Lab 1 - Base Rubric",
+    "rubricVersion" : 1,
+    "courseCode" : "CS50",
+    "assignmentId" : "Lab 1",
+    "totalMarks" : 100,
+    "criteria" : [
+        {
+            "criterionId" : "q1",
+            "criterionName" : "Question 1",
+            "totalMarks" : 15,
+            "levels" : [
+                {
+                    "levelName" : "Excellent",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Very well described"
+                }, 
+                {
+                    "levelName" : "Good",
+                    "levelMarks" : 8, 
+                    "levelDefaultComment" : "Very well described, perhaps some details could be elaborated further"
+                },
+                {
+                    "levelName" : "Acceptable",
+                    "levelMarks" : 6, 
+                    "levelDefaultComment" : "Covers the basics, but many aspects should be elaborated further"
+                },
+                {
+                    "levelName" : "Poor",
+                    "levelMarks" : 3, 
+                    "levelDefaultComment" : "Incorrect description"
+                },
+                {
+                    "levelName" : "Missing",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Section had no response"
+                }
+            ]
+        },
+        {
+            "criterionId" : "q2",
+            "criterionName" : "Question 2",
+            "totalMarks" : 40,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 40, 
+                    "levelDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        },
+        {
+            "criterionId" : "q3",
+            "criterionName" : "Question 3",
+            "totalMarks" : 15,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        },
+        {
+            "criterionId" : "q4",
+            "criterionName" : "Question 4",
+            "totalMarks" : 15,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        }, 
+        {
+            "criterionId" : "q5",
+            "criterionName" : "Question 5",
+            "totalMarks" : 15,
+            "levels" : [
+                {
+                    "levelName" : "Correct",
+                    "levelMarks" : 15, 
+                    "levelDefaultComment" : "Absolutely correct!"
+                }, 
+                {
+                    "levelName" : "Incorrect",
+                    "levelMarks" : 0, 
+                    "levelDefaultComment" : "Unfortunately not correct"
+                }
+            ]
+        }  
+
+    ]
+}
