@@ -6,7 +6,7 @@ This file contains functions related to the configuration of the marking tool
 
 */
 
-var showAboutInfo = app.trustedFunction(function () {
+var showMarkingToolAboutInfo = app.trustedFunction(function () {
   app.beginPriv();
 
   app.alert(

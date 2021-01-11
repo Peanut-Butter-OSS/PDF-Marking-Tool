@@ -169,9 +169,9 @@ var initMarkingMenu = app.trustedFunction(function () {
       cExec: "configureMarkingTool();",
     });
     app.addMenuItem({
-      cName: "About",
+      cName: "About Marking Tool",
       cParent: "PDF Marking Tool",
-      cExec: "showAboutInfo();",
+      cExec: "showMarkingToolAboutInfo();",
     });
     app.addMenuItem({
       cName: "Current Status",
