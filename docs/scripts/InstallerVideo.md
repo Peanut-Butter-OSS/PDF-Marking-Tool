@@ -45,7 +45,7 @@ People often get confused between Adobe Acrobat Pro and the Free Adobe Acrobat R
  - Click on the Help menu
  - Select the item "About Adobe Acrobat Pro DC"
 
-Take note of the heading specifically stating "dobe Acrobat Pro DC"
+Take note of the heading specifically stating "Adobe Acrobat Pro DC"
 
 #### Snippet 4 - END
 ####
@@ -53,7 +53,7 @@ Take note of the heading specifically stating "dobe Acrobat Pro DC"
 ####
 #### Snippet 5 - START
 
-Also note, that we are specifically using Adobe Acrobat Pro DC. In theory the Marking tool should also work with other versions of Acrobat Pro, but those have not bee formally tested, so we cannot guarantee that it will work as expected.
+Also note, that we are specifically using Adobe Acrobat Pro DC. In theory the Marking tool should also work with other versions of Acrobat Pro, but those have not been formally tested, so we cannot guarantee that it will work as expected.
 
 For the purposes of this video, we will assume that you have Adobe Acrobat Pro DC installed and that you are running a Windows 10 operating system.
 
@@ -79,6 +79,14 @@ To download thge installer, simply click on the file name "Marking_Tool_v2.0_DC.
 
 Once you have the installer on your local machine, the installation process is quite simple: Simply run the file and follow the prompts provided.
 
+Take note: After launching the installer, Windows will require you to give permissions to the installer program. To provide this permission, you need to have administrator privileges on your machine. This step is a security requirement of both Windows and Adobe Acrobat DC.
+
+#### Snippet 7 - END
+####
+#### ===============================
+####
+#### Snippet 8 - START
+
 Notice that the installation process includes a number of steps:
  - Checking whether you have Adobe Acrobat Pro DC installed
  - Copying the JAvascript code to your machine
@@ -87,21 +95,21 @@ Notice that the installation process includes a number of steps:
 
 Ideally, you should perform all the steps, but if your circumstances require, you could skip one or more steps.
 
-#### Snippet 7 - END
-####
-#### ===============================
-####
-#### Snippet 8 - START
-
-Also notice that the tool allows you to adjust the location of the Javascripts folder, which is contained within your existing Acrobat Pro installation.
-
-Ideally you should keep to the defaul here, unless your copy of Acrobat Pro has been installed in a non-standard location.
-
 #### Snippet 8 - END
 ####
 #### ===============================
 ####
 #### Snippet 9 - START
+
+Also notice that the tool allows you to adjust the location of the Javascripts folder, which is contained within your existing Acrobat Pro installation.
+
+Ideally you should keep to the defaul here, unless your copy of Acrobat Pro has been installed in a non-standard location.
+
+#### Snippet 9 - END
+####
+#### ===============================
+####
+#### Snippet 10 - START
 
 Once the installation is complete, you can click on Finish to close the installer.
 
@@ -109,6 +117,6 @@ Video 2, will provide detailed instructions on how to verify whether the tool is
 
 See you there.
 
-#### Snippet 9 - END
+#### Snippet 10 - END
 ####
 #### ===============================
