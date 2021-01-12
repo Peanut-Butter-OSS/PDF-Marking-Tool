@@ -31,7 +31,7 @@ To use the PDF Marking tool there are two critical dependencies:
 
 Firstly, the plug in is built for the Microsoft Windows 10 operating system, If you are using a Mac or Linux machine, you will not be able to use the marking tool.
 
-Secondly, the PDF marking tool is built as a plug in for Adobe Acrobat Pro. You there much have Adobe Acrobat Pro installed in order to use the marking tool.
+Secondly, the PDF marking tool is built as a plug in for Adobe Acrobat Pro. You therefor must have Adobe Acrobat Pro installed in order to use the marking tool.
 
 #### Snippet 3 - END
 ####
@@ -69,7 +69,7 @@ To get the latest installer, simply go to https://github.com/Peanut-Butter-OSS/P
 
 Here you will find all the available releases of the marking tool. You will probably want to grab the latest release. While recording this screencast, the latest version is v 2.0.1
 
-To download thge installer, simply click on the file name "Marking_Tool_v2.0_DC.exe". This will allow you to download the file to your local system.
+To download the installer, simply click on the file name "Marking_Tool_v2.0_DC.exe". This will allow you to download the file to your local system.
 
 #### Snippet 6 - END
 ####
