@@ -1999,10 +1999,11 @@ var biuldResultsPage = app.trustedFunction(
      }
      
      if(!skipTotalDialog) {
-       var currentMark = (totalMarks/assigmentTotal)*100;
-	    currentMark = currentMark.toFixed(2);	   
-       var percentage = Math.round(currentMark); 
+
        //var percentage = Math.round((totalMarks/assigmentTotal)*100);
+       var currentMark = (totalMarks/assigmentTotal)*100;
+       currentMark = currentMark.toFixed(2);	   
+       var percentage = Math.round(currentMark);	
        var edtHeader = aNewDoc.addField("edtTotal", "text", resultsPageNumber, [lx, ly, rx, ry]);
        edtHeader.value = "Total = " + totalMarks + " / " + assigmentTotal + "  (" + percentage + "%)";
        edtHeader.readonly = true;
@@ -2263,241 +2264,468 @@ var addCommentBlock = app.trustedFunction(
   }
 );
 
-var biuldCommentsPages = app.trustedFunction(
-  function(aNewDoc) {
-      aNewDoc.syncAnnotScan();
-      var annots = aNewDoc.getAnnots({ nSortBy: ANSB_Page });
-      var theAnnots = [];
-      var count = 0;
-      for(var i in annots) {
-          if(annots[i].contents != "") {
-              theAnnots[count] = annots[i];
-              count++;
-          }
+// From Kyle's original version
+// var biuldCommentsPages = app.trustedFunction(
+//   function(aNewDoc) {
+//       aNewDoc.syncAnnotScan();
+//       var annots = aNewDoc.getAnnots({ nSortBy: ANSB_Page });
+//       var theAnnots = [];
+//       var count = 0;
+//       for(var i in annots) {
+//           if(annots[i].contents != "") {
+//               theAnnots[count] = annots[i];
+//               count++;
+//           }
           
-          annots[i].readOnly = true;
-      }
+//           annots[i].readOnly = true;
+//       }
       
-      // below code creates annotation next to actual mark
-      var edtComment;
-      var coord = [];         
-      for(var i in theAnnots) {
-          coord = coordinateAnnotInSpace(aNewDoc, theAnnots[i], i);
+//       // below code creates annotation next to actual mark
+//       var edtComment;
+//       var coord = [];         
+//       for(var i in theAnnots) {
+//           coord = coordinateAnnotInSpace(aNewDoc, theAnnots[i], i);
           
-          edtComment = aNewDoc.addField("EDITCOMM:" + i, "text", theAnnots[i].page, coord);
+//           edtComment = aNewDoc.addField("EDITCOMM:" + i, "text", theAnnots[i].page, coord);
           
-          edtComment.value = (parseInt(i)+1);
-          edtComment.rect = coord;
-          edtComment.readonly = true; 
-          edtComment.borderStyle = border.s;
-          edtComment.fillColor = color.white;
-          edtComment.strokeColor = color.red;
-          edtComment.lineWidth = 1;
-          edtComment.width = 20;         
-      }
-      //####################################################################################
+//           edtComment.value = (parseInt(i)+1);
+//           edtComment.rect = coord;
+//           edtComment.readonly = true; 
+//           edtComment.borderStyle = border.s;
+//           edtComment.fillColor = color.white;
+//           edtComment.strokeColor = color.red;
+//           edtComment.lineWidth = 1;
+//           edtComment.width = 20;         
+//       }
+//       //####################################################################################
 
-      // PAGE SIZE X,Y,W,H
-      var aRect = [0,612,792,0];
+//       // PAGE SIZE X,Y,W,H
+//       var aRect = [0,612,792,0];
       
-      var uniqueCommentNumber = 99999;
-      var commentNumber       = 1;
-      var commentPageNumber   = 0;
-      var cursorY             = aRect[2] - 80;
-      var cursorHeight        = 0;
-      var cursorMaxHeight     = 10;
+//       var uniqueCommentNumber = 99999;
+//       var commentNumber       = 1;
+//       var commentPageNumber   = 0;
+//       var cursorY             = aRect[2] - 80;
+//       var cursorHeight        = 0;
+//       var cursorMaxHeight     = 10;
       
-      var commentX            = 31;
-      var commentWidth        = 600;
-      var commentMaxHeight    = 712;
+//       var commentX            = 31;
+//       var commentWidth        = 600;
+//       var commentMaxHeight    = 712;
             
-      var labelX              = 10;
-      var labelWidth          = 30;
-      var labelMaxHeight      = 20;
-      var labelHeight         = cursorY - labelMaxHeight;
+//       var labelX              = 10;
+//       var labelWidth          = 30;
+//       var labelMaxHeight      = 20;
+//       var labelHeight         = cursorY - labelMaxHeight;
          
-      var maxCharInComment    = 78;
-      var maxLinesInComment   = 55;
+//       var maxCharInComment    = 78;
+//       var maxLinesInComment   = 55;
       
-      var commentBlockTextHeight = 12;
-      var commentBlockMinHeight  = 20;
+//       var commentBlockTextHeight = 12;
+//       var commentBlockMinHeight  = 20;
       
-      if(theAnnots.length > 0) {
-          var totalLinesRemaining     = maxLinesInComment;
-          var testTotalLinesRemaining = 0;
-          var pageSplit               = false;
-          var createNewPage           = true;
-          for(var i in theAnnots) {
-              if(createNewPage) {
-                  commentPageNumber       = addCommentPage(aNewDoc);
-                  cursorY                 = aRect[2] - 80;
-                  cursorHeight            = 0;
-                  labelHeight             = cursorY - labelMaxHeight;
-                  totalLinesRemaining     = maxLinesInComment;
-                  testTotalLinesRemaining = 0;
-                  createNewPage           = false;    
-              }
+//       if(theAnnots.length > 0) {
+//           var totalLinesRemaining     = maxLinesInComment;
+//           var testTotalLinesRemaining = 0;
+//           var pageSplit               = false;
+//           var createNewPage           = true;
+//           for(var i in theAnnots) {
+//               if(createNewPage) {
+//                   commentPageNumber       = addCommentPage(aNewDoc);
+//                   cursorY                 = aRect[2] - 80;
+//                   cursorHeight            = 0;
+//                   labelHeight             = cursorY - labelMaxHeight;
+//                   totalLinesRemaining     = maxLinesInComment;
+//                   testTotalLinesRemaining = 0;
+//                   createNewPage           = false;    
+//               }
               
-              var content              = trim(theAnnots[i].contents).toUpperCase();
-              var amountOfLinesUsed    = parseInt(parseInt(content.length)/maxCharInComment)+1;
-              var amountOfSpaceUsed    = amountOfLinesUsed * commentBlockMinHeight;         
+//               var content              = trim(theAnnots[i].contents).toUpperCase();
+//               var amountOfLinesUsed    = parseInt(parseInt(content.length)/maxCharInComment)+1;
+//               var amountOfSpaceUsed    = amountOfLinesUsed * commentBlockMinHeight;         
               
-              testTotalLinesRemaining = totalLinesRemaining - amountOfLinesUsed;
+//               testTotalLinesRemaining = totalLinesRemaining - amountOfLinesUsed;
               
-              if(testTotalLinesRemaining < 0) {
-                  // check if there is a full comment page available
-                  // if so add this whole comment to the page as we know its the max comment length
-                  if(totalLinesRemaining == maxLinesInComment) {
-                      var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
-                      var rectComment = [commentX, cursorY, commentWidth, cursorMaxHeight];
+//               if(testTotalLinesRemaining < 0) {
+//                   // check if there is a full comment page available
+//                   // if so add this whole comment to the page as we know its the max comment length
+//                   if(totalLinesRemaining == maxLinesInComment) {
+//                       var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
+//                       var rectComment = [commentX, cursorY, commentWidth, cursorMaxHeight];
                       
-                      addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content, rectComment, rectLabel);
+//                       addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content, rectComment, rectLabel);
                       
-                      uniqueCommentNumber--;
-                      commentNumber++; 
+//                       uniqueCommentNumber--;
+//                       commentNumber++; 
                       
-                      createNewPage = true;
-                  } else {
-                      pageSplit = true;
-                  }
-              } else {
-                  // check to see if comment can fit on current comment page
-                  // app.alert("Remaining lines on comment page :: " + testTotalLinesRemaining);
-                  if(testTotalLinesRemaining > 0) {
-                      if(amountOfLinesUsed <= 4)
-                          cursorHeight = (cursorY - (amountOfLinesUsed*commentBlockMinHeight));
-                      else
-                          cursorHeight = (cursorY - (amountOfLinesUsed*commentBlockTextHeight));
+//                       createNewPage = true;
+//                   } else {
+//                       pageSplit = true;
+//                   }
+//               } else {
+//                   // check to see if comment can fit on current comment page
+//                   // app.alert("Remaining lines on comment page :: " + testTotalLinesRemaining);
+//                   if(testTotalLinesRemaining > 0) {
+//                       if(amountOfLinesUsed <= 4)
+//                           cursorHeight = (cursorY - (amountOfLinesUsed*commentBlockMinHeight));
+//                       else
+//                           cursorHeight = (cursorY - (amountOfLinesUsed*commentBlockTextHeight));
                       
-                      if(cursorHeight < 0) {
-                          cursorHeight  = cursorMaxHeight;
-                          createNewPage = true;
-                      }
+//                       if(cursorHeight < 0) {
+//                           cursorHeight  = cursorMaxHeight;
+//                           createNewPage = true;
+//                       }
                   
-                      var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
-                      var rectComment = [commentX, cursorY, commentWidth, cursorHeight];
+//                       var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
+//                       var rectComment = [commentX, cursorY, commentWidth, cursorHeight];
                       
-                      addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content, rectComment, rectLabel);
+//                       addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content, rectComment, rectLabel);
                       
-                      uniqueCommentNumber--;
-                      commentNumber++; 
+//                       uniqueCommentNumber--;
+//                       commentNumber++; 
                       
-                      cursorY             = cursorHeight;
-                      labelHeight         = cursorY - labelMaxHeight;
-                      totalLinesRemaining = testTotalLinesRemaining;
-                  } else {
-                      pageSplit = true;
-                  }
-              }
+//                       cursorY             = cursorHeight;
+//                       labelHeight         = cursorY - labelMaxHeight;
+//                       totalLinesRemaining = testTotalLinesRemaining;
+//                   } else {
+//                       pageSplit = true;
+//                   }
+//               }
               
-              if(pageSplit) {
-                  var availableLinesOnPage = totalLinesRemaining;
-                  var remainingLinesOnNextPage = amountOfLinesUsed - availableLinesOnPage;
-                  /*app.alert("SPLIT COMMENT!!!\n Comment Lines :: " + amountOfLinesUsed + 
-                            "\nAvailable lines left on page :: " + availableLinesOnPage +
-                            "\nFallover lines on next page :: " + remainingLinesOnNextPage);*/
+//               if(pageSplit) {
+//                   var availableLinesOnPage = totalLinesRemaining;
+//                   var remainingLinesOnNextPage = amountOfLinesUsed - availableLinesOnPage;
+//                   /*app.alert("SPLIT COMMENT!!!\n Comment Lines :: " + amountOfLinesUsed + 
+//                             "\nAvailable lines left on page :: " + availableLinesOnPage +
+//                             "\nFallover lines on next page :: " + remainingLinesOnNextPage);*/
                         
-                  if(availableLinesOnPage <= 4) {
-                      // whole comment should move to next page
+//                   if(availableLinesOnPage <= 4) {
+//                       // whole comment should move to next page
                       
-                      // start new page for second half of comment
-                      commentPageNumber       = addCommentPage(aNewDoc);
-                      cursorY                 = aRect[2] - 80;
-                      cursorHeight            = 0;
-                      labelHeight             = cursorY - labelMaxHeight;
-                      totalLinesRemaining     = maxLinesInComment;
-                      testTotalLinesRemaining = 0;
+//                       // start new page for second half of comment
+//                       commentPageNumber       = addCommentPage(aNewDoc);
+//                       cursorY                 = aRect[2] - 80;
+//                       cursorHeight            = 0;
+//                       labelHeight             = cursorY - labelMaxHeight;
+//                       totalLinesRemaining     = maxLinesInComment;
+//                       testTotalLinesRemaining = 0;
                       
-                      // create second half of comment
-                      if(amountOfLinesUsed <= 4)
-                          cursorHeight = (cursorY - (amountOfLinesUsed*commentBlockMinHeight));
-                      else
-                          cursorHeight = (cursorY - (amountOfLinesUsed*commentBlockTextHeight));
+//                       // create second half of comment
+//                       if(amountOfLinesUsed <= 4)
+//                           cursorHeight = (cursorY - (amountOfLinesUsed*commentBlockMinHeight));
+//                       else
+//                           cursorHeight = (cursorY - (amountOfLinesUsed*commentBlockTextHeight));
                       
-                      if(cursorHeight < 0) {
-                          cursorHeight  = cursorMaxHeight;
-                          //createNewPage = true;
-                      }
+//                       if(cursorHeight < 0) {
+//                           cursorHeight  = cursorMaxHeight;
+//                           //createNewPage = true;
+//                       }
                       
-                      var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
-                      var rectComment = [commentX, cursorY, commentWidth, cursorHeight];
+//                       var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
+//                       var rectComment = [commentX, cursorY, commentWidth, cursorHeight];
                       
-                      addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content, rectComment, rectLabel);
+//                       addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content, rectComment, rectLabel);
                       
-                      uniqueCommentNumber--;
-                      commentNumber++;
+//                       uniqueCommentNumber--;
+//                       commentNumber++;
                       
-                      testTotalLinesRemaining = totalLinesRemaining - amountOfLinesUsed;
+//                       testTotalLinesRemaining = totalLinesRemaining - amountOfLinesUsed;
                       
-                      cursorY             = cursorHeight;
-                      labelHeight         = cursorY - labelMaxHeight;
-                      totalLinesRemaining = testTotalLinesRemaining;
+//                       cursorY             = cursorHeight;
+//                       labelHeight         = cursorY - labelMaxHeight;
+//                       totalLinesRemaining = testTotalLinesRemaining;
                       
-                  } else {
-                      // split comment and create new page then create other half of comment on new page
-                      var c1 = content.substring(0, availableLinesOnPage*maxCharInComment);
-                      var c2 = content.substring(availableLinesOnPage*maxCharInComment, content.length);
-                      var c1Spaces = c1.split(/\s/g);
-                      var c1Last = c1Spaces[c1.split(/\s/g).length-1];
-                      var content1 = "";
-                      var content2 = "";
-                      if(c1Spaces.length > 1 && c1Last != "") {
-                          content1 = c1.substring(0,c1.length-c1Last.length);
-                          content2 = c1Last + c2;
-                      } else {
-                          content1 = c1;
-                          content2 = c2;
-                      }
+//                   } else {
+//                       // split comment and create new page then create other half of comment on new page
+//                       var c1 = content.substring(0, availableLinesOnPage*maxCharInComment);
+//                       var c2 = content.substring(availableLinesOnPage*maxCharInComment, content.length);
+//                       var c1Spaces = c1.split(/\s/g);
+//                       var c1Last = c1Spaces[c1.split(/\s/g).length-1];
+//                       var content1 = "";
+//                       var content2 = "";
+//                       if(c1Spaces.length > 1 && c1Last != "") {
+//                           content1 = c1.substring(0,c1.length-c1Last.length);
+//                           content2 = c1Last + c2;
+//                       } else {
+//                           content1 = c1;
+//                           content2 = c2;
+//                       }
                       
-                      // create first half of comment
-                      cursorHeight  = cursorMaxHeight;
+//                       // create first half of comment
+//                       cursorHeight  = cursorMaxHeight;
                       
-                      var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
-                      var rectComment = [commentX, cursorY, commentWidth, cursorHeight];
+//                       var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
+//                       var rectComment = [commentX, cursorY, commentWidth, cursorHeight];
                       
-                      addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content1, rectComment, rectLabel);
+//                       addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content1, rectComment, rectLabel);
                       
-                      uniqueCommentNumber--;
+//                       uniqueCommentNumber--;
                       
-                      // start new page for second half of comment
-                      commentPageNumber       = addCommentPage(aNewDoc);
-                      cursorY                 = aRect[2] - 80;
-                      cursorHeight            = 0;
-                      labelHeight             = cursorY - labelMaxHeight;
-                      totalLinesRemaining     = maxLinesInComment;
-                      testTotalLinesRemaining = 0;
+//                       // start new page for second half of comment
+//                       commentPageNumber       = addCommentPage(aNewDoc);
+//                       cursorY                 = aRect[2] - 80;
+//                       cursorHeight            = 0;
+//                       labelHeight             = cursorY - labelMaxHeight;
+//                       totalLinesRemaining     = maxLinesInComment;
+//                       testTotalLinesRemaining = 0;
                       
-                      // create second half of comment
-                      if(remainingLinesOnNextPage <= 4)
-                          cursorHeight = (cursorY - (remainingLinesOnNextPage*commentBlockMinHeight));
-                      else
-                          cursorHeight = (cursorY - (remainingLinesOnNextPage*commentBlockTextHeight));
+//                       // create second half of comment
+//                       if(remainingLinesOnNextPage <= 4)
+//                           cursorHeight = (cursorY - (remainingLinesOnNextPage*commentBlockMinHeight));
+//                       else
+//                           cursorHeight = (cursorY - (remainingLinesOnNextPage*commentBlockTextHeight));
                       
-                      if(cursorHeight < 0) {
-                          cursorHeight  = cursorMaxHeight;
-                      }
+//                       if(cursorHeight < 0) {
+//                           cursorHeight  = cursorMaxHeight;
+//                       }
                       
-                      var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
-                      var rectComment = [commentX, cursorY, commentWidth, cursorHeight];
+//                       var rectLabel   = [labelX, cursorY, labelWidth, labelHeight];
+//                       var rectComment = [commentX, cursorY, commentWidth, cursorHeight];
                       
-                      addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content2, rectComment, rectLabel);
+//                       addCommentBlock(aNewDoc, uniqueCommentNumber, commentNumber, commentPageNumber, content2, rectComment, rectLabel);
                       
-                      uniqueCommentNumber--;
-                      commentNumber++;
+//                       uniqueCommentNumber--;
+//                       commentNumber++;
                       
-                      testTotalLinesRemaining = totalLinesRemaining - remainingLinesOnNextPage;
+//                       testTotalLinesRemaining = totalLinesRemaining - remainingLinesOnNextPage;
                       
-                      cursorY             = cursorHeight;
-                      labelHeight         = cursorY - labelMaxHeight;
-                      totalLinesRemaining = testTotalLinesRemaining;
-                  }                
+//                       cursorY             = cursorHeight;
+//                       labelHeight         = cursorY - labelMaxHeight;
+//                       totalLinesRemaining = testTotalLinesRemaining;
+//                   }                
                   
-                  pageSplit = false;
-              }           
-          } 
-      }
-  }
-);
+//                   pageSplit = false;
+//               }           
+//           } 
+//       }
+//   }
+// );
+
+var biuldCommentsPages = app.trustedFunction(
+   function(aNewDoc) {
+       var annots = aNewDoc.getAnnots({ nSortBy: ANSB_Page });
+       var theAnnots = [];
+       var count = 0;
+       for(var i in annots) {
+           if(annots[i].contents != "") {
+               theAnnots[count] = annots[i];
+               count++;
+           }
+           
+           annots[i].readOnly = true;
+       }
+       
+       var edtComment;
+       var coord = [];
+       var currentPageRotation = 0;
+       var numCount = 1;
+       
+       
+       var pageSizeBox = aNewDoc.getPageBox("Crop");
+       var width = pageSizeBox[2] - pageSizeBox[0];
+       var height = pageSizeBox[1] - pageSizeBox[3];
+        
+       var ae2d = [];
+       
+       var numberW = 10;
+       var numberWdouble = 17;
+       var numberH = 15;
+       var shiftUp = 18;
+       var shiftRight = -15;
+       var twenty = 20;
+       for(var i in theAnnots) {
+           if(i > 8) {
+              numberW = numberWdouble;
+            }
+           
+           currentPageRotation = aNewDoc.getPageRotation({nPage: theAnnots[i].page});
+           
+           coord = theAnnots[i].rect;
+           
+           if(currentPageRotation == 0) {
+               ae2d[0] = [coord[2], coord[3]];
+              ae2d[1] = [coord[0], coord[1]];
+ 
+              coord[0] = ae2d[0][0] + shiftRight;
+              coord[1] = ae2d[0][1] + shiftUp;
+              coord[2] = coord[0] - numberW;
+              coord[3] = coord[1] - numberH;
+           } else
+           if(currentPageRotation == 90) {
+              ae2d[0] = [coord[3], coord[2]];
+              ae2d[1] = [coord[1], coord[0]];
+ 
+               coord[0] = 20 + ae2d[0][0] + shiftRight;
+              coord[1] = (width+twenty) - ae2d[0][1] + shiftUp; 
+              coord[2] = coord[0] - numberW;
+              coord[3] = coord[1] - numberH;
+           } else
+           if(currentPageRotation == 180) {
+              ae2d[0] = [coord[0], coord[1]];
+               
+              coord[0] = ae2d[0][0] + shiftRight;
+              coord[1] = (height+twenty) - ae2d[0][1] + shiftUp;
+              coord[2] = coord[0] - numberW;
+              coord[3] = coord[1] - numberH;
+           } else
+           if(currentPageRotation == 270) {
+              ae2d[0] = [coord[3], coord[2]];
+              
+              coord[0] = (width+twenty) - ae2d[0][0] + shiftRight;
+              coord[1] = ae2d[0][1] + shiftUp;
+              coord[2] = coord[0] - numberW;
+              coord[3] = coord[1] - numberH;
+           } 
+           
+           edtComment = aNewDoc.addField("EDITCOMM:" + i, "text", theAnnots[i].page, coord);
+           
+           edtComment.value = numCount;
+           edtComment.rect = coord;
+           edtComment.readonly = true; 
+           edtComment.borderStyle = border.s;
+           edtComment.fillColor = color.white;
+           edtComment.strokeColor = color.red;
+           edtComment.lineWidth = 1;
+           edtComment.width = 20;
+           
+           numCount++;
+            
+       }
+ 
+       var startCommentPageNumber = addBlankPage(aNewDoc);
+       
+       var aRect = [0, 612,792,0];
+     
+       var y = 5;
+       var h = 80;
+     
+       var lx = 5;
+       var ly = aRect[2] - y; 
+       var rx = aRect[1] - 20;
+       var ry = aRect[2] - h;
+       
+       var edtHeader = aNewDoc.addField("edtCommentHeader", "text", startCommentPageNumber, [lx, ly, rx, ry]);
+       edtHeader.value = "          COMMENTS";
+       edtHeader.readonly = true;
+       
+       y += 85;
+       h += 30;
+       ly = aRect[2] - y;
+       ry = aRect[2] - h;
+ 
+       var maxLines = 45;
+       var usedSpace = 0;
+       var hasExceededPage = false;
+       var tempArray = [];
+       var tempArrayCount = 0;
+       var commArray = [];
+       var commArrayCount = 0;
+       var charsInALine = 100;
+       for(var i in theAnnots) {
+           var text = theAnnots[i].contents;
+           var lines = parseInt(parseInt(text.length) / charsInALine) + 1;
+           var spaceUsed = parseInt(lines);
+           
+           usedSpace += spaceUsed;
+           if(usedSpace < maxLines) {
+              tempArray[tempArrayCount] = theAnnots[i];
+              tempArrayCount++;
+           } else
+           if(usedSpace > maxLines) {
+              hasExceededPage = true;
+           }
+           
+           if(hasExceededPage) {
+              commArray[commArrayCount] = tempArray;
+              commArrayCount++;
+              
+              tempArray = [];
+              tempArrayCount = 0;
+              tempArray[tempArrayCount] = theAnnots[i];
+              tempArrayCount++;
+              
+              usedSpace = 0;
+              hasExceededPage = false;
+           }
+           
+           if(i == theAnnots.length-1) {
+              commArray[commArrayCount] = tempArray;
+           }
+       }
+       
+       var tArray = [];
+       var unique = 99999;
+       var commentCountNumber = 1;
+       for(var i = 0; i < commArray.length; i++) {
+           tArray = commArray[i];
+           
+           if(i != 0) {
+             startCommentPageNumber = addBlankPage(aNewDoc); 
+             
+             y = 5;
+             h = 80;
+       
+             lx = 5;
+             ly = aRect[2] - y; 
+             rx = aRect[1] - 20;
+             ry = aRect[2] - h;
+             
+             var edtHeader = aNewDoc.addField("edtCommentHeader" + i, "text", startCommentPageNumber, [lx, ly, rx, ry]);
+             edtHeader.value = "          COMMENTS";
+             edtHeader.readonly = true;
+           }
+           
+           var pageHeight = 792;
+           var pageHeading = 90;
+           var textHeight = 16;
+           var commentHeight = 0;
+           var yPositionCursor = 0;
+           var numberOfLinesForComment = 0;
+           var xPositionStart = 50;
+           var xPositionEnd = 600;
+           var yPositionStart = 0;
+           var yPositionEnd = 0;
+           
+           for(var j = 0; j < tArray.length; j++) {
+               
+               var text = tArray[j].contents;
+               numberOfLinesForComment = parseInt(parseInt(text.length) / charsInALine) + 1;
+               
+               if (j == 0) {
+                 yPositionCursor = pageHeight - pageHeading;
+               } else {
+                 yPositionCursor = yPositionCursor - commentHeight;
+               }
+               
+               commentHeight = numberOfLinesForComment * textHeight;
+               
+               yPositionStart = yPositionCursor;
+               yPositionEnd = yPositionCursor - commentHeight;
+               
+               var edtCommentDesc = aNewDoc.addField("EDTCOMMENTDESCRIPTION:" + unique, "text", startCommentPageNumber, [xPositionStart, yPositionStart, xPositionEnd, yPositionEnd]);
+               edtCommentDesc.value = tArray[j].contents;
+               edtCommentDesc.multiline = true;
+               edtCommentDesc.readonly = true;
+               edtCommentDesc.strokeColor = color.black;
+               edtCommentDesc.lineWidth = 1;
+               edtCommentDesc.borderStyle = border.s;
+               edtCommentDesc.textSize = 12;
+               
+               var edtCommentNumber = aNewDoc.addField("EDITCOMM:" + unique, "text", startCommentPageNumber, [xPositionStart - 20, yPositionStart, xPositionStart, yPositionStart - 20]);
+               edtCommentNumber.value = commentCountNumber;
+               edtCommentNumber.readonly = true; 
+               edtCommentNumber.borderStyle = border.s;
+               edtCommentNumber.fillColor = color.white;
+               edtCommentNumber.strokeColor = color.red;
+               edtCommentNumber.lineWidth = 1;
+               edtCommentNumber.width = 20;
+               
+               unique--;
+               commentCountNumber++;
+           }
+       }
+   }
+ );
 
 var openRubricForMarking = app.trustedFunction(
   function(aNewDoc) {
