@@ -187,7 +187,9 @@ var removeContinuesMarking = app.trustedFunction(
       
       firstMarkForTick = true;
       
+      //app.alert("Removing marking buttons");
       removeMarkingButtons(aNewDoc);   
+      //app.alert("Marking buttons removed");
       hasMarkingButtons = false;
       
       app.endPriv();
@@ -1600,8 +1602,13 @@ var removeMarkingButtons = app.trustedFunction(
       
       var numpages = aNewDoc.numPages;
 
-      for (var i=0; i < numpages; i++) {      
-        aNewDoc.removeField("btn" + i);
+      //app.alert("Removing all system buttons from "+numpages+" pages");
+      for (var i=0; i < numpages; i++) {    
+        //app.alert("Page: "+i);
+        var tmpField = aNewDoc.getField("btn" + i);
+        if (tmpField != null) {
+         aNewDoc.removeField("btn" + i);
+        }
       }
       
       app.endPriv();
@@ -1624,12 +1631,16 @@ var countMarks = app.trustedFunction(
      }
      
      if(resultsPageNumber != -1) {
+        //app.alert("Deleting existing results page");
         aNewDoc.deletePages(resultsPageNumber);
-         
         resultsPageNumber = -1;
      }
+
+     //app.alert("No results page now");
      
      removeContinuesMarking(aNewDoc);
+
+     //app.alert("Continues Marking Removed");
 
      var countMark = 0;
      var countTick = 0;
@@ -2062,90 +2073,93 @@ var finalizePDF = app.trustedFunction(
       
       if(edtFinish.value == "") {
 
-         if(assigmentTotal == -1){
-            countMarks(aNewDoc);
-          }
-         
-        var docFileName = aNewDoc.documentFileName;
-        var fileName = docFileName.substring(0, docFileName.indexOf('.'));
-        //var percentage = Math.round((totalMarks/assigmentTotal)*100);
-        var currentMark = (totalMarks/assigmentTotal)*100;
-        currentMark = currentMark.toFixed(2);	   
-        var percentage = Math.round(currentMark);
-        var padTotal = ""+percentage;
-        var padTotalMarks = "100";
-        
-        if(padTotal.length == 1) {
-           padTotal = "00" + padTotal;
-        } else 
-        if(padTotal.length == 2) {
-           padTotal = "0" + padTotal;
-        }
-        
-        if(padTotalMarks.length == 1) {
-           padTotalMarks = "00" + padTotalMarks;
-        } else 
-        if(padTotalMarks.length == 2) {
-           padTotalMarks = "0" + padTotalMarks;
-        }
-        
-        var combinedMark = "";
-        if(hasRubricAttached) {
-           combinedMark = attachedRubricMark;
+        //app.alert("Finalizing document");
+
+        if(assigmentTotal == -1){
+          app.alert("No assignment total is available, please recalculate marks");
+          //countMarks(aNewDoc);
         } else {
-           combinedMark = padTotal + "" + padTotalMarks;
-        }
-        
-        var choice = app.alert("This document will be finalized with the name [" + fileName + "_MARK" + combinedMark + ".pdf]," + 
-                                "once this document is finalized no future changes can be made to it, you will have to use the original PDF [" + fileName + ".pdf] for a remark.", 1, 2);
-        
-        if(choice == 4) {
-          edtFinish.value = "FINAL_DONE";
-          edtFinish.readonly = true;
-          
-          var btnFinish = aNewDoc.getField("btnFinish");
-          btnFinish.display = display.hidden;
-        
-          app.hideToolbarButton("toolAddHalfTick");
-          app.hideToolbarButton("toolAddTick");
-          app.hideToolbarButton("toolAddStamp");
-          app.hideToolbarButton("toolAddCross");
-          app.hideToolbarButton("toolDeselect");
-          app.hideToolbarButton("toolAddMark");
-          app.hideToolbarButton("toolAddCommentMark");
-          app.hideToolbarButton("toolAddCount");
-          app.hideToolbarButton("toolVersion");
-          //app.toolbar = false; 
-          
-          aNewDoc.saveAs({
-             cPath: fileName + "_MARK" + combinedMark + ".pdf" 
-          });
-          
-          if(skipTotalDialog) {
-            var btnViewRubric = aNewDoc.addField("btnViewRubric", "text", resultsPageNumber, [20, 100, 592, 20]);
-            btnViewRubric.value = "To view the attached Rubric (with marking criteria, comments and marks allocation),\n" + 
-                                  "please click the PaperClip Icon in the bottom left hand corner of Adobe Reader or Acrobat and open the attachment.";
-            btnViewRubric.readonly = true;
-            btnViewRubric.textSize = 16;
-            btnViewRubric.multiline = true;
-            btnViewRubric.display = display.noPrint;
-            
-            rubricDoc.closeDoc();
-          }
-          
-          aNewDoc.removeField("btnOpenRubric");
-          
-          var annots = aNewDoc.getAnnots();
-          var hasCommentsToBiuld = false;
-          for(var i in annots) {
-              if(annots[i].contents != "") {
-                 hasCommentsToBiuld = true;
-              }  
-          }
-          
-          if(hasCommentsToBiuld) {
-             biuldCommentsPages(aNewDoc);
-          }
+         var docFileName = aNewDoc.documentFileName;
+         var fileName = docFileName.substring(0, docFileName.indexOf('.'));
+         //var percentage = Math.round((totalMarks/assigmentTotal)*100);
+         var currentMark = (totalMarks/assigmentTotal)*100;
+         currentMark = currentMark.toFixed(2);	   
+         var percentage = Math.round(currentMark);
+         var padTotal = ""+percentage;
+         var padTotalMarks = "100";
+         
+         if(padTotal.length == 1) {
+            padTotal = "00" + padTotal;
+         } else 
+         if(padTotal.length == 2) {
+            padTotal = "0" + padTotal;
+         }
+         
+         if(padTotalMarks.length == 1) {
+            padTotalMarks = "00" + padTotalMarks;
+         } else 
+         if(padTotalMarks.length == 2) {
+            padTotalMarks = "0" + padTotalMarks;
+         }
+         
+         var combinedMark = "";
+         if(hasRubricAttached) {
+            combinedMark = attachedRubricMark;
+         } else {
+            combinedMark = padTotal + "" + padTotalMarks;
+         }
+         
+         var choice = app.alert("This document will be finalized with the name [" + fileName + "_MARK" + combinedMark + ".pdf]," + 
+                                 "once this document is finalized no future changes can be made to it, you will have to use the original PDF [" + fileName + ".pdf] for a remark.", 1, 2);
+         
+         if(choice == 4) {
+           edtFinish.value = "FINAL_DONE";
+           edtFinish.readonly = true;
+           
+           var btnFinish = aNewDoc.getField("btnFinish");
+           btnFinish.display = display.hidden;
+         
+           app.hideToolbarButton("toolAddHalfTick");
+           app.hideToolbarButton("toolAddTick");
+           app.hideToolbarButton("toolAddStamp");
+           app.hideToolbarButton("toolAddCross");
+           app.hideToolbarButton("toolDeselect");
+           app.hideToolbarButton("toolAddMark");
+           app.hideToolbarButton("toolAddCommentMark");
+           app.hideToolbarButton("toolAddCount");
+           app.hideToolbarButton("toolVersion");
+           //app.toolbar = false; 
+           
+           aNewDoc.saveAs({
+              cPath: fileName + "_MARK" + combinedMark + ".pdf" 
+           });
+           
+           if(skipTotalDialog) {
+             var btnViewRubric = aNewDoc.addField("btnViewRubric", "text", resultsPageNumber, [20, 100, 592, 20]);
+             btnViewRubric.value = "To view the attached Rubric (with marking criteria, comments and marks allocation),\n" + 
+                                   "please click the PaperClip Icon in the bottom left hand corner of Adobe Reader or Acrobat and open the attachment.";
+             btnViewRubric.readonly = true;
+             btnViewRubric.textSize = 16;
+             btnViewRubric.multiline = true;
+             btnViewRubric.display = display.noPrint;
+             
+             rubricDoc.closeDoc();
+           }
+           
+           aNewDoc.removeField("btnOpenRubric");
+           
+           var annots = aNewDoc.getAnnots();
+           var hasCommentsToBiuld = false;
+           for(var i in annots) {
+               if(annots[i].contents != "") {
+                  hasCommentsToBiuld = true;
+               }  
+           }
+           
+           if(hasCommentsToBiuld) {
+              biuldCommentsPages(aNewDoc);
+           }
+         }
         }
       } else {
           app.alert("This document has already been finalized!");
