@@ -32,12 +32,14 @@ if (aNewDoc != null) {
   // If we have already finished the document, then we set inUMSSession to false
   try {
     var edtFinish = aNewDoc.getField("edtFinish");
-    if(edtFinish != null && edtFinish.value == "FINAL_DONE") {
-      inUMSSession = "false";
-      console.println("The document has already been finalised. Marking tools will not be enabled");
-      initError = true;
-      initErrorMsg = initErrorMsg + " - The document has already been finalised. Marking tools will not be enabled. \n";
-    }
+    if(edtFinish != null) {
+      if (edtFinish.value == "FINAL_DONE") {
+        inUMSSession = "false";
+        console.println("The document has already been finalised. Marking tools will not be enabled");
+        initError = true;
+        initErrorMsg = initErrorMsg + " - The document has already been finalised. Marking tools will not be enabled. \n";
+      }
+    } 
   } catch(Error) {
     console.println("Error while verifying if the document has already been finished. "+Error);
     initError = true;
@@ -59,6 +61,20 @@ if (aNewDoc != null) {
     initError = true;
     initErrorMsg = initErrorMsg + " - Error while determining if the document is being viewed over HTTP. \n";
   }
+
+  try {
+    var appViewerType = "" + app.viewerType;
+    if(appViewerType == "Reader") {
+      inUMSSession = "false";
+      console.println("Current document is opened in READER. Marking tools will not be enabled");
+      initError = true;
+      initErrorMsg = initErrorMsg + " - Current document is opened in READER. Marking tools will not be enabled. \n";
+    }
+    } catch(Error) {
+      console.println("Error while determining if the document is being viewed in READER. "+Error)
+      initError = true;
+      initErrorMsg = initErrorMsg + " - Error while determining if the document is being viewed in READER. \n";
+    }
 
   if(inUMSSession == "true") {
 

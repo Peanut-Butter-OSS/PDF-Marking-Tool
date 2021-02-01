@@ -43,11 +43,11 @@ var addMark = app.trustedFunction(
       if(firstInitialization) {
           
          try {
-           var edtSpecial = aNewDoc.getField("ResultPage");
-           if(edtSpecial != null) {
-              resultsPageNumber = edtSpecial.page;
-           }
-         } catch(Error) {}
+            var edtSpecial = aNewDoc.getField("ResultPage");
+            if(edtSpecial != null) {
+               resultsPageNumber = edtSpecial.page;
+            }
+          } catch(Error) {}
          
          firstInitialization = false;
       }
@@ -1876,6 +1876,7 @@ var addBlankPage = app.trustedFunction(
      });
      
      newPageNum = aNewDoc.numPages-1;
+     aNewDoc.setPageRotations(0,newPageNum,0);
      
      app.endPriv();
      
@@ -1929,88 +1930,89 @@ var biuldResultsPage = app.trustedFunction(
      
      if(totalMarks > assigmentTotal) {
         app.alert("You have entered a total that is less then the given marks!", 1);
-     }
+     } else {
 
-     var edtSpecial = aNewDoc.addField("ResultPage", "text", resultsPageNumber, [0, 0, 0, 0]);
-     edtSpecial.hidden = true;
-     
-     var edtFinish = aNewDoc.addField("edtFinish", "text", resultsPageNumber, [0, 0, 0, 0]);
-     edtFinish.hidden = true;
-     
-     var btnFinish = aNewDoc.addField("btnFinish", "button", resultsPageNumber, [5, 5, 70, 30]);
-     btnFinish.buttonSetCaption("Finalize");
-     btnFinish.setAction("MouseUp", "finalizePDF(aNewDoc)");
-     btnFinish.borderStyle = border.b;
-     btnFinish.display = display.noPrint;
-     btnFinish.highlight = "push";
-     btnFinish.lineWidth = 2;
+      var edtSpecial = aNewDoc.addField("ResultPage", "text", resultsPageNumber, [0, 0, 0, 0]);
+      edtSpecial.hidden = true;
+      
+      var edtFinish = aNewDoc.addField("edtFinish", "text", resultsPageNumber, [0, 0, 0, 0]);
+      edtFinish.hidden = true;
+      
+      var btnFinish = aNewDoc.addField("btnFinish", "button", resultsPageNumber, [5, 5, 70, 30]);
+      btnFinish.buttonSetCaption("Finalize");
+      btnFinish.setAction("MouseUp", "finalizePDF(aNewDoc)");
+      btnFinish.borderStyle = border.b;
+      btnFinish.display = display.noPrint;
+      btnFinish.highlight = "push";
+      btnFinish.lineWidth = 2;
 
-     var edtHeader = aNewDoc.addField("edtResultHeader", "text", resultsPageNumber, [lx, ly, rx, ry]);
-     edtHeader.value = "             RESULTS";
-     edtHeader.readonly = true;
-    
-     y += 85;
-     h += 30;
-     ly = aRect[2] - y;
-     ry = aRect[2] - h;
-     
-     var showTotalLine = false;
-     
-     if(!skipTotalDialog) {
-       for(var i = 0; i < arrQMark.length; i++) {
-           var edtMarkResult = aNewDoc.addField("edtMarkResult" + i, "text", resultsPageNumber, [lx, ly, rx, ry]);
-           edtMarkResult.value = arrQMark[i][0] + " = " + arrQMark[i][1];
-           
-           edtMarkResult.readonly = true;
-   
-           y += 30;
-           h += 30;
-           ly = aRect[2] - y;
-           ry = aRect[2] - h;
-           
-           showTotalLine = true;
-       }
-       
-       var totalMarkMarks = parseFloat(countMarkMarks + countTickMarks + countHalfMarks);
-       if(countQuestionMark > 0 && totalMarkMarks > 0) {
-         var edtHeader2 = aNewDoc.addField("edtMMarks", "text", resultsPageNumber, [lx, ly, rx, ry]);
-         edtHeader2.value = "No Elements = " + totalMarkMarks;       
+      var edtHeader = aNewDoc.addField("edtResultHeader", "text", resultsPageNumber, [lx, ly, rx, ry]);
+      edtHeader.value = "             RESULTS";
+      edtHeader.readonly = true;
+      
+      y += 85;
+      h += 30;
+      ly = aRect[2] - y;
+      ry = aRect[2] - h;
+      
+      var showTotalLine = false;
+      
+      if(!skipTotalDialog) {
+         for(var i = 0; i < arrQMark.length; i++) {
+            var edtMarkResult = aNewDoc.addField("edtMarkResult" + i, "text", resultsPageNumber, [lx, ly, rx, ry]);
+            edtMarkResult.value = arrQMark[i][0] + " = " + arrQMark[i][1];
+            
+            edtMarkResult.readonly = true;
+      
+            y += 30;
+            h += 30;
+            ly = aRect[2] - y;
+            ry = aRect[2] - h;
+            
+            showTotalLine = true;
+         }
+         
+         var totalMarkMarks = parseFloat(countMarkMarks + countTickMarks + countHalfMarks);
+         if(countQuestionMark > 0 && totalMarkMarks > 0) {
+            var edtHeader2 = aNewDoc.addField("edtMMarks", "text", resultsPageNumber, [lx, ly, rx, ry]);
+            edtHeader2.value = "No Elements = " + totalMarkMarks;       
 
-         edtHeader2.readonly = true;
+            edtHeader2.readonly = true;
+            
+            y += 30;
+            h += 30;
+            ly = aRect[2] - y;
+            ry = aRect[2] - h;
+            
+            showTotalLine = true;
+         }
+         
+         if(showTotalLine) {
+            var edtHeader = aNewDoc.addField("edtTotalScore", "text", resultsPageNumber, [lx, ly, rx, ry]);
+            edtHeader.value = "------------------------------";
+            edtHeader.readonly = true;
+         }
          
          y += 30;
          h += 30;
          ly = aRect[2] - y;
          ry = aRect[2] - h;
-         
-         showTotalLine = true;
-       }
-       
-       if(showTotalLine) {
-         var edtHeader = aNewDoc.addField("edtTotalScore", "text", resultsPageNumber, [lx, ly, rx, ry]);
-         edtHeader.value = "------------------------------";
-         edtHeader.readonly = true;
-       }
-       
-       y += 30;
-       h += 30;
-       ly = aRect[2] - y;
-       ry = aRect[2] - h;
-     }
-     
-     if(!skipTotalDialog) {
+      }
+      
+      if(!skipTotalDialog) {
 
-       //var percentage = Math.round((totalMarks/assigmentTotal)*100);
-       var currentMark = (totalMarks/assigmentTotal)*100;
-       currentMark = currentMark.toFixed(2);	   
-       var percentage = Math.round(currentMark);	
-       var edtHeader = aNewDoc.addField("edtTotal", "text", resultsPageNumber, [lx, ly, rx, ry]);
-       edtHeader.value = "Total = " + totalMarks + " / " + assigmentTotal + "  (" + percentage + "%)";
-       edtHeader.readonly = true;
-     } else {
-       var edtHeader = aNewDoc.addField("edtTotal", "text", resultsPageNumber, [lx, ly, rx, ry]);
-       edtHeader.value = "Total = " + totalMarks + " / " + assigmentTotal + "  (" + totalMarks + "%)";
-       edtHeader.readonly = true;
+         //var percentage = Math.round((totalMarks/assigmentTotal)*100);
+         var currentMark = (totalMarks/assigmentTotal)*100;
+         currentMark = currentMark.toFixed(2);	   
+         var percentage = Math.round(currentMark);	
+         var edtHeader = aNewDoc.addField("edtTotal", "text", resultsPageNumber, [lx, ly, rx, ry]);
+         edtHeader.value = "Total = " + totalMarks + " / " + assigmentTotal + "  (" + percentage + "%)";
+         edtHeader.readonly = true;
+      } else {
+         var edtHeader = aNewDoc.addField("edtTotal", "text", resultsPageNumber, [lx, ly, rx, ry]);
+         edtHeader.value = "Total = " + totalMarks + " / " + assigmentTotal + "  (" + totalMarks + "%)";
+         edtHeader.readonly = true;
+      }
      }
      
      app.endPriv();
@@ -2059,6 +2061,10 @@ var finalizePDF = app.trustedFunction(
       var edtFinish = aNewDoc.getField("edtFinish");
       
       if(edtFinish.value == "") {
+
+         if(assigmentTotal == -1){
+            countMarks(aNewDoc);
+          }
          
         var docFileName = aNewDoc.documentFileName;
         var fileName = docFileName.substring(0, docFileName.indexOf('.'));
