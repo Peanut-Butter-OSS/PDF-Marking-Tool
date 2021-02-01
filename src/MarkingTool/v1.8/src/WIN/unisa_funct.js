@@ -818,7 +818,7 @@ var rotateObjectPoints = app.trustedFunction(
                 innerY = innerY + curry;
              } else 
              if (currentPageRotation == 90) {
-                innerX = innerX + currx - width;
+                innerX = innerX + currx - height;
                 innerY = innerY + curry;
              } else 
              if (currentPageRotation == 180) {
@@ -1999,7 +1999,10 @@ var biuldResultsPage = app.trustedFunction(
      }
      
      if(!skipTotalDialog) {
-       var percentage = Math.round((totalMarks/assigmentTotal)*100);
+       var currentMark = (totalMarks/assigmentTotal)*100;
+	    currentMark = currentMark.toFixed(2);	   
+       var percentage = Math.round(currentMark); 
+       //var percentage = Math.round((totalMarks/assigmentTotal)*100);
        var edtHeader = aNewDoc.addField("edtTotal", "text", resultsPageNumber, [lx, ly, rx, ry]);
        edtHeader.value = "Total = " + totalMarks + " / " + assigmentTotal + "  (" + percentage + "%)";
        edtHeader.readonly = true;
@@ -2058,7 +2061,10 @@ var finalizePDF = app.trustedFunction(
          
         var docFileName = aNewDoc.documentFileName;
         var fileName = docFileName.substring(0, docFileName.indexOf('.'));
-        var percentage = Math.round((totalMarks/assigmentTotal)*100);
+        //var percentage = Math.round((totalMarks/assigmentTotal)*100);
+        var currentMark = (totalMarks/assigmentTotal)*100;
+        currentMark = currentMark.toFixed(2);	   
+        var percentage = Math.round(currentMark);
         var padTotal = ""+percentage;
         var padTotalMarks = "100";
         
@@ -2102,7 +2108,7 @@ var finalizePDF = app.trustedFunction(
           app.hideToolbarButton("toolAddCommentMark");
           app.hideToolbarButton("toolAddCount");
           app.hideToolbarButton("toolVersion");
-          //app.toolbar = false;
+          //app.toolbar = false; 
           
           aNewDoc.saveAs({
              cPath: fileName + "_MARK" + combinedMark + ".pdf" 
