@@ -2802,7 +2802,7 @@ var showAboutInformation = app.trustedFunction(
                "For additional information, please refer to: https://github.com/Peanut-Butter-OSS/PDF-Marking-Tool" +
                "\n" +
                "----------------------------------------------------------------------------\n" +
-               "Version 1.8 - November 2020\n" +
+               "Version 1.8.3 - February 2021\n" +
                "\n" +
                "----------------------------------------------------------------------------\n", 3);
   }

@@ -325,7 +325,7 @@ if (aNewDoc != null) {
         app.addToolButton
         ({
           cName: "toolVersion",
-          cLabel: "v1.8",
+          cLabel: "v1.8.3",
           cTooltext: "Click Here",
           cExec: "showAboutInformation()",
           nPos: 8

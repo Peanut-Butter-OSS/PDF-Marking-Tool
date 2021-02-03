@@ -29,8 +29,9 @@
 !define ADOBE_ACROBAT_JAVASCRIPTS_PATH "\Javascripts"
 
 # JAVASCRIPTS_UNINSTALL_REG_KEY
-# Windows registry key that should be used for the uninstaller
-!define JAVASCRIPTS_UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\UNISA"
+# Windows registry key that should be used for the uninstaller.
+# This ensures the uninstalled is accessible from "Add and Remove Programs" in control panel.
+!define JAVASCRIPTS_UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\UNISAMarkingTool"
 
 # LICENSE_FILE
 # File that contains the licence content
@@ -201,6 +202,9 @@ Function makeRegistryEntries
 
   # Write Registry entry for the uninstaller
   WriteRegStr HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "JavascriptPath" $ACROBAT_FOLDER
+  WriteRegStr HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "DisplayName" "UNISA PDF Marking Tool"
+  WriteRegStr HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "UninstallString" "$\"$INSTDIR\uninstaller.exe$\""
+  WriteRegStr HKCU ${JAVASCRIPTS_UNINSTALL_REG_KEY} "QuietUninstallString" "$\"$INSTDIR\uninstaller.exe$\" /S"
 FunctionEnd
 
 # --------------------------------

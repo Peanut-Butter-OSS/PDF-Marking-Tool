@@ -1,5 +1,21 @@
 # RELEASE NOTES
 
+## v1.8.3
+
+Date Released: 2020-10-27
+Developer: Greg Fullard
+
+### Changes
+#### Recovered previously resolved defects
+Due to incorrect baseline source code used at the start of v1.8 development, three defects that were previously fixed were introduced back during v1.8 development.
+
+The defects are:
+ - Inconsistent rounding of marks
+ - Inconsistent naming of finalised file (if document is saved and closed before finalising)
+ - Inconsistent annotation functionality in landscape mode
+
+Previous defect fixes were added back to the main codebase and tested
+
 ## v1.8
 
 Date Released: 2020-10-27
