@@ -16,25 +16,25 @@ I'm opening an electronic assignment, submitted as a PDF document. This is done 
 
 Once opened, I can open the marking tools which display right alongside all the standard Acrobat tools that I'm familiar with.
 
-The marking tools include:
+The marking tools include: 
 
 - A configurable tick tool. This allows me to apply ticks to the assignment, but I can specify how many points each individual tick is worth. In this example 1 tick equals 1 mark. I'll mark the first 2 questions as correct using the tick tool
 
-- A half-tick tool. Sometimes you want to allocate a half-mark. This is done using the half-tick tool. Although the answer to question 3 is correct - The poem was written by Yeats, were are really looking for the full name "William Butler Yeats", so I'll only give a half mark.
+- We also have a half-tick tool. Sometimes you want to allocate a half-mark. This is done using the half-tick tool. Although the answer to question 3 is correct - The poem was written by Yeats, were are really looking for the full name "William Butler Yeats", so I'll only give a half mark.
 
-- A cross tool. If an answer is incorrect, the cross tool is used. In our case I'll indicate that the answer to question 4 is incorrect. The correct answer is, of course, "a couplet"
+- Lastly we have the cross tool. If an answer is incorrect, the cross tool is used. In our case I'll indicate that the answer to question 4 is incorrect. The correct answer is, of course, "a couplet"
 
 Now we get to a set of tools that are purpose built for long-form answers. They are the Checked Stamp, the Mark Tool, and the Comment Mark Tool.
 
 - The checked stamp does not carry any embedded marks; it simply serves to indicate that the content has been read and the marker has taken note of it. In our case, I'll read through the response and add stamps while taking mental notes of the whole answer.
 
-- One I have ready the whole answer I will assign a mark. However, I am evaluating two separate aspects of the answer. Firstly, I'm evaluating grammar, and secondly I'm evaluating the actual argument structure. Grammer will count 4 marks and the argument strcuture will count 16.
+- Once I have read the whole answer I will assign a mark. However, I am evaluating two separate aspects of the answer. Firstly, I'm evaluating grammar, and secondly I'm evaluating the actual argument structure. Grammer will count 4 marks and the argument strcuture will count 16.
 
 - To add the mark for the grammar, I select the mark tool. In addition to specifying the marks, I also have the option to give details about the criterion being evaluated.
 
 - For the argument structure I want to also add a custom comment, so I use the Comment Mark tool. Notice here I can specify the mark and criterion (as before), but I can also capture a comment.
 
-At this point I'm completed the marking process, all that remains is to cound up the marks. This is easily done using the "Count" tool.
+At this point I'm completed the marking process, all that remains is to count up the marks. This is easily done using the "Count" tool.
 
 When I click the count tool, the system first asks me for the assignment total and then automatically adds up all the assigned marks. 
 
@@ -51,9 +51,9 @@ That brings us to the end of a marking strategy that we call "Free form marking"
 
 However, the PDF marking tool also supports another type of marking: Rubric-based marking.
 
-Rubric based marking is handy for bulkk-marking situations where the lecturer may be assisted my multiple teaching assistants who help to mark submissions. In such a situation it is likely that different assistents will apply different mental models while marking, leading to inconsistent marks.
+Rubric based marking is handy for bulk-marking situations where the lecturer may be assisted my multiple teaching assistants who help to mark submissions. In such a situation it is likely that different assistents will apply different mental models while marking, leading to inconsistent marks.
 
-To address this problem, a rubric is a strcutured document that gives clear guidance to a marker on how to mark each question.
+To address this problem, a rubric is a structured document that gives clear guidance to a marker on how to mark each question.
 
 To should how this works, I will open an unmarked copy of our demo assignment.
 
