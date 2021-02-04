@@ -15,11 +15,11 @@
                     "levelName" : "Correct",
                     "levelMarks" : 2, 
                     "levelDefaultComment" : "Correct"
-                },
+                }, 
                 {
                     "levelName" : "Incorrect",
                     "levelMarks" : 0, 
-                    "levelDefaultComment" : "Incorrect, the correct answer is William Butler Yeats"
+                    "levelDefaultComment" : "Incorrect, the correct answer is Personification"
                 }
             ]
         },
@@ -49,11 +49,11 @@
                     "levelName" : "Correct",
                     "levelMarks" : 2, 
                     "levelDefaultComment" : "Correct"
-                }, 
+                },
                 {
                     "levelName" : "Incorrect",
                     "levelMarks" : 0, 
-                    "levelDefaultComment" : "Incorrect, the correct answer is Personification"
+                    "levelDefaultComment" : "Incorrect, the correct answer is William Butler Yeats"
                 }
             ]
         },  

@@ -291,17 +291,6 @@ var addMarkingTools = app.trustedFunction(function () {
         6
       );
     }
-    if (rubricMarkToolLoadStatus === "NOT LOADED") {
-      rubricMarkToolLoadStatus = addTool(
-        aNewDoc,
-        iconPath,
-        "rubricmark",
-        "Rubric Mark.",
-        "selectToolFromToolbar(aNewDoc, 'RUBRICM');",
-        "isToolMarked('RUBRICM');",
-        7
-      );
-    }
     if (countToolLoadStatus === "NOT LOADED") {
       countToolLoadStatus = addTool(
         aNewDoc,
@@ -310,9 +299,21 @@ var addMarkingTools = app.trustedFunction(function () {
         "Count Marks.",
         "countMarks(aNewDoc)",
         "",
+        7
+      );
+    }
+    if (rubricMarkToolLoadStatus === "NOT LOADED") {
+      rubricMarkToolLoadStatus = addTool(
+        aNewDoc,
+        iconPath,
+        "rubricmark",
+        "Rubric Mark.",
+        "selectToolFromToolbar(aNewDoc, 'RUBRICM');",
+        "isToolMarked('RUBRICM');",
         8
       );
     }
+
   } else {
     console.println(
       "Cannot add marking tools because there is no active document"
@@ -334,6 +335,7 @@ var addTool = app.trustedFunction(function (
 
   var loadStatus = "UNKNOWN";
 
+  console.println("Adding tool: "+toolName);
   if (docToMark != null) {
     var iconLoaded = false;
 
@@ -345,6 +347,9 @@ var addTool = app.trustedFunction(function (
       initError = true;
       initErrorMsg =
         initErrorMsg + " - Could not load the icon " + filePath + ". \n";
+      console.println(initErrorMsg);
+    } else {
+      console.println("Icon file read successfully");
     }
 
     // Convert the icon into a stream
@@ -357,8 +362,10 @@ var addTool = app.trustedFunction(function (
           " - Could not convert the " +
           toolName +
           " icon to an icon stream. \n";
+        console.println(initErrorMsg);
       } else {
         iconLoaded = true;
+        console.println("Icon converted from stream successfully");
       }
     }
 
