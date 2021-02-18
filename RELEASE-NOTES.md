@@ -1,8 +1,17 @@
 # RELEASE NOTES
 
+## v1.8.4
+
+Date Released: 2021-02-18
+Developer: Greg Fullard
+
+### Changes
+#### Updated wording of the Finalise button
+Updated the popup dialog wording in edge-case scenario where an assignment is counted, then saved and closed, then subsequently reopened and Finalised.
+
 ## v1.8.3
 
-Date Released: 2020-10-27
+Date Released: 2021-02-03
 Developer: Greg Fullard
 
 ### Changes

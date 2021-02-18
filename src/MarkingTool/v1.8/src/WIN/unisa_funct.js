@@ -2076,7 +2076,7 @@ var finalizePDF = app.trustedFunction(
         //app.alert("Finalizing document");
 
         if(assigmentTotal == -1){
-          app.alert("No assignment total is available, please recalculate marks");
+          app.alert("Please recalculate marks by clicking the 'Count Marks' button, then click 'Finalise'.");
           //countMarks(aNewDoc);
         } else {
          var docFileName = aNewDoc.documentFileName;
@@ -2802,7 +2802,7 @@ var showAboutInformation = app.trustedFunction(
                "For additional information, please refer to: https://github.com/Peanut-Butter-OSS/PDF-Marking-Tool" +
                "\n" +
                "----------------------------------------------------------------------------\n" +
-               "Version 1.8.3 - February 2021\n" +
+               "Version 1.8.4 - February 2021\n" +
                "\n" +
                "----------------------------------------------------------------------------\n", 3);
   }
