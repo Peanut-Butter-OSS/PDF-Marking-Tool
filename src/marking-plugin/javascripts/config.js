@@ -389,6 +389,22 @@ var addTool = app.trustedFunction(function (
         initError = true;
         initErrorMsg = initErrorMsg + " - " + errMsg + "\n";
         loadStatus = "FAILED TO LOAD";
+        try {
+          app.addToolButton({
+            cName: toolName,
+            cLabel: toolLabel,
+            cExec: execString,
+            cTooltext: toolLabel,
+            cMarked: markedFunc,
+            nPos: position,
+          });
+          loadStatus = "LOADED WITHOUT ICON";
+        } catch (Error) {
+          var errMsg = "Error while adding " + toolName + " toolbar button";
+          console.println(errMsg);
+          initError = true;
+          initErrorMsg = initErrorMsg + " - " + errMsg + "\n";
+        }
       }
     } else {
       try {
